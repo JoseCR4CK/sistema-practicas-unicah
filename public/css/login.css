@@ -1,0 +1,950 @@
+/* =========================================
+   VARIABLES
+========================================= */
+
+:root {
+
+    --unicah-blue: #06457f;
+    --unicah-dark-blue: #052f5b;
+    --unicah-deep-blue: #03294f;
+
+    --unicah-gold: #f4b41a;
+
+    --white: #ffffff;
+
+    --background: #f5f7fa;
+
+    --text-dark: #102a43;
+    --text-gray: #687386;
+
+    --border: #d9e0e8;
+
+}
+
+
+/* =========================================
+   GENERAL
+========================================= */
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    min-height: 100%;
+
+}
+
+
+body {
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--background);
+
+    color: var(--text-dark);
+
+}
+
+
+button,
+input {
+
+    font-family: inherit;
+
+}
+
+
+/* =========================================
+   CONTENEDOR PRINCIPAL
+========================================= */
+
+.login-page {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    overflow: hidden;
+
+}
+
+
+
+/* =========================================
+   PANEL INSTITUCIONAL
+========================================= */
+
+.institution-panel {
+
+    position: relative;
+
+    width: 59%;
+
+    min-height: 100vh;
+
+    background-image:
+        url("../assets/img/campus.jpeg");
+
+    background-size: cover;
+
+    background-position: center;
+
+    overflow: hidden;
+
+}
+
+
+/* CAPA AZUL */
+
+.institution-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(3, 41, 79, 0.80) 0%,
+            rgba(3, 41, 79, 0.68) 36%,
+            rgba(3, 41, 79, 0.42) 70%,
+            rgba(3, 41, 79, 0.12) 100%
+        );
+
+}
+
+
+/* CONTENIDO */
+
+.institution-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    min-height: 100vh;
+
+    padding:
+
+        70px
+        8%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    color: white;
+
+}
+
+
+/* LOGO */
+
+.unicah-logo {
+    width: min(390px, 78%);
+    height: auto;
+    object-fit: contain;
+
+}
+
+/* LÍNEA */
+
+.gold-line {
+
+    width: 150px;
+
+    height: 5px;
+
+    margin:
+
+        28px
+        0
+        45px;
+
+    border-radius: 4px;
+
+    background:
+        var(--unicah-gold);
+
+}
+
+
+/* TITULO */
+
+.institution-content h1 {
+
+    margin: 0;
+
+    max-width: 680px;
+
+    font-size:
+
+        clamp(
+            2rem,
+            3.4vw,
+            3.65rem
+        );
+
+    line-height: 1.12;
+
+    font-weight: 750;
+
+    letter-spacing: -1px;
+
+}
+
+
+.institution-content h1 span {
+
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--unicah-gold);
+
+}
+
+
+/* SEGUNDA LÍNEA */
+
+.small-gold-line {
+
+    width: 75px;
+
+    height: 5px;
+
+    margin:
+
+        30px
+        0;
+
+    border-radius: 4px;
+
+    background:
+        var(--unicah-gold);
+
+}
+
+
+/* FRASE */
+
+.institution-content p {
+
+    margin: 0;
+
+    max-width: 430px;
+
+    font-size: 1.25rem;
+
+    line-height: 1.55;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.84
+        );
+
+}
+
+
+
+/* =========================================
+   ÁREA DE LOGIN
+========================================= */
+
+.login-section {
+    width: 41%;
+    min-height: 100vh;
+
+    padding:
+        28px
+        clamp(
+            35px,
+            5vw,
+            85px
+        );
+}
+
+
+/* TARJETA */
+
+.login-card {
+
+    width: 100%;
+
+    max-width: 530px;
+
+}
+
+
+
+/* =========================================
+   CABECERA
+========================================= */
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+
+.login-header h2 {
+
+    margin:
+
+        0
+        0
+        14px;
+
+    font-size:
+
+        clamp(
+            2.2rem,
+            3vw,
+            3rem
+        );
+
+    font-weight: 750;
+
+    letter-spacing: -1px;
+
+    color:
+        var(--unicah-dark-blue);
+
+}
+
+
+.login-header p {
+
+    margin: 0;
+
+    max-width: 455px;
+
+    color:
+        var(--text-gray);
+
+    font-size: 1rem;
+
+    line-height: 1.65;
+
+}
+
+
+
+/* =========================================
+   FORMULARIO
+========================================= */
+
+.form-group {
+
+    margin-bottom: 27px;
+
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color:
+        var(--text-dark);
+
+    font-size: .96rem;
+
+    font-weight: 650;
+
+}
+
+
+
+/* INPUT CON ICONOS */
+
+.input-wrapper {
+
+    position: relative;
+
+}
+
+
+.input-wrapper input {
+
+    width: 100%;
+
+    min-height: 61px;
+
+    padding:
+
+        0
+        55px;
+
+    border:
+
+        1px
+        solid
+        var(--border);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color:
+        var(--text-dark);
+
+    font-size: 1rem;
+
+    transition:
+
+        border-color .2s,
+        box-shadow .2s;
+
+}
+
+
+.input-wrapper input::placeholder {
+
+    color: #9ba7b6;
+
+}
+
+
+.input-wrapper input:focus {
+
+    border-color:
+        var(--unicah-blue);
+
+    box-shadow:
+
+        0
+        0
+        0
+        4px
+        rgba(
+            6,
+            69,
+            127,
+            .10
+        );
+
+}
+
+
+
+/* ICONO IZQUIERDO */
+
+.input-icon {
+
+    position: absolute;
+
+    left: 20px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    z-index: 2;
+
+    font-size: 1.32rem;
+
+    color:
+        #52677d;
+
+}
+
+
+
+/* MOSTRAR CONTRASEÑA */
+
+.password-toggle {
+
+    position: absolute;
+
+    right: 17px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    width: 38px;
+
+    height: 38px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: transparent;
+
+    color:
+        #52677d;
+
+    font-size: 1.25rem;
+
+    cursor: pointer;
+
+    transition:
+        background .2s;
+
+}
+
+
+.password-toggle:hover {
+
+    background:
+        #eef3f7;
+
+}
+
+
+
+/* =========================================
+   BOTÓN LOGIN
+========================================= */
+
+.btn-login {
+
+    width: 100%;
+
+    min-height: 60px;
+
+    margin-top: 4px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 16px;
+
+    background:
+
+        linear-gradient(
+            90deg,
+            var(--unicah-blue),
+            #07559e
+        );
+
+    color: white;
+
+    font-size: 1.08rem;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    box-shadow:
+
+        0
+        8px
+        20px
+        rgba(
+            5,
+            59,
+            114,
+            .12
+        );
+
+    transition:
+
+        transform .2s,
+        box-shadow .2s,
+        background .2s;
+
+}
+
+
+.btn-login:hover {
+
+    transform:
+        translateY(-1px);
+
+    background:
+
+        linear-gradient(
+            90deg,
+            var(--unicah-dark-blue),
+            var(--unicah-blue)
+        );
+
+    box-shadow:
+
+        0
+        10px
+        25px
+        rgba(
+            5,
+            59,
+            114,
+            .20
+        );
+
+}
+
+
+.btn-login i {
+
+    font-size: 1.25rem;
+
+}
+
+
+
+/* =========================================
+   OPCIONES
+========================================= */
+
+.login-options {
+
+    margin-top: 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    font-size: .93rem;
+
+}
+
+
+/* RECORDAR */
+
+.remember-option {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    color:
+        var(--text-gray);
+
+    cursor: pointer;
+
+}
+
+
+.remember-option input {
+
+    width: 18px;
+
+    height: 18px;
+
+    accent-color:
+        var(--unicah-blue);
+
+}
+
+
+/* RECUPERACIÓN */
+
+.forgot-password {
+
+    color:
+        var(--unicah-blue);
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+}
+
+
+.forgot-password:hover {
+
+    text-decoration:
+        underline;
+
+}
+
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.login-footer {
+    margin-top: 35px;
+    padding-top: 22px;
+}
+
+
+.login-footer img {
+
+    width: 180px;
+
+    height: auto;
+
+    opacity: .82;
+
+}
+
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media
+(max-width: 1100px) {
+
+
+    .institution-panel {
+    background-position: 55% center;
+    }
+
+
+    .login-section {
+
+        width: 52%;
+
+        padding:
+
+            40px
+            45px;
+
+    }
+
+
+    .institution-content {
+
+        padding:
+
+            55px
+            45px;
+
+    }
+
+
+    .institution-content h1 {
+
+        font-size: 2.3rem;
+
+    }
+
+}
+
+
+
+/* =========================================
+   MÓVIL
+========================================= */
+
+@media
+(max-width: 768px) {
+
+
+    .login-page {
+
+        flex-direction:
+            column;
+
+    }
+
+
+    .institution-panel {
+
+        width: 100%;
+
+        min-height: 280px;
+
+    }
+
+
+    .institution-content {
+
+        min-height: 280px;
+
+        padding:
+
+            28px
+            30px;
+
+        justify-content:
+            center;
+
+    }
+
+
+    .unicah-logo {
+
+        width: 220px;
+
+    }
+
+
+    .gold-line {
+
+        width: 85px;
+
+        height: 3px;
+
+        margin:
+
+            16px
+            0
+            20px;
+
+    }
+
+
+    .institution-content h1 {
+
+        max-width: 460px;
+
+        font-size: 1.65rem;
+
+    }
+
+
+    .small-gold-line,
+    .institution-content p {
+
+        display: none;
+
+    }
+
+
+    .login-section {
+
+        width: 100%;
+
+        min-height: auto;
+
+        padding:
+
+            45px
+            28px;
+
+    }
+
+
+    .login-card {
+
+        max-width: 520px;
+
+    }
+
+
+    .login-header {
+
+        margin-bottom: 32px;
+
+    }
+
+}
+
+
+
+/* =========================================
+   MÓVIL PEQUEÑO
+========================================= */
+
+@media
+(max-width: 480px) {
+
+
+    .institution-panel {
+
+        min-height: 235px;
+
+    }
+
+
+    .institution-content {
+
+        min-height: 235px;
+
+        padding:
+            24px;
+
+    }
+
+
+    .unicah-logo {
+
+        width: 185px;
+
+    }
+
+
+    .institution-content h1 {
+
+        font-size: 1.4rem;
+
+    }
+
+
+    .login-section {
+
+        padding:
+
+            35px
+            20px;
+
+    }
+
+
+    .login-options {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap: 14px;
+
+    }
+
+
+    .login-footer {
+
+        margin-top: 40px;
+
+    }
+
+}
