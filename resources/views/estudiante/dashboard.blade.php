@@ -395,7 +395,7 @@
             </div>
 
 
-            <a href="#">
+            <a href="{{ route('estudiante.empresa') }}">
                 Ver información
                 <i class="bi bi-arrow-right"></i>
             </a>
@@ -472,7 +472,7 @@
             </div>
 
 
-            <a href="#">
+            <a href="{{ route('estudiante.documentos') }}">
                 Ver todos
                 <i class="bi bi-arrow-right"></i>
             </a>

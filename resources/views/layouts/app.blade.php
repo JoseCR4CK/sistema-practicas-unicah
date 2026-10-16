@@ -80,7 +80,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'solicitudes') }}"
                 class="nav-item"
             >
                 <i class="bi bi-file-earmark-text"></i>
@@ -108,7 +108,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'practicas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-briefcase"></i>
@@ -120,7 +120,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'empresas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-buildings"></i>
@@ -132,7 +132,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'documentos') }}"
                 class="nav-item"
             >
                 <i class="bi bi-folder-check"></i>
@@ -148,7 +148,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'ternas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-people-fill"></i>
@@ -160,7 +160,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'visitas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-calendar-check"></i>
@@ -172,7 +172,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'monografias') }}"
                 class="nav-item"
             >
                 <i class="bi bi-journal-text"></i>
@@ -184,7 +184,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'defensas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-mortarboard"></i>
@@ -196,7 +196,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('coordinacion.modulo', 'reportes') }}"
                 class="nav-item"
             >
                 <i class="bi bi-bar-chart"></i>

@@ -8507,3 +8507,449 @@ body {
     }
 
 }
+
+/* =========================================
+   JEFE INMEDIATO
+========================================= */
+
+.company-role-hero {
+
+    margin-bottom: 20px;
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: white;
+}
+
+
+.company-role-hero h2 {
+
+    margin: 0;
+
+    color: var(--unicah-blue-dark);
+
+    font-size: 1.3rem;
+}
+
+
+.company-role-hero p {
+
+    margin: 7px 0 0;
+
+    color: var(--text-gray);
+
+    font-size: .72rem;
+}
+
+
+.company-role-badge {
+
+    width: 60px;
+    height: 60px;
+
+    flex-shrink: 0;
+
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(6,69,127,.10);
+
+    color: var(--unicah-blue);
+
+    font-size: 1.5rem;
+}
+
+
+
+/* TARJETAS */
+
+.company-dashboard-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0,1fr));
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+
+.company-stat-card {
+
+    padding: 18px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    background: white;
+}
+
+
+.company-stat-icon {
+
+    width: 43px;
+    height: 43px;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.company-stat-icon.blue {
+
+    color: var(--unicah-blue);
+
+    background: rgba(6,69,127,.10);
+}
+
+
+.company-stat-icon.green {
+
+    color: var(--success);
+
+    background: rgba(37,128,92,.11);
+}
+
+
+.company-stat-icon.gold {
+
+    color: #956800;
+
+    background: rgba(244,180,26,.18);
+}
+
+
+.company-stat-card span {
+
+    display: block;
+
+    color: var(--text-gray);
+
+    font-size: .66rem;
+}
+
+
+.company-stat-card strong {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--unicah-blue-dark);
+
+    font-size: 1rem;
+}
+
+
+
+/* ESTUDIANTE */
+
+.company-student-card {
+
+    margin-bottom: 20px;
+}
+
+
+.company-student-profile {
+
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.company-student-avatar {
+
+    width: 56px;
+    height: 56px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--unicah-blue);
+
+    color: white;
+
+    font-weight: 750;
+}
+
+
+.company-student-main {
+
+    flex: 1;
+}
+
+
+.company-student-main h3 {
+
+    margin: 0;
+
+    color: var(--unicah-blue-dark);
+
+    font-size: .95rem;
+}
+
+
+.company-student-main p {
+
+    margin: 4px 0 0;
+
+    color: var(--text-gray);
+
+    font-size: .67rem;
+}
+
+
+.company-student-progress {
+
+    text-align: right;
+}
+
+
+.company-student-progress span {
+
+    display: block;
+
+    color: var(--text-gray);
+
+    font-size: .65rem;
+}
+
+
+.company-student-progress strong {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--unicah-blue);
+
+    font-size: 1.25rem;
+}
+
+
+.company-progress-bar {
+
+    height: 8px;
+
+    margin: 0 22px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e9eef3;
+}
+
+
+.company-progress-bar div {
+
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--unicah-blue),
+            var(--unicah-gold)
+        );
+}
+
+
+.company-student-data {
+
+    padding: 20px 22px;
+}
+
+
+
+/* DOS COLUMNAS */
+
+.company-two-column {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+
+.company-simple-info {
+
+    padding: 10px 20px 20px;
+}
+
+
+.company-simple-info > div {
+
+    padding: 11px 0;
+
+    border-bottom:
+        1px solid #edf0f3;
+}
+
+
+.company-simple-info > div:last-child {
+
+    border-bottom: none;
+}
+
+
+.company-simple-info span {
+
+    display: block;
+
+    color: var(--text-gray);
+
+    font-size: .63rem;
+}
+
+
+.company-simple-info strong {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--text-dark);
+
+    font-size: .73rem;
+}
+
+
+.success-text {
+
+    color: var(--success) !important;
+}
+
+
+
+/* SEGUIMIENTO */
+
+.company-followup {
+
+    padding: 24px 20px;
+
+    display: flex;
+
+    gap: 15px;
+}
+
+
+.company-followup-icon {
+
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(244,180,26,.18);
+
+    color: #956800;
+
+    font-size: 1.1rem;
+}
+
+
+.company-followup h3 {
+
+    margin: 1px 0 0;
+
+    color: var(--unicah-blue-dark);
+
+    font-size: .9rem;
+}
+
+
+.company-followup p {
+
+    margin: 6px 0 11px;
+
+    color: var(--text-gray);
+
+    font-size: .67rem;
+
+    line-height: 1.5;
+}
+
+
+
+/* RESPONSIVE */
+
+@media
+(max-width: 900px) {
+
+    .company-dashboard-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .company-two-column {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media
+(max-width: 600px) {
+
+    .company-role-hero,
+    .company-student-profile {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .company-student-progress {
+
+        text-align: left;
+    }
+
+}

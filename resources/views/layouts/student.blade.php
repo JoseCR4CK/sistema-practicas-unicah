@@ -161,7 +161,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('estudiante.modulo', 'historial') }}"
                 class="nav-item"
             >
 
@@ -175,7 +175,7 @@
 
 
             <a
-                href="#"
+                href="{{ route('estudiante.modulo', 'perfil') }}"
                 class="nav-item"
             >
 

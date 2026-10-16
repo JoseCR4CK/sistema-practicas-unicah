@@ -212,12 +212,13 @@
                     </label>
 
 
-                    <a
-                        href="#"
+                    <button
+                        type="button"
                         class="forgot-password"
+                        onclick="alert('La recuperación de contraseña se integrará en la siguiente etapa del proyecto.')"
                     >
                         ¿Olvidaste tu contraseña?
-                    </a>
+                    </button>
 
 
                 </div>

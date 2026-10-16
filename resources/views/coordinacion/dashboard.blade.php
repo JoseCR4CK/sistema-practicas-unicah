@@ -258,7 +258,7 @@
         </div>
 
 
-        <a href="#">
+        <a href="{{ route('coordinacion.estudiantes') }}">
             Ver todos
             <i class="bi bi-arrow-right"></i>
         </a>
@@ -343,7 +343,7 @@
                     <td>
 
                         <a
-                            href="#"
+                            href="{{ route('coordinacion.estudiantes.expediente', 1) }}"
                             class="action-button"
                             title="Ver proceso"
                         >
@@ -395,7 +395,7 @@
                     <td>
 
                         <a
-                            href="#"
+                            href="{{ route('coordinacion.estudiantes.expediente', 2) }}"
                             class="action-button"
                         >
 
@@ -446,7 +446,7 @@
                     <td>
 
                         <a
-                            href="#"
+                            href="{{ route('coordinacion.estudiantes.expediente', 3) }}"
                             class="action-button"
                         >
 
@@ -497,7 +497,7 @@
                     <td>
 
                         <a
-                            href="#"
+                            href="{{ route('coordinacion.estudiantes.expediente', 4) }}"
                             class="action-button"
                         >
 
