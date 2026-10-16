@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -10,8 +11,16 @@
     >
 
     <title>
-        Prácticas Profesionales | UNICAH
+        @yield('title', 'Sistema de Prácticas Profesionales')
     </title>
+
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
 
     <!-- Bootstrap Icons -->
     <link
@@ -19,11 +28,13 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     >
 
-    <!-- CSS del Login -->
+
+    <!-- CSS general -->
     <link
         rel="stylesheet"
-        href="{{ asset('css/login.css') }}"
+        href="{{ asset('css/app.css') }}"
     >
+
 </head>
 
 
@@ -284,6 +295,9 @@
 
 </script>
 
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+</script>
 
 </body>
 

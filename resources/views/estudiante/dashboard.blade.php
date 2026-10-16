@@ -226,12 +226,14 @@
      INFORMACIÓN PRINCIPAL
 ===================================================== -->
 
-<section class="student-dashboard-grid">
+<section class="row g-3 mb-4">
 
 
     <!-- ETAPA ACTUAL -->
 
-    <article class="student-dashboard-card current-stage-card">
+    <div class="col-12 col-md-6 col-xl-4">
+
+    <article class="student-dashboard-card current-stage-card h-100">
 
         <div class="student-card-header">
 
@@ -272,13 +274,14 @@
 
         </div>
 
-    </article>
+        </article>
 
-
-
+    </div>
     <!-- PRÓXIMA ACTIVIDAD -->
 
-    <article class="student-dashboard-card">
+    <div class="col-12 col-md-6 col-xl-4">
+
+        <article class="student-dashboard-card h-100">
 
         <div class="student-card-header">
 
@@ -316,12 +319,16 @@
         </div>
 
     </article>
+    
+    </div>
 
 
 
     <!-- FECHA FINAL -->
 
-    <article class="student-dashboard-card">
+    <div class="col-12 col-md-6 col-xl-4">
+
+    <article class="student-dashboard-card h-100">
 
         <div class="student-card-header">
 
@@ -363,6 +370,8 @@
         </div>
 
     </article>
+
+    </div>
 
 
 </section>

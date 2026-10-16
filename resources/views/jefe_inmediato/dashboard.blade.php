@@ -55,48 +55,60 @@
 
 <!-- RESUMEN -->
 
-<section class="company-dashboard-grid">
+<section class="row g-3 mb-4">
 
-    <article class="company-stat-card">
+    <div class="col-12 col-md-6 col-xl-4">
 
-        <div class="company-stat-icon blue">
-            <i class="bi bi-person"></i>
-        </div>
+        <article class="company-stat-card h-100">
 
-        <div>
-            <span>Practicantes asignados</span>
-            <strong>1</strong>
-        </div>
+            <div class="company-stat-icon blue">
+                <i class="bi bi-person"></i>
+            </div>
 
-    </article>
+            <div>
+                <span>Practicantes asignados</span>
+                <strong>1</strong>
+            </div>
 
+        </article>
 
-    <article class="company-stat-card">
-
-        <div class="company-stat-icon green">
-            <i class="bi bi-check-circle"></i>
-        </div>
-
-        <div>
-            <span>Prácticas activas</span>
-            <strong>1</strong>
-        </div>
-
-    </article>
+    </div>
 
 
-    <article class="company-stat-card">
+    <div class="col-12 col-md-6 col-xl-4">
 
-        <div class="company-stat-icon gold">
-            <i class="bi bi-calendar-event"></i>
-        </div>
+        <article class="company-stat-card h-100">
 
-        <div>
-            <span>Próximo seguimiento</span>
-            <strong>Día 45</strong>
-        </div>
+            <div class="company-stat-icon green">
+                <i class="bi bi-check-circle"></i>
+            </div>
 
-    </article>
+            <div>
+                <span>Prácticas activas</span>
+                <strong>1</strong>
+            </div>
+
+        </article>
+
+    </div>
+
+
+    <div class="col-12 col-md-6 col-xl-4">
+
+        <article class="company-stat-card h-100">
+
+            <div class="company-stat-icon gold">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div>
+                <span>Próximo seguimiento</span>
+                <strong>Día 45</strong>
+            </div>
+
+        </article>
+
+    </div>
 
 </section>
 
@@ -231,103 +243,110 @@
 
 <!-- EMPRESA Y SEGUIMIENTO -->
 
-<section class="company-two-column">
+<section class="row g-4 mb-4">
 
+    <div class="col-12 col-lg-6">
 
-    <article class="content-card">
+        <article class="content-card h-100">
 
-        <div class="card-header">
+            <div class="card-header">
 
-            <div>
-                <h2>
-                    Información de la empresa
-                </h2>
+                <div>
+                    <h2>
+                        Información de la empresa
+                    </h2>
 
-                <p>
-                    Empresa asociada al proceso.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="company-simple-info">
-
-            <div>
-                <span>Empresa</span>
-                <strong>Grupo Tecnológico S.A.</strong>
-            </div>
-
-            <div>
-                <span>Jefe inmediato</span>
-                <strong>Ing. Roberto Martínez</strong>
-            </div>
-
-            <div>
-                <span>Cargo</span>
-                <strong>Gerente de Tecnología</strong>
-            </div>
-
-            <div>
-                <span>Estado</span>
-
-                <strong class="success-text">
-                    Empresa validada
-                </strong>
-            </div>
-
-        </div>
-
-    </article>
-
-
-    <article class="content-card">
-
-        <div class="card-header">
-
-            <div>
-                <h2>
-                    Próximo seguimiento
-                </h2>
-
-                <p>
-                    Estado actual del proceso de práctica.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="company-followup">
-
-            <div class="company-followup-icon">
-                <i class="bi bi-calendar-check"></i>
-            </div>
-
-            <div>
-
-                <span class="section-label">
-                    VISITA DE SEGUIMIENTO
-                </span>
-
-                <h3>
-                    Próxima habilitación
-                </h3>
-
-                <p>
-                    La visita podrá realizarse a partir
-                    del día 45 de la práctica profesional.
-                </p>
-
-                <span class="badge warning">
-                    Falta 1 día
-                </span>
+                    <p>
+                        Empresa asociada al proceso.
+                    </p>
+                </div>
 
             </div>
 
-        </div>
 
-    </article>
+            <div class="company-simple-info">
+
+                <div>
+                    <span>Empresa</span>
+                    <strong>Grupo Tecnológico S.A.</strong>
+                </div>
+
+                <div>
+                    <span>Jefe inmediato</span>
+                    <strong>Ing. Roberto Martínez</strong>
+                </div>
+
+                <div>
+                    <span>Cargo</span>
+                    <strong>Gerente de Tecnología</strong>
+                </div>
+
+                <div>
+                    <span>Estado</span>
+
+                    <strong class="success-text">
+                        Empresa validada
+                    </strong>
+                </div>
+
+            </div>
+
+        </article>
+
+    </div>
+
+
+    <div class="col-12 col-lg-6">
+
+        <article class="content-card h-100">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>
+                        Próximo seguimiento
+                    </h2>
+
+                    <p>
+                        Estado actual del proceso de práctica.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="company-followup">
+
+                <div class="company-followup-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div>
+
+                    <span class="section-label">
+                        VISITA DE SEGUIMIENTO
+                    </span>
+
+                    <h3>
+                        Próxima habilitación
+                    </h3>
+
+                    <p>
+                        La visita podrá realizarse a partir
+                        del día 45 de la práctica profesional.
+                    </p>
+
+                    <span class="badge warning">
+                        Falta 1 día
+                    </span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </div>
 
 </section>
 
