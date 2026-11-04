@@ -28,11 +28,8 @@
 
 
     <div class="page-date">
-
         <i class="bi bi-calendar3"></i>
-
-        14 de octubre de 2026
-
+        {{ now()->locale('es')->translatedFormat('d \d\e F \d\e Y') }}
     </div>
 
 </div>
@@ -226,7 +223,304 @@
 
 </section>
 
+<!-- =====================================
+     CENTRO DE ALERTAS
+====================================== -->
 
+<section class="coord-alert-center">
+
+    <div class="coord-alert-heading">
+
+        <div>
+
+            <span class="section-label">
+                CENTRO DE ALERTAS
+            </span>
+
+            <h2>
+                Situaciones que requieren atención
+            </h2>
+
+            <p>
+                Las alertas se clasifican según su nivel
+                de prioridad dentro del proceso.
+            </p>
+
+        </div>
+
+
+        <div class="coord-alert-legend">
+
+            <span>
+                <i class="coord-alert-dot urgent"></i>
+                Urgente
+            </span>
+
+            <span>
+                <i class="coord-alert-dot warning"></i>
+                Atención
+            </span>
+
+            <span>
+                <i class="coord-alert-dot info"></i>
+                Informativo
+            </span>
+
+            <span>
+                <i class="coord-alert-dot success"></i>
+                Correcto
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <!-- URGENTE -->
+
+        <div class="col-12 col-xl-6">
+
+            <a
+                href="{{ route('coordinacion.modulo', 'documentos') }}"
+                class="coord-alert-card urgent"
+            >
+
+                <div class="coord-alert-icon">
+
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+
+                </div>
+
+
+                <div class="coord-alert-content">
+
+                    <div class="coord-alert-title">
+
+                        <span>
+                            URGENTE
+                        </span>
+
+                        <small>
+                            Documentos
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+                        2 documentos requieren revisión inmediata
+                    </strong>
+
+
+                    <p>
+                        Existen documentos pendientes cuyo período
+                        de revisión requiere atención de Coordinación.
+                    </p>
+
+                </div>
+
+
+                <div class="coord-alert-action">
+
+                    <span>
+                        Revisar
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+
+        <!-- ATENCIÓN -->
+
+        <div class="col-12 col-xl-6">
+
+            <a
+                href="{{ route('coordinacion.modulo', 'visitas') }}"
+                class="coord-alert-card warning"
+            >
+
+                <div class="coord-alert-icon">
+
+                    <i class="bi bi-calendar-event"></i>
+
+                </div>
+
+
+                <div class="coord-alert-content">
+
+                    <div class="coord-alert-title">
+
+                        <span>
+                            REQUIERE ATENCIÓN
+                        </span>
+
+                        <small>
+                            Visitas
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+                        3 practicantes están próximos a habilitar visita
+                    </strong>
+
+
+                    <p>
+                        Los estudiantes están alcanzando el período
+                        habilitado para el seguimiento de práctica.
+                    </p>
+
+                </div>
+
+
+                <div class="coord-alert-action">
+
+                    <span>
+                        Revisar
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+
+        <!-- INFORMATIVO -->
+
+        <div class="col-12 col-xl-6">
+
+            <a
+                href="{{ route('coordinacion.modulo', 'monografias') }}"
+                class="coord-alert-card info"
+            >
+
+                <div class="coord-alert-icon">
+
+                    <i class="bi bi-journal-text"></i>
+
+                </div>
+
+
+                <div class="coord-alert-content">
+
+                    <div class="coord-alert-title">
+
+                        <span>
+                            SEGUIMIENTO
+                        </span>
+
+                        <small>
+                            Monografías
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+                        5 monografías se encuentran en revisión
+                    </strong>
+
+
+                    <p>
+                        Hay procesos activos en las diferentes
+                        etapas de revisión de monografía.
+                    </p>
+
+                </div>
+
+
+                <div class="coord-alert-action">
+
+                    <span>
+                        Consultar
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+
+        <!-- PROGRAMACIÓN -->
+
+        <div class="col-12 col-xl-6">
+
+            <a
+                href="{{ route('coordinacion.modulo', 'defensas') }}"
+                class="coord-alert-card neutral"
+            >
+
+                <div class="coord-alert-icon">
+
+                    <i class="bi bi-mortarboard"></i>
+
+                </div>
+
+
+                <div class="coord-alert-content">
+
+                    <div class="coord-alert-title">
+
+                        <span>
+                            PROGRAMACIÓN
+                        </span>
+
+                        <small>
+                            Defensas
+                        </small>
+
+                    </div>
+
+
+                    <strong>
+                        3 defensas están pendientes de calendarización
+                    </strong>
+
+
+                    <p>
+                        Estos procesos requerirán verificar disponibilidad
+                        académica y asignación correspondiente.
+                    </p>
+
+                </div>
+
+
+                <div class="coord-alert-action">
+
+                    <span>
+                        Consultar
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
 
 <!-- =====================================
      PROCESOS QUE REQUIEREN ATENCIÓN
@@ -336,7 +630,7 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiantes.expediente', 1) }}"
+                            href="{{ route('coordinacion.estudiante', 1) }}"
                             class="action-button"
                             title="Ver proceso"
                         >
@@ -388,7 +682,7 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiantes.expediente', 2) }}"
+                            href="{{ route('coordinacion.estudiante', 2) }}"
                             class="action-button"
                         >
 
@@ -439,7 +733,7 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiantes.expediente', 3) }}"
+                            href="{{ route('coordinacion.estudiante', 3) }}"
                             class="action-button"
                         >
 
@@ -490,7 +784,7 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiantes.expediente', 4) }}"
+                            href="{{ route('coordinacion.estudiante', 4) }}"
                             class="action-button"
                         >
 

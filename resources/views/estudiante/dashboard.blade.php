@@ -1,20 +1,20 @@
 @extends('layouts.student')
 
-
 @section('title', 'Mi Práctica Profesional | UNICAH')
-
 
 @section('content')
 
 
-<!-- CABECERA -->
+<!-- =====================================
+     BIENVENIDA
+====================================== -->
 
-<div class="page-header student-welcome">
+<div class="page-header student-home-header">
 
     <div>
 
-        <span class="welcome-label">
-            Bienvenida,
+        <span class="student-home-eyebrow">
+            BUEN DÍA,
         </span>
 
         <h1>
@@ -22,13 +22,13 @@
         </h1>
 
         <p>
-            Aquí puedes consultar el avance de tu práctica profesional.
+            Organiza tu día y consulta el avance de tu práctica profesional.
         </p>
 
     </div>
 
 
-    <div class="student-period">
+    <div class="page-date">
 
         <i class="bi bi-calendar3"></i>
 
@@ -40,13 +40,445 @@
 
 
 
-<!-- =====================================================
-     TARJETA PRINCIPAL DE PROGRESO
-===================================================== -->
+<!-- =====================================
+     RESUMEN DEL DÍA
+====================================== -->
 
-<section class="student-progress-card">
+<section class="student-today-card">
 
-    <div class="student-progress-header">
+    <div class="student-today-main">
+
+        <div class="student-today-icon">
+
+            <i class="bi bi-sun"></i>
+
+        </div>
+
+
+        <div>
+
+            <span class="section-label">
+                HOY
+            </span>
+
+            <h2>
+                Tu práctica está al día
+            </h2>
+
+            <p>
+                Tienes 3 pendientes personales y una actividad
+                importante próxima.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="student-today-stats">
+
+        <div>
+
+            <strong>
+                3
+            </strong>
+
+            <span>
+                Pendientes
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                6
+            </strong>
+
+            <span>
+                Notas
+            </span>
+
+        </div>
+
+
+        <div>
+
+            <strong>
+                12
+            </strong>
+
+            <span>
+                Registros
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================
+     ACCIONES RÁPIDAS
+====================================== -->
+
+<section class="student-section">
+
+    <div class="student-section-heading">
+
+        <div>
+
+            <h2>
+                Acciones rápidas
+            </h2>
+
+            <p>
+                Herramientas para organizar tu práctica.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-3">
+
+
+        <div class="col-12 col-md-4">
+
+            <a
+                href="{{ route('estudiante.notas') }}"
+                class="student-quick-action"
+            >
+
+                <div class="quick-action-icon blue">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Nueva nota
+                    </strong>
+
+                    <span>
+                        Guarda una idea o recordatorio.
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+
+        <div class="col-12 col-md-4">
+
+            <a
+                href="{{ route('estudiante.modulo', 'bitacora') }}"
+                class="student-quick-action"
+            >
+
+                <div class="quick-action-icon gold">
+
+                    <i class="bi bi-journal-plus"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Registrar actividad
+                    </strong>
+
+                    <span>
+                        Añade una entrada a tu bitácora.
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+
+        <div class="col-12 col-md-4">
+
+            <a
+                href="{{ route('estudiante.pendientes') }}"
+                class="student-quick-action"
+            >
+
+                <div class="quick-action-icon green">
+
+                    <i class="bi bi-check2-square"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Agregar pendiente
+                    </strong>
+
+                    <span>
+                        Organiza una tarea personal.
+                    </span>
+
+                </div>
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================
+     MI ESPACIO + PRÓXIMA ACTIVIDAD
+====================================== -->
+
+<section class="row g-4 mb-4">
+
+
+    <!-- MI ESPACIO -->
+
+    <div class="col-12 col-xl-7">
+
+        <div class="content-card h-100">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Mi espacio
+                    </h2>
+
+                    <p>
+                        Tus herramientas personales de organización.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="student-space-grid">
+
+
+                <a
+                    href="{{ route('estudiante.agenda') }}"
+                    class="student-space-item"
+                >
+
+                    <div class="space-icon blue">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Agenda
+                        </strong>
+
+                        <span>
+                            2 actividades próximas
+                        </span>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+
+                <a
+                    href="{{ route('estudiante.modulo', 'notas') }}"
+                    class="student-space-item"
+                >
+
+                    <div class="space-icon gold">
+                        <i class="bi bi-sticky"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Mis notas
+                        </strong>
+
+                        <span>
+                            6 notas privadas
+                        </span>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+
+                <a
+                    href="{{ route('estudiante.modulo', 'pendientes') }}"
+                    class="student-space-item"
+                >
+
+                    <div class="space-icon green">
+                        <i class="bi bi-check2-square"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Mis pendientes
+                        </strong>
+
+                        <span>
+                            3 tareas abiertas
+                        </span>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+
+                <a
+                    href="{{ route('estudiante.bitacora') }}"
+                    class="student-space-item"
+                >
+
+                    <div class="space-icon purple">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Bitácora
+                        </strong>
+
+                        <span>
+                            12 actividades registradas
+                        </span>
+
+                    </div>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PRÓXIMA ACTIVIDAD -->
+
+    <div class="col-12 col-xl-5">
+
+        <div class="content-card student-next-card h-100">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Próxima actividad
+                    </h2>
+
+                    <p>
+                        Lo siguiente en tu proceso.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="student-next-content">
+
+                <div class="student-next-date">
+
+                    <strong>
+                        45
+                    </strong>
+
+                    <span>
+                        DÍA
+                    </span>
+
+                </div>
+
+
+                <div class="student-next-info">
+
+                    <span class="section-label">
+                        VISITA DE SEGUIMIENTO
+                    </span>
+
+                    <h3>
+                        Disponible mañana
+                    </h3>
+
+                    <p>
+                        La visita podrá programarse a partir
+                        del día 45 de tu práctica.
+                    </p>
+
+
+                    <a
+                        href="{{ route('estudiante.visita') }}"
+                        class="student-inline-link"
+                    >
+                        Ver información
+
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =====================================
+     PROGRESO DE PRÁCTICA
+====================================== -->
+
+<section class="content-card student-practice-summary">
+
+    <div class="student-practice-summary-header">
 
         <div>
 
@@ -82,26 +514,18 @@
 
     <div class="student-main-progress">
 
-        <div
-            class="student-main-progress-fill"
-            style="width: 58%;"
-        ></div>
+        <div style="width: 58%;"></div>
 
     </div>
 
 
-
-    <!-- ETAPAS -->
-
-    <div class="student-process-steps">
+    <div class="student-process-timeline">
 
 
         <div class="student-process-step completed">
 
-            <div class="process-step-icon">
-
+            <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
-
             </div>
 
             <span>
@@ -113,10 +537,8 @@
 
         <div class="student-process-step completed">
 
-            <div class="process-step-icon">
-
+            <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
-
             </div>
 
             <span>
@@ -128,10 +550,8 @@
 
         <div class="student-process-step completed">
 
-            <div class="process-step-icon">
-
+            <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
-
             </div>
 
             <span>
@@ -143,7 +563,7 @@
 
         <div class="student-process-step active">
 
-            <div class="process-step-icon">
+            <div class="student-process-circle">
 
                 <i class="bi bi-briefcase"></i>
 
@@ -156,9 +576,9 @@
         </div>
 
 
-        <div class="student-process-step pending">
+        <div class="student-process-step">
 
-            <div class="process-step-icon">
+            <div class="student-process-circle">
 
                 <i class="bi bi-calendar-check"></i>
 
@@ -171,9 +591,9 @@
         </div>
 
 
-        <div class="student-process-step pending">
+        <div class="student-process-step">
 
-            <div class="process-step-icon">
+            <div class="student-process-circle">
 
                 <i class="bi bi-journal-text"></i>
 
@@ -186,9 +606,9 @@
         </div>
 
 
-        <div class="student-process-step pending">
+        <div class="student-process-step">
 
-            <div class="process-step-icon">
+            <div class="student-process-circle">
 
                 <i class="bi bi-mortarboard"></i>
 
@@ -201,9 +621,9 @@
         </div>
 
 
-        <div class="student-process-step pending">
+        <div class="student-process-step">
 
-            <div class="process-step-icon">
+            <div class="student-process-circle">
 
                 <i class="bi bi-flag"></i>
 
@@ -222,423 +642,74 @@
 
 
 
-<!-- =====================================================
-     INFORMACIÓN PRINCIPAL
-===================================================== -->
+<!-- =====================================
+     INFORMACIÓN ÚTIL
+====================================== -->
 
-<section class="row g-3 mb-4">
+<section class="row g-3 mt-1">
 
 
-    <!-- ETAPA ACTUAL -->
+    <div class="col-12 col-md-6">
 
-    <div class="col-12 col-md-6 col-xl-4">
+        <div class="student-helper-card">
 
-    <article class="student-dashboard-card current-stage-card h-100">
+            <div class="student-helper-icon">
 
-        <div class="student-card-header">
-
-            <div class="student-card-icon blue">
-
-                <i class="bi bi-briefcase"></i>
+                <i class="bi bi-person-video3"></i>
 
             </div>
 
-
-            <span>
-                Etapa actual
-            </span>
-
-        </div>
-
-
-        <h3>
-            Práctica en curso
-        </h3>
-
-
-        <p>
-            Actualmente te encuentras desarrollando
-            tu práctica profesional.
-        </p>
-
-
-        <div class="student-card-footer">
-
-            <span>
-                Día 44
-            </span>
-
-            <strong>
-                de práctica
-            </strong>
-
-        </div>
-
-        </article>
-
-    </div>
-    <!-- PRÓXIMA ACTIVIDAD -->
-
-    <div class="col-12 col-md-6 col-xl-4">
-
-        <article class="student-dashboard-card h-100">
-
-        <div class="student-card-header">
-
-            <div class="student-card-icon gold">
-
-                <i class="bi bi-calendar-event"></i>
-
-            </div>
-
-
-            <span>
-                Próxima actividad
-            </span>
-
-        </div>
-
-
-        <h3>
-            Visita de seguimiento
-        </h3>
-
-
-        <p>
-            La visita podrá realizarse a partir
-            del día 45 de práctica.
-        </p>
-
-
-        <div class="student-warning">
-
-            <i class="bi bi-clock"></i>
-
-            Falta 1 día
-
-        </div>
-
-    </article>
-    
-    </div>
-
-
-
-    <!-- FECHA FINAL -->
-
-    <div class="col-12 col-md-6 col-xl-4">
-
-    <article class="student-dashboard-card h-100">
-
-        <div class="student-card-header">
-
-            <div class="student-card-icon green">
-
-                <i class="bi bi-calendar2-check"></i>
-
-            </div>
-
-
-            <span>
-                Finalización
-            </span>
-
-        </div>
-
-
-        <h3>
-            30 de noviembre
-        </h3>
-
-
-        <p>
-            Fecha programada para finalizar
-            tu período de práctica.
-        </p>
-
-
-        <div class="student-card-footer">
-
-            <span>
-                Inicio:
-            </span>
-
-            <strong>
-                01/09/2026
-            </strong>
-
-        </div>
-
-    </article>
-
-    </div>
-
-
-</section>
-
-
-
-<!-- =====================================================
-     FILA SECUNDARIA
-===================================================== -->
-
-<section class="student-secondary-grid">
-
-
-    <!-- INFORMACIÓN EMPRESA -->
-
-    <article class="content-card student-company-card">
-
-        <div class="card-header">
 
             <div>
 
-                <h2>
-                    Mi empresa
-                </h2>
+                <span>
+                    Docente asignado
+                </span>
 
-                <p>
-                    Información de tu lugar de práctica.
-                </p>
+                <strong>
+                    Pendiente de asignación
+                </strong>
+
+                <a href="{{ route('estudiante.docente') }}">
+                    Ver información
+                </a>
 
             </div>
 
-
-            <a href="{{ route('estudiante.empresa') }}">
-                Ver información
-                <i class="bi bi-arrow-right"></i>
-            </a>
-
         </div>
 
+    </div>
 
-        <div class="student-company-body">
 
 
-            <div class="company-logo-placeholder">
+    <div class="col-12 col-md-6">
+
+        <div class="student-helper-card">
+
+            <div class="student-helper-icon">
 
                 <i class="bi bi-buildings"></i>
 
             </div>
 
 
-            <div class="company-details">
+            <div>
 
-                <h3>
+                <span>
+                    Empresa
+                </span>
+
+                <strong>
                     Grupo Tecnológico S.A.
-                </h3>
-
-
-                <span>
-                    <i class="bi bi-person-vcard"></i>
-
-                    Jefe inmediato:
-                    <strong>
-                        Ing. Roberto Martínez
-                    </strong>
-                </span>
-
-
-                <span>
-                    <i class="bi bi-envelope"></i>
-
-                    roberto@empresa.hn
-                </span>
-
-
-                <span>
-                    <i class="bi bi-telephone"></i>
-
-                    +504 9999-9999
-                </span>
-
-            </div>
-
-
-        </div>
-
-    </article>
-
-
-
-    <!-- DOCUMENTOS -->
-
-    <article class="content-card student-pending-card">
-
-
-        <div class="card-header">
-
-            <div>
-
-                <h2>
-                    Documentación
-                </h2>
-
-                <p>
-                    Estado de los documentos requeridos.
-                </p>
-
-            </div>
-
-
-            <a href="{{ route('estudiante.documentos') }}">
-                Ver todos
-                <i class="bi bi-arrow-right"></i>
-            </a>
-
-        </div>
-
-
-
-        <div class="student-document-summary">
-
-
-            <div class="student-document-item">
-
-                <div>
-
-                    <i class="bi bi-check-circle-fill success-icon"></i>
-
-                    <span>
-                        Documento de identidad
-                    </span>
-
-                </div>
-
-                <strong class="document-approved">
-                    Aprobado
                 </strong>
 
-            </div>
-
-
-            <div class="student-document-item">
-
-                <div>
-
-                    <i class="bi bi-check-circle-fill success-icon"></i>
-
-                    <span>
-                        Documento testigo 1
-                    </span>
-
-                </div>
-
-                <strong class="document-approved">
-                    Aprobado
-                </strong>
-
-            </div>
-
-
-            <div class="student-document-item">
-
-                <div>
-
-                    <i class="bi bi-exclamation-circle warning-icon"></i>
-
-                    <span>
-                        Documento testigo 2
-                    </span>
-
-                </div>
-
-                <strong class="document-warning">
-                    Pendiente
-                </strong>
-
-            </div>
-
-
-        </div>
-
-
-    </article>
-
-
-</section>
-
-
-
-<!-- =====================================================
-     AVISOS
-===================================================== -->
-
-<section class="content-card student-notices">
-
-
-    <div class="card-header">
-
-        <div>
-
-            <h2>
-                Avisos importantes
-            </h2>
-
-            <p>
-                Información relacionada con tu proceso.
-            </p>
-
-        </div>
-
-    </div>
-
-
-
-    <div class="student-notice-list">
-
-
-        <div class="student-notice">
-
-            <div class="notice-icon blue">
-
-                <i class="bi bi-info-circle"></i>
-
-            </div>
-
-
-            <div>
-
-                <strong>
-                    Próxima habilitación de visita
-                </strong>
-
-                <p>
-                    Mañana cumplirás 45 días de práctica.
-                    A partir de esa fecha podrá realizarse
-                    la visita de seguimiento.
-                </p>
+                <a href="{{ route('estudiante.empresa') }}">
+                    Ver empresa
+                </a>
 
             </div>
 
         </div>
-
-
-
-        <div class="student-notice">
-
-            <div class="notice-icon gold">
-
-                <i class="bi bi-journal-text"></i>
-
-            </div>
-
-
-            <div>
-
-                <strong>
-                    Recuerda tu monografía
-                </strong>
-
-                <p>
-                    La entrega deberá realizarse una semana
-                    antes de finalizar tu práctica profesional.
-                </p>
-
-            </div>
-
-        </div>
-
 
     </div>
 

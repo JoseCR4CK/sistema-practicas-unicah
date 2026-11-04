@@ -84,124 +84,119 @@
 
         <nav class="sidebar-nav">
 
+            <div class="nav-section-label">
+                PRINCIPAL
+            </div>
 
             <a
                 href="{{ route('estudiante.dashboard') }}"
                 class="nav-item {{ request()->routeIs('estudiante.dashboard') ? 'active' : '' }}"
             >
-
                 <i class="bi bi-house-door-fill"></i>
-
-                <span>
-                    Inicio
-                </span>
-
+                <span>Inicio</span>
             </a>
-
 
             <a
                 href="{{ route('estudiante.practica') }}"
                 class="nav-item {{ request()->routeIs('estudiante.practica') ? 'active' : '' }}"
             >
                 <i class="bi bi-briefcase"></i>
-
-                <span>
-                    Mi práctica
-                </span>
+                <span>Mi práctica</span>
             </a>
 
+
+            <div class="nav-section-label">
+                MI ESPACIO
+            </div>
+
+            <a
+                href="{{ route('estudiante.agenda') }}"
+                class="nav-item {{ request()->routeIs('estudiante.agenda') ? 'active' : '' }}"
+            >
+                <i class="bi bi-calendar3"></i>
+                <span>Agenda</span>
+            </a>
+
+            <a
+                href="{{ route('estudiante.notas') }}"
+                class="nav-item {{ request()->routeIs('estudiante.notas') ? 'active' : '' }}"
+            >
+                <i class="bi bi-sticky"></i>
+                <span>Mis notas</span>
+            </a>
+
+            <a
+                href="{{ route('estudiante.pendientes') }}"
+                class="nav-item {{ request()->routeIs('estudiante.pendientes') ? 'active' : '' }}"
+            >
+                <i class="bi bi-check2-square"></i>
+                <span>Mis pendientes</span>
+            </a>
+
+            <a
+                href="{{ route('estudiante.bitacora') }}"
+                class="nav-item {{ request()->routeIs('estudiante.bitacora') ? 'active' : '' }}"
+            >
+                <i class="bi bi-journal-text"></i>
+                <span>Bitácora</span>
+            </a>
+
+
+            <div class="nav-section-label">
+                MI PROCESO
+            </div>
 
             <a
                 href="{{ route('estudiante.documentos') }}"
                 class="nav-item {{ request()->routeIs('estudiante.documentos') ? 'active' : '' }}"
             >
                 <i class="bi bi-folder-check"></i>
-
-                <span>
-                    Documentos
-                </span>
+                <span>Documentos</span>
 
                 <span class="nav-badge">
                     1
                 </span>
             </a>
 
-
             <a
                 href="{{ route('estudiante.empresa') }}"
                 class="nav-item {{ request()->routeIs('estudiante.empresa') ? 'active' : '' }}"
             >
                 <i class="bi bi-buildings"></i>
-
-                <span>
-                    Empresa
-                </span>
+                <span>Empresa</span>
             </a>
 
+            <a
+                href="{{ route('estudiante.docente') }}"
+                class="nav-item {{ request()->routeIs('estudiante.docente') ? 'active' : '' }}"
+            >
+                <i class="bi bi-person-video3"></i>
+                <span>Docente asignado</span>
+            </a>
 
             <a
                 href="{{ route('estudiante.visita') }}"
                 class="nav-item {{ request()->routeIs('estudiante.visita') ? 'active' : '' }}"
             >
                 <i class="bi bi-calendar-check"></i>
-
-                <span>
-                    Visita
-                </span>
+                <span>Visita</span>
             </a>
-
 
             <a
                 href="{{ route('estudiante.monografia') }}"
                 class="nav-item {{ request()->routeIs('estudiante.monografia') ? 'active' : '' }}"
             >
-                <i class="bi bi-journal-text"></i>
-
-                <span>
-                    Monografía
-                </span>
+                <i class="bi bi-journal-richtext"></i>
+                <span>Monografía</span>
             </a>
-
 
             <a
                 href="{{ route('estudiante.defensa') }}"
                 class="nav-item {{ request()->routeIs('estudiante.defensa') ? 'active' : '' }}"
             >
                 <i class="bi bi-mortarboard"></i>
-
-                <span>
-                    Defensa
-                </span>
+                <span>Defensa</span>
             </a>
-
-
-            <a
-                href="{{ route('estudiante.modulo', 'historial') }}"
-                class="nav-item"
-            >
-
-                <i class="bi bi-clock-history"></i>
-
-                <span>
-                    Historial
-                </span>
-
-            </a>
-
-
-            <a
-                href="{{ route('estudiante.modulo', 'perfil') }}"
-                class="nav-item"
-            >
-
-                <i class="bi bi-person"></i>
-
-                <span>
-                    Mi perfil
-                </span>
-
-            </a>
-
 
         </nav>
 

@@ -2,7 +2,6 @@
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -10,9 +9,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        @yield('title', 'Sistema de Prácticas Profesionales')
-    </title>
+    <title>Sistema de Prácticas Profesionales | UNICAH</title>
 
 
     <!-- Bootstrap -->
@@ -29,12 +26,11 @@
     >
 
 
-    <!-- CSS general -->
+    <!-- CSS DEL LOGIN -->
     <link
         rel="stylesheet"
-        href="{{ asset('css/app.css') }}"
+        href="{{ asset('css/login.css') }}"
     >
-
 </head>
 
 
@@ -53,12 +49,6 @@
 
 
         <div class="institution-content">
-
-            <img
-                src="{{ asset('assets/img/logo-unicah.png') }}"
-                alt="Universidad Católica de Honduras"
-                class="unicah-logo"
-            >
 
 
             <div class="gold-line"></div>
@@ -95,8 +85,18 @@
     <section class="login-section">
 
 
-        <div class="login-card">
+        <!-- FOOTER -->
 
+            <footer class="login-footer">
+
+                <img
+                    src="{{ asset('assets/img/logo-unicah.png') }}"
+                    alt="UNICAH"
+                >
+
+            </footer>
+
+        <div class="login-card">
 
             <header class="login-header">
 
@@ -236,19 +236,6 @@
 
 
             </form>
-
-
-
-            <!-- FOOTER -->
-
-            <footer class="login-footer">
-
-                <img
-                    src="{{ asset('assets/img/logo-unicah.png') }}"
-                    alt="UNICAH"
-                >
-
-            </footer>
 
 
         </div>

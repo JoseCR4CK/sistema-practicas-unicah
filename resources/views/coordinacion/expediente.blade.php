@@ -4,6 +4,82 @@
 
 @section('content')
 
+@php
+    $etapas = [
+        'Solicitud',
+        'Documentación',
+        'Empresa',
+        'Práctica',
+        'Visita',
+        'Monografía',
+        'Defensa',
+        'Finalización',
+    ];
+    $iconosEtapas = [
+        'bi-check-lg',
+        'bi-check-lg',
+        'bi-check-lg',
+        'bi-briefcase',
+        'bi-calendar-check',
+        'bi-journal-text',
+        'bi-mortarboard',
+        'bi-flag',
+    ];
+    $estadosCompletados = [
+        'Aprobada',
+        'Validada',
+        'Validada',
+        'Completada',
+        'Realizada',
+        'Aprobada',
+        'Realizada',
+        'Completada',
+    ];
+    $indiceActual = array_search($estudiante['etapa'], $etapas, true);
+    $finalizado = $estudiante['etapa'] === 'Finalización'
+        || $estudiante['progreso'] === 100;
+    $pasosTimeline = [];
+
+    foreach ($etapas as $indice => $nombreEtapa) {
+        if ($finalizado || $indice < $indiceActual) {
+            $pasosTimeline[] = [
+                'nombre' => $nombreEtapa,
+                'icono' => $iconosEtapas[$indice],
+                'clase' => 'completed',
+                'estado' => $estadosCompletados[$indice],
+            ];
+        } elseif ($indice === $indiceActual) {
+            $estadoActual = 'Actual';
+
+            if ($nombreEtapa === 'Práctica') {
+                $estadoActual = 'En curso';
+            } elseif ($nombreEtapa === 'Monografía') {
+                $estadoActual = $estudiante['monografia_estado'];
+            }
+
+            $pasosTimeline[] = [
+                'nombre' => $nombreEtapa,
+                'icono' => $iconosEtapas[$indice],
+                'clase' => 'active',
+                'estado' => $estadoActual,
+            ];
+        } else {
+            $estadoPendiente = 'Pendiente';
+
+            if ($nombreEtapa === 'Visita' && $estudiante['etapa'] === 'Práctica') {
+                $estadoPendiente = $estudiante['visita_estado'];
+            }
+
+            $pasosTimeline[] = [
+                'nombre' => $nombreEtapa,
+                'icono' => $iconosEtapas[$indice],
+                'clase' => 'pending',
+                'estado' => $estadoPendiente,
+            ];
+        }
+    }
+@endphp
+
 <!-- CABECERA -->
 
 <div class="page-header expediente-page-header">
@@ -52,7 +128,7 @@
     <div class="student-profile-main">
 
         <div class="student-profile-avatar">
-            AM
+            {{ $estudiante['iniciales'] }}
         </div>
 
         <div class="student-profile-info">
@@ -60,34 +136,34 @@
             <div class="student-profile-title">
 
                 <h2>
-                    Andrea Martínez
+                    {{ $estudiante['nombre'] }}
                 </h2>
 
                 <span class="status-pill active">
-                    En práctica
+                    {{ $estudiante['estado'] }}
                 </span>
 
             </div>
 
             <p>
-                Ingeniería en Ciencias de la Computación
+                {{ $estudiante['carrera'] }}
             </p>
 
             <div class="student-profile-meta">
 
                 <span>
                     <i class="bi bi-person-badge"></i>
-                    0801-2022-00458
+                    {{ $estudiante['cuenta'] }}
                 </span>
 
                 <span>
                     <i class="bi bi-envelope"></i>
-                    amartinez@unicah.edu
+                    {{ $estudiante['correo'] }}
                 </span>
 
                 <span>
                     <i class="bi bi-card-text"></i>
-                    0801-2003-12345
+                    {{ $estudiante['telefono'] }}
                 </span>
 
             </div>
@@ -103,7 +179,7 @@
         </span>
 
         <strong>
-            Seguimiento de práctica
+            {{ $estudiante['etapa'] }}
         </strong>
 
     </div>
@@ -130,7 +206,7 @@
         </div>
 
         <div class="progress-percentage">
-            58%
+            {{ $estudiante['progreso'] }}%
         </div>
 
     </div>
@@ -140,7 +216,7 @@
 
         <div
             class="main-progress-fill"
-            style="width: 58%;"
+            style="width: {{ $estudiante['progreso'] }}%"
         ></div>
 
     </div>
@@ -148,157 +224,25 @@
 
     <div class="practice-timeline">
 
+        @foreach ($pasosTimeline as $paso)
+            <div class="timeline-step {{ $paso['clase'] }}">
 
-        <div class="timeline-step completed">
+                <div class="timeline-icon">
+                    <i class="bi {{ $paso['icono'] }}"></i>
+                </div>
 
-            <div class="timeline-icon">
-                <i class="bi bi-check-lg"></i>
+                <div>
+                    <strong>
+                        {{ $paso['nombre'] }}
+                    </strong>
+
+                    <span>
+                        {{ $paso['estado'] }}
+                    </span>
+                </div>
+
             </div>
-
-            <div>
-                <strong>
-                    Solicitud
-                </strong>
-
-                <span>
-                    Aprobada
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step completed">
-
-            <div class="timeline-icon">
-                <i class="bi bi-check-lg"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Documentación
-                </strong>
-
-                <span>
-                    Validada
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step completed">
-
-            <div class="timeline-icon">
-                <i class="bi bi-check-lg"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Empresa
-                </strong>
-
-                <span>
-                    Validada
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step active">
-
-            <div class="timeline-icon">
-                <i class="bi bi-briefcase"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Práctica
-                </strong>
-
-                <span>
-                    En curso
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step pending">
-
-            <div class="timeline-icon">
-                <i class="bi bi-calendar-check"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Visita
-                </strong>
-
-                <span>
-                    Próximamente
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step pending">
-
-            <div class="timeline-icon">
-                <i class="bi bi-journal-text"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Monografía
-                </strong>
-
-                <span>
-                    Pendiente
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step pending">
-
-            <div class="timeline-icon">
-                <i class="bi bi-mortarboard"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Defensa
-                </strong>
-
-                <span>
-                    Pendiente
-                </span>
-            </div>
-
-        </div>
-
-
-        <div class="timeline-step pending">
-
-            <div class="timeline-icon">
-                <i class="bi bi-flag"></i>
-            </div>
-
-            <div>
-                <strong>
-                    Finalización
-                </strong>
-
-                <span>
-                    Pendiente
-                </span>
-            </div>
-
-        </div>
+        @endforeach
 
     </div>
 
@@ -323,7 +267,7 @@
             </span>
 
             <strong>
-                Grupo Tecnológico S.A.
+                {{ $estudiante['empresa'] }}
             </strong>
 
         </div>
@@ -344,7 +288,7 @@
             </span>
 
             <strong>
-                Ing. Roberto Martínez
+                {{ $estudiante['responsable'] }}
             </strong>
 
         </div>
@@ -365,7 +309,7 @@
             </span>
 
             <strong>
-                01/09/2026
+                {{ $estudiante['inicio'] }}
             </strong>
 
         </div>
@@ -386,7 +330,7 @@
             </span>
 
             <strong>
-                30/11/2026
+                {{ $estudiante['finalizacion'] }}
             </strong>
 
         </div>
@@ -414,11 +358,11 @@
             </span>
 
             <strong>
-                Día 44
+                {{ $estudiante['inicio'] === 'Pendiente' ? 'No iniciada' : 'No disponible' }}
             </strong>
 
             <p>
-                La visita podrá realizarse a partir del día 45.
+                Estado de visita: {{ $estudiante['visita_estado'] }}
             </p>
 
         </div>
@@ -439,11 +383,11 @@
             </span>
 
             <strong>
-                23/11/2026
+                No disponible
             </strong>
 
             <p>
-                Debe entregarse una semana antes de finalizar la práctica.
+                Fecha de entrega no disponible.
             </p>
 
         </div>
@@ -538,7 +482,7 @@
                 </span>
 
                 <strong class="text-success">
-                    Completa
+                    {{ $estudiante['etapa'] === 'Documentación' ? 'En proceso' : 'Completa' }}
                 </strong>
 
             </div>
@@ -551,7 +495,7 @@
                 </span>
 
                 <strong>
-                    Grupo Tecnológico S.A.
+                    {{ $estudiante['empresa'] }}
                 </strong>
 
             </div>
@@ -564,7 +508,7 @@
                 </span>
 
                 <strong>
-                    Ing. Roberto Martínez
+                    {{ $estudiante['responsable'] }}
                 </strong>
 
             </div>
@@ -577,7 +521,7 @@
                 </span>
 
                 <strong>
-                    01/09/2026
+                    {{ $estudiante['inicio'] }}
                 </strong>
 
             </div>
@@ -590,7 +534,7 @@
                 </span>
 
                 <strong>
-                    30/11/2026
+                    {{ $estudiante['finalizacion'] }}
                 </strong>
 
             </div>
@@ -639,7 +583,7 @@
                         </strong>
 
                         <span>
-                            PDF · Cargado 03/09/2026
+                            PDF · Fecha no disponible
                         </span>
 
                     </div>
@@ -647,7 +591,7 @@
                 </div>
 
                 <span class="badge success">
-                    Aprobado
+                    Estado no disponible
                 </span>
 
             </div>
@@ -668,7 +612,7 @@
                         </strong>
 
                         <span>
-                            PDF · Cargado 03/09/2026
+                            PDF · Fecha no disponible
                         </span>
 
                     </div>
@@ -676,7 +620,7 @@
                 </div>
 
                 <span class="badge success">
-                    Aprobado
+                    Estado no disponible
                 </span>
 
             </div>
@@ -697,7 +641,7 @@
                         </strong>
 
                         <span>
-                            PDF · Cargado 03/09/2026
+                            PDF · Fecha no disponible
                         </span>
 
                     </div>
@@ -705,7 +649,7 @@
                 </div>
 
                 <span class="badge success">
-                    Aprobado
+                    Estado no disponible
                 </span>
 
             </div>
@@ -740,32 +684,32 @@
 
             <div class="summary-block">
                 <span>Empresa</span>
-                <strong>Grupo Tecnológico S.A.</strong>
+                <strong>{{ $estudiante['empresa'] }}</strong>
             </div>
 
             <div class="summary-block">
                 <span>RTN</span>
-                <strong>0801-1999-123456</strong>
+                <strong>No disponible</strong>
             </div>
 
             <div class="summary-block">
                 <span>Jefe inmediato</span>
-                <strong>Ing. Roberto Martínez</strong>
+                <strong>{{ $estudiante['responsable'] }}</strong>
             </div>
 
             <div class="summary-block">
-                <span>Cargo</span>
-                <strong>Gerente de Tecnología</strong>
+                <span>Docente de seguimiento</span>
+                <strong>{{ $estudiante['docente'] }}</strong>
             </div>
 
             <div class="summary-block">
                 <span>Teléfono</span>
-                <strong>+504 9999-9999</strong>
+                <strong>No disponible</strong>
             </div>
 
             <div class="summary-block">
                 <span>Correo</span>
-                <strong>roberto@empresa.hn</strong>
+                <strong>No disponible</strong>
             </div>
 
         </div>
@@ -803,15 +747,21 @@
             <i class="bi bi-calendar-check"></i>
 
             <h3>
-                Visita aún no disponible
+                @if ($estudiante['visita_estado'] === 'Realizada')
+                    Visita realizada
+                @elseif ($estudiante['visita_estado'] === 'Habilitada')
+                    Visita habilitada
+                @else
+                    Visita no habilitada
+                @endif
             </h3>
 
             <p>
-                La visita podrá programarse a partir del día 45 de práctica.
+                Estado: {{ $estudiante['visita_estado'] }}
             </p>
 
             <span class="countdown-badge">
-                Falta 1 día
+                {{ $estudiante['visita_estado'] }}
             </span>
 
         </div>
@@ -828,11 +778,11 @@
             <i class="bi bi-journal-text"></i>
 
             <h3>
-                Monografía pendiente
+                Monografía {{ strtolower($estudiante['monografia_estado']) }}
             </h3>
 
             <p>
-                La entrega estará disponible una semana antes de finalizar la práctica.
+                Estado: {{ $estudiante['monografia_estado'] }}
             </p>
 
         </div>
@@ -849,11 +799,11 @@
             <i class="bi bi-mortarboard"></i>
 
             <h3>
-                Defensa pendiente
+                Defensa {{ strtolower($estudiante['defensa_estado']) }}
             </h3>
 
             <p>
-                La calendarización estará disponible cuando las revisiones de monografía hayan sido aprobadas.
+                Estado: {{ $estudiante['defensa_estado'] }}
             </p>
 
         </div>
@@ -875,11 +825,11 @@
                 <div>
 
                     <strong>
-                        Inicio de práctica
+                        {{ $estudiante['inicio'] === 'Pendiente' ? 'Inicio de práctica pendiente' : 'Inicio de práctica' }}
                     </strong>
 
                     <span>
-                        01 de septiembre de 2026
+                        {{ $estudiante['inicio'] }}
                     </span>
 
                 </div>
@@ -894,11 +844,11 @@
                 <div>
 
                     <strong>
-                        Documentación aprobada
+                        {{ $estudiante['etapa'] === 'Documentación' ? 'Documentación en proceso' : 'Documentación aprobada' }}
                     </strong>
 
                     <span>
-                        29 de agosto de 2026
+                        Fecha no disponible
                     </span>
 
                 </div>
@@ -913,11 +863,11 @@
                 <div>
 
                     <strong>
-                        Empresa validada
+                        {{ $estudiante['etapa'] === 'Documentación' ? 'Empresa pendiente' : 'Empresa validada' }}
                     </strong>
 
                     <span>
-                        27 de agosto de 2026
+                        Fecha no disponible
                     </span>
 
                 </div>
@@ -936,7 +886,7 @@
                     </strong>
 
                     <span>
-                        25 de agosto de 2026
+                        Fecha no disponible
                     </span>
 
                 </div>

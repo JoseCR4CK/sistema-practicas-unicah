@@ -93,8 +93,8 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'solicitudes') }}"
-                class="nav-item"
+                href="{{ route('coordinacion.solicitudes') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.solicitudes', 'coordinacion.solicitud') ? 'active' : '' }}"
             >
                 <i class="bi bi-file-earmark-text"></i>
 
@@ -102,8 +102,8 @@
                     Solicitudes
                 </span>
 
-                <span class="nav-badge">
-                    12
+                <span class="nav-badge" id="sidebarPendingRequests">
+                    0
                 </span>
             </a>
 
@@ -119,43 +119,50 @@
                 </span>
             </a>
 
+            <a
+                href="{{ route('coordinacion.docentes') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.docentes') ? 'active' : '' }}"
+            >
+                <i class="bi bi-person-video3"></i>
+
+                <span>
+                    Docentes
+                </span>
+            </a>
 
             <a
-                href="{{ route('coordinacion.modulo', 'practicas') }}"
-                class="nav-item"
+                href="{{ route('coordinacion.practicas') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.practicas', 'coordinacion.practica') ? 'active' : '' }}"
             >
                 <i class="bi bi-briefcase"></i>
-
-                <span>
-                    Prácticas
-                </span>
+                <span>Prácticas</span>
             </a>
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'empresas') }}"
-                class="nav-item"
+                href="{{ route('coordinacion.empresas') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.empresas', 'coordinacion.empresa') ? 'active' : '' }}"
             >
                 <i class="bi bi-buildings"></i>
-
-                <span>
-                    Empresas
-                </span>
+                <span>Empresas</span>
             </a>
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'documentos') }}"
-                class="nav-item"
+                href="{{ route('coordinacion.documentos') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.documentos', 'coordinacion.documento') ? 'active' : '' }}"
             >
-                <i class="bi bi-folder-check"></i>
+                <i class="bi bi-folder2-open"></i>
 
                 <span>
                     Documentos
                 </span>
 
-                <span class="nav-badge">
-                    7
+                <span
+                    class="nav-badge"
+                    id="sidebarPendingDocuments"
+                >
+                    0
                 </span>
             </a>
 
@@ -173,14 +180,11 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'visitas') }}"
-                class="nav-item"
+                href="{{ route('coordinacion.visitas') }}"
+                class="nav-item {{ request()->routeIs('coordinacion.visitas', 'coordinacion.visita') ? 'active' : '' }}"
             >
                 <i class="bi bi-calendar-check"></i>
-
-                <span>
-                    Visitas
-                </span>
+                <span>Visitas</span>
             </a>
 
 
@@ -412,6 +416,86 @@
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const badge =
+        document.getElementById('sidebarPendingRequests');
+
+    if (!badge) {
+        return;
+    }
+
+    const stored =
+        localStorage.getItem('unicah_coord_solicitudes_v1');
+
+    if (!stored) {
+        badge.textContent = '0';
+        return;
+    }
+
+    try {
+
+        const requests =
+            JSON.parse(stored) || [];
+
+        const pending =
+            requests.filter(request =>
+                request.estado === 'Pendiente'
+            ).length;
+
+        badge.textContent =
+            pending;
+
+        badge.style.display =
+            pending > 0
+                ? ''
+                : 'none';
+
+    } catch (error) {
+
+        badge.textContent = '0';
+
+    }
+
+});
+</script>
+
+<script src="{{ asset('js/documents-store.js') }}"></script>
+
+<script>
+
+const documentsBadge =
+    document.getElementById(
+        'sidebarPendingDocuments'
+    );
+
+if (
+    documentsBadge &&
+    window.DocumentStore
+) {
+
+    const documents =
+        DocumentStore.getAll();
+
+    const attention =
+        documents.filter(document =>
+            document.estado === 'Pendiente' ||
+            document.estado === 'Corrección requerida'
+        ).length;
+
+    documentsBadge.textContent =
+        attention;
+
+    documentsBadge.style.display =
+        attention > 0
+            ? 'inline-flex'
+            : 'none';
+
+}
+
 </script>
 
 </body>

@@ -14,9 +14,128 @@ Route::get('/coordinacion/estudiantes', function () {
     return view('coordinacion.estudiantes');
 })->name('coordinacion.estudiantes');
 
+Route::get('/coordinacion/estudiantes/informe', function () {
+    return view('coordinacion.informe-estudiantes');
+})->name('coordinacion.estudiantes.informe');
+
 Route::get('/coordinacion/estudiantes/{id}', function ($id) {
-    return view('coordinacion.expediente', compact('id'));
-})->name('coordinacion.estudiantes.expediente');
+
+    $estudiantes = [
+
+        1 => [
+            'id' => 1,
+            'nombre' => 'Andrea Martínez',
+            'iniciales' => 'AM',
+            'cuenta' => '0801-2022-00458',
+            'correo' => 'amartinez@unicah.edu',
+            'telefono' => '0801-2003-12345',
+            'carrera' => 'Ingeniería en Ciencias de la Computación',
+            'estado' => 'En práctica',
+            'etapa' => 'Práctica',
+            'progreso' => 58,
+            'empresa' => 'Grupo Tecnológico S.A.',
+            'responsable' => 'Ing. Roberto Martínez',
+            'docente' => 'Msc. Carlos Martínez',
+            'inicio' => '01/09/2026',
+            'finalizacion' => '30/11/2026',
+            'visita_estado' => 'Habilitada',
+            'monografia_estado' => 'Pendiente',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        2 => [
+            'id' => 2,
+            'nombre' => 'Carlos Rodríguez',
+            'iniciales' => 'CR',
+            'cuenta' => '0801-2021-00231',
+            'correo' => 'crodriguez@unicah.edu',
+            'telefono' => 'No registrado',
+            'carrera' => 'Ingeniería Industrial',
+            'estado' => 'En proceso',
+            'etapa' => 'Documentación',
+            'progreso' => 32,
+            'empresa' => 'Corporación Industrial HN',
+            'responsable' => 'Lic. Ana López',
+            'docente' => 'Ing. Ana Rodríguez',
+            'inicio' => 'Pendiente',
+            'finalizacion' => 'Pendiente',
+            'visita_estado' => 'No habilitada',
+            'monografia_estado' => 'Pendiente',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        3 => [
+            'id' => 3,
+            'nombre' => 'María López',
+            'iniciales' => 'ML',
+            'cuenta' => '0801-2022-00671',
+            'correo' => 'mlopez@unicah.edu',
+            'telefono' => 'No registrado',
+            'carrera' => 'Administración de Empresas',
+            'estado' => 'En práctica',
+            'etapa' => 'Monografía',
+            'progreso' => 79,
+            'empresa' => 'Inversiones del Valle S. de R.L.',
+            'responsable' => 'Lic. José García',
+            'docente' => 'Msc. Carlos Martínez',
+            'inicio' => '20/08/2026',
+            'finalizacion' => '20/11/2026',
+            'visita_estado' => 'Realizada',
+            'monografia_estado' => 'En revisión',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        4 => [
+            'id' => 4,
+            'nombre' => 'Luis Hernández',
+            'iniciales' => 'LH',
+            'cuenta' => '0801-2022-00714',
+            'correo' => 'lhernandez@unicah.edu',
+            'telefono' => 'No registrado',
+            'carrera' => 'Ingeniería Industrial',
+            'estado' => 'En práctica',
+            'etapa' => 'Práctica',
+            'progreso' => 45,
+            'empresa' => 'Grupo Tecnológico S.A.',
+            'responsable' => 'Ing. Roberto Martínez',
+            'docente' => 'Ing. María Fernández',
+            'inicio' => '08/09/2026',
+            'finalizacion' => '08/12/2026',
+            'visita_estado' => 'Habilitada',
+            'monografia_estado' => 'Pendiente',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        5 => [
+            'id' => 5,
+            'nombre' => 'Sofía Pérez',
+            'iniciales' => 'SP',
+            'cuenta' => '0801-2020-00118',
+            'correo' => 'sperez@unicah.edu',
+            'telefono' => 'No registrado',
+            'carrera' => 'Ingeniería Industrial',
+            'estado' => 'Finalizado',
+            'etapa' => 'Finalización',
+            'progreso' => 100,
+            'empresa' => 'Manufacturas Centroamericanas',
+            'responsable' => 'Responsable de empresa',
+            'docente' => 'Docente de seguimiento',
+            'inicio' => '01/06/2026',
+            'finalizacion' => '31/08/2026',
+            'visita_estado' => 'Realizada',
+            'monografia_estado' => 'Aprobada',
+            'defensa_estado' => 'Realizada',
+        ],
+
+    ];
+
+    abort_unless(isset($estudiantes[$id]), 404);
+
+    return view('coordinacion.expediente', [
+        'estudiante' => $estudiantes[$id]
+    ]);
+
+})->name('coordinacion.estudiante');
 
 Route::get('/estudiante', function () {
     return view('estudiante.dashboard');
@@ -45,6 +164,129 @@ Route::get('/estudiante/visita', function () {
 Route::get('/estudiante/empresa', function () {
     return view('estudiante.empresa');
 })->name('estudiante.empresa');
+
+Route::get('/coordinacion/docentes', function () {
+    return view('coordinacion.docentes');
+})->name('coordinacion.docentes');
+
+Route::get('/coordinacion/docentes/{id}', function ($id) {
+
+    $docentes = [
+
+        1 => [
+            'id' => 1,
+            'nombre' => 'Msc. Carlos Martínez',
+            'iniciales' => 'CM',
+            'facultad' => 'Facultad de Ingeniería',
+            'estado' => 'Activo',
+            'practicantes' => 4,
+            'visitas' => 2,
+        ],
+
+        2 => [
+            'id' => 2,
+            'nombre' => 'Ing. Ana Rodríguez',
+            'iniciales' => 'AR',
+            'facultad' => 'Facultad de Ingeniería',
+            'estado' => 'Atención',
+            'practicantes' => 5,
+            'visitas' => 3,
+        ],
+
+        3 => [
+            'id' => 3,
+            'nombre' => 'Msc. José López',
+            'iniciales' => 'JL',
+            'facultad' => 'Facultad de Administración',
+            'estado' => 'Activo',
+            'practicantes' => 3,
+            'visitas' => 1,
+        ],
+
+        4 => [
+            'id' => 4,
+            'nombre' => 'Ing. María Fernández',
+            'iniciales' => 'MF',
+            'facultad' => 'Facultad de Ingeniería',
+            'estado' => 'Atención',
+            'practicantes' => 6,
+            'visitas' => 3,
+        ],
+
+    ];
+
+    abort_unless(isset($docentes[$id]), 404);
+
+    return view('coordinacion.docente-detalle', [
+        'docente' => $docentes[$id]
+    ]);
+
+})->name('coordinacion.docente');
+
+Route::get('/coordinacion/empresas', function () {
+    return view('coordinacion.empresas');
+})->name('coordinacion.empresas');
+
+
+Route::get('/coordinacion/empresas/{id}', function ($id) {
+
+    return view('coordinacion.empresa-detalle', [
+        'empresaId' => (int) $id
+    ]);
+
+})->name('coordinacion.empresa');
+
+Route::get('/coordinacion/solicitudes', function () {
+    return view('coordinacion.solicitudes');
+})->name('coordinacion.solicitudes');
+
+
+Route::get('/coordinacion/solicitudes/{id}', function ($id) {
+
+    return view('coordinacion.solicitud-detalle', [
+        'solicitudId' => (int) $id
+    ]);
+
+})->name('coordinacion.solicitud');
+
+Route::get('/coordinacion/practicas', function () {
+    return view('coordinacion.practicas');
+})->name('coordinacion.practicas');
+
+
+Route::get('/coordinacion/practicas/{id}', function ($id) {
+
+    return view('coordinacion.practica-detalle', [
+        'practicaId' => (int) $id
+    ]);
+
+})->name('coordinacion.practica');
+
+Route::get('/coordinacion/documentos', function () {
+    return view('coordinacion.documentos');
+})->name('coordinacion.documentos');
+
+
+Route::get('/coordinacion/documentos/{id}', function ($id) {
+
+    return view('coordinacion.documento-detalle', [
+        'documentoId' => (int) $id
+    ]);
+
+})->name('coordinacion.documento');
+
+Route::get('/coordinacion/visitas', function () {
+    return view('coordinacion.visitas');
+})->name('coordinacion.visitas');
+
+
+Route::get('/coordinacion/visitas/{id}', function ($id) {
+
+    return view('coordinacion.visita-detalle', [
+        'visitaId' => (int) $id
+    ]);
+
+})->name('coordinacion.visita');
 
 Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
 
@@ -106,9 +348,54 @@ Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
 
 })->name('coordinacion.modulo');
 
+Route::get('/estudiante/notas', function () {
+    return view('estudiante.notas');
+})->name('estudiante.notas');
+
+Route::get('/estudiante/pendientes', function () {
+    return view('estudiante.pendientes');
+})->name('estudiante.pendientes');
+
+Route::get('/estudiante/bitacora', function () {
+    return view('estudiante.bitacora');
+})->name('estudiante.bitacora');
+
+Route::get('/estudiante/agenda', function () {
+    return view('estudiante.agenda');
+})->name('estudiante.agenda');
+
+Route::get('/estudiante/docente', function () {
+    return view('estudiante.docente');
+})->name('estudiante.docente');
+
 Route::get('/estudiante/modulo/{modulo}', function ($modulo) {
 
     $modulos = [
+
+        'agenda' => [
+            'titulo' => 'Mi agenda',
+            'descripcion' => 'Organiza fechas, actividades y recordatorios relacionados con tu práctica profesional.'
+        ],
+
+        'notas' => [
+            'titulo' => 'Mis notas',
+            'descripcion' => 'Espacio privado para guardar ideas, recordatorios y anotaciones personales.'
+        ],
+
+        'pendientes' => [
+            'titulo' => 'Mis pendientes',
+            'descripcion' => 'Organiza las tareas personales que necesitas completar durante tu práctica.'
+        ],
+
+        'bitacora' => [
+            'titulo' => 'Mi bitácora',
+            'descripcion' => 'Registra cronológicamente las actividades y experiencias realizadas durante tu práctica.'
+        ],
+
+        'docente' => [
+            'titulo' => 'Docente asignado',
+            'descripcion' => 'Consulta la información del docente responsable del seguimiento académico de tu práctica.'
+        ],
 
         'historial' => [
             'titulo' => 'Historial',
@@ -164,3 +451,148 @@ Route::get('/jefe-inmediato/modulo/{modulo}', function ($modulo) {
     );
 
 })->name('jefe.modulo');
+
+Route::get('/docente', function () {
+    return view('docente.dashboard');
+})->name('docente.dashboard');
+
+Route::get('/docente', function () {
+    return view('docente.dashboard');
+})->name('docente.dashboard');
+
+
+Route::get('/docente/practicantes', function () {
+    return view('docente.practicantes');
+})->name('docente.practicantes');
+
+
+Route::get('/docente/practicantes/{id}', function ($id) {
+
+    $practicantes = [
+
+        1 => [
+            'nombre' => 'Andrea Martínez',
+            'cuenta' => '0801-2022-00458',
+            'carrera' => 'Ingeniería en Ciencias de la Computación',
+            'empresa' => 'Grupo Tecnológico S.A.',
+            'etapa' => 'Práctica',
+            'progreso' => 58,
+            'inicio' => '01/09/2026',
+            'finalizacion' => '30/11/2026',
+
+            'visita_estado' => 'Habilitada',
+            'monografia_estado' => 'Pendiente',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        2 => [
+            'nombre' => 'Carlos Rodríguez',
+            'cuenta' => '0801-2021-00231',
+            'carrera' => 'Ingeniería Industrial',
+            'empresa' => 'Corporación Industrial HN',
+            'etapa' => 'Documentación',
+            'progreso' => 32,
+            'inicio' => '15/09/2026',
+            'finalizacion' => '15/12/2026',
+
+            'visita_estado' => 'No habilitada',
+            'monografia_estado' => 'Pendiente',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+        3 => [
+            'nombre' => 'María López',
+            'cuenta' => '0801-2022-00671',
+            'carrera' => 'Administración de Empresas',
+            'empresa' => 'Inversiones del Valle S. de R.L.',
+            'etapa' => 'Monografía',
+            'progreso' => 79,
+            'inicio' => '20/08/2026',
+            'finalizacion' => '20/11/2026',
+
+            'visita_estado' => 'Realizada',
+            'monografia_estado' => 'En revisión',
+            'defensa_estado' => 'Pendiente',
+        ],
+
+    ];
+
+    abort_unless(isset($practicantes[$id]), 404);
+
+
+    // IMPORTANTE: obtener primero el practicante seleccionado
+    $practicante = $practicantes[$id];
+
+
+    $etapasConPracticaIniciada = [
+        'Práctica',
+        'Visita',
+        'Monografía',
+        'Defensa',
+        'Finalización'
+    ];
+
+
+    if (
+        in_array(
+            $practicante['etapa'],
+            $etapasConPracticaIniciada
+        )
+    ) {
+
+        $inicio = \Carbon\Carbon::createFromFormat(
+            'd/m/Y',
+            $practicante['inicio']
+        )->startOfDay();
+
+        $hoy = now()->startOfDay();
+
+
+        $practicante['dia'] =
+            $hoy->greaterThanOrEqualTo($inicio)
+                ? $inicio->diffInDays($hoy) + 1
+                : 0;
+
+    } else {
+
+        $practicante['dia'] = null;
+
+    }
+
+    return view('docente.seguimiento', [
+        'practicante' => $practicante
+    ]);
+
+})->name('docente.practicante');
+
+
+Route::get('/docente/visitas', function () {
+    return view('docente.visitas');
+})->name('docente.visitas');
+
+
+Route::get('/docente/visitas/{id}', function ($id) {
+
+    return view('docente.visita-detalle', [
+        'visitaId' => (int) $id
+    ]);
+
+})->name('docente.visita');
+
+
+Route::get('/docente/seguimientos', function () {
+
+    return view('docente.seguimientos');
+
+})->name('docente.seguimientos');
+
+
+Route::get('/docente/alertas', function () {
+
+    return view('docente.alertas');
+
+})->name('docente.alertas');
+
+Route::get('/docente/carga-academica', function () {
+    return view('docente.carga-academica');
+})->name('docente.carga-academica');
