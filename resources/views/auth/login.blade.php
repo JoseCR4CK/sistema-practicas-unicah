@@ -114,7 +114,9 @@
 
 
 
-            <form>
+            <form method="POST" action="{{ route('login.attempt') }}">
+                
+                @csrf
 
                 <!-- USUARIO -->
 
@@ -132,10 +134,13 @@
 
                         <input
                             type="text"
-                            id="usuario"
-                            name="usuario"
-                            placeholder="Ingresa tu usuario o correo"
+                            id="dni"
+                            name="dni"
+                            value="{{ old('dni') }}"
+                            placeholder="Ingresa tu número de cuenta / DNI"
                             autocomplete="username"
+                            inputmode="numeric"
+                            required
                         >
 
                     </div>
@@ -164,6 +169,7 @@
                             name="password"
                             placeholder="Ingresa tu contraseña"
                             autocomplete="current-password"
+                            required
                         >
 
 

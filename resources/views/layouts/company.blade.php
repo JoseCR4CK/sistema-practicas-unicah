@@ -138,6 +138,15 @@
 
             </div>
 
+            <form method="POST" action="{{ route('logout') }}" class="sidebar-logout-form">
+                @csrf
+
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+
         </div>
 
     </aside>

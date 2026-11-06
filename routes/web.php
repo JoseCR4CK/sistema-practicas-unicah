@@ -1,10 +1,41 @@
+
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
+/*
+|--------------------------------------------------------------------------
+| AUTENTICACIÓN
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', [
+    AuthController::class,
+    'showLogin'
+])->name('login');
+
+Route::post('/login', [
+    AuthController::class,
+    'login'
+])->name('login.attempt');
+
+Route::post('/logout', [
+    AuthController::class,
+    'logout'
+])->middleware('auth')->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| COORDINACIÓN ACADÉMICA / ROOT
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'role:COORDINACION,ROOT',
+])->group(function () {
 
 Route::get('/coordinacion', function () {
     return view('coordinacion.dashboard');
@@ -136,34 +167,6 @@ Route::get('/coordinacion/estudiantes/{id}', function ($id) {
     ]);
 
 })->name('coordinacion.estudiante');
-
-Route::get('/estudiante', function () {
-    return view('estudiante.dashboard');
-})->name('estudiante.dashboard');
-
-Route::get('/estudiante/practica', function () {
-    return view('estudiante.practica');
-})->name('estudiante.practica');
-
-Route::get('/estudiante/documentos', function () {
-    return view('estudiante.documentos');
-})->name('estudiante.documentos');
-
-Route::get('/estudiante/monografia', function () {
-    return view('estudiante.monografia');
-})->name('estudiante.monografia');
-
-Route::get('/estudiante/defensa', function () {
-    return view('estudiante.defensa');
-})->name('estudiante.defensa');
-
-Route::get('/estudiante/visita', function () {
-    return view('estudiante.visita');
-})->name('estudiante.visita');
-
-Route::get('/estudiante/empresa', function () {
-    return view('estudiante.empresa');
-})->name('estudiante.empresa');
 
 Route::get('/coordinacion/docentes', function () {
     return view('coordinacion.docentes');
@@ -348,6 +351,48 @@ Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
 
 })->name('coordinacion.modulo');
 
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| ESTUDIANTE
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'role:ESTUDIANTE',
+])->group(function () {
+
+Route::get('/estudiante', function () {
+    return view('estudiante.dashboard');
+})->name('estudiante.dashboard');
+
+Route::get('/estudiante/practica', function () {
+    return view('estudiante.practica');
+})->name('estudiante.practica');
+
+Route::get('/estudiante/documentos', function () {
+    return view('estudiante.documentos');
+})->name('estudiante.documentos');
+
+Route::get('/estudiante/monografia', function () {
+    return view('estudiante.monografia');
+})->name('estudiante.monografia');
+
+Route::get('/estudiante/defensa', function () {
+    return view('estudiante.defensa');
+})->name('estudiante.defensa');
+
+Route::get('/estudiante/visita', function () {
+    return view('estudiante.visita');
+})->name('estudiante.visita');
+
+Route::get('/estudiante/empresa', function () {
+    return view('estudiante.empresa');
+})->name('estudiante.empresa');
+
 Route::get('/estudiante/notas', function () {
     return view('estudiante.notas');
 })->name('estudiante.notas');
@@ -418,6 +463,20 @@ Route::get('/estudiante/modulo/{modulo}', function ($modulo) {
 
 })->name('estudiante.modulo');
 
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| JEFE INMEDIATO
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'role:JEFE_INMEDIATO',
+])->group(function () {
+
 Route::get('/jefe-inmediato', function () {
     return view('jefe_inmediato.dashboard');
 })->name('jefe.dashboard');
@@ -452,14 +511,23 @@ Route::get('/jefe-inmediato/modulo/{modulo}', function ($modulo) {
 
 })->name('jefe.modulo');
 
-Route::get('/docente', function () {
-    return view('docente.dashboard');
-})->name('docente.dashboard');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| DOCENTE DE SEGUIMIENTO
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'role:DOCENTE_SEGUIMIENTO',
+])->group(function () {
 
 Route::get('/docente', function () {
     return view('docente.dashboard');
 })->name('docente.dashboard');
-
 
 Route::get('/docente/practicantes', function () {
     return view('docente.practicantes');
@@ -596,3 +664,5 @@ Route::get('/docente/alertas', function () {
 Route::get('/docente/carga-academica', function () {
     return view('docente.carga-academica');
 })->name('docente.carga-academica');
+
+});

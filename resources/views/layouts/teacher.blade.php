@@ -153,28 +153,38 @@
 
         </nav>
 
+        <div class="sidebar-footer">
 
+            <div class="sidebar-user">
 
-        <div class="sidebar-user">
+                <div class="user-avatar">
+                    CM
+                </div>
 
-            <div class="sidebar-avatar">
-                CM
+                <div>
+
+                    <strong>
+                        Msc. Carlos Martínez
+                    </strong>
+
+                    <span>
+                        Docente
+                    </span>
+
+                </div>
+
             </div>
 
-            <div>
+            <form method="POST" action="{{ route('logout') }}" class="sidebar-logout-form">
+                @csrf
 
-                <strong>
-                    Msc. Carlos Martínez
-                </strong>
-
-                <span>
-                    Docente
-                </span>
-
-            </div>
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
 
         </div>
-
 
     </aside>
 
