@@ -137,7 +137,7 @@ class StudentController extends Controller
         return [
             'id' => $student->id,
             'nombre' => $student->user->name,
-            'iniciales' => Str::initials($student->user->name),
+            'iniciales' => Str::initials($student->user->name, true),
             'cuenta' => $student->account_number,
             'correo' => $student->user->email,
             'telefono' => $student->phone ?? 'No registrado',

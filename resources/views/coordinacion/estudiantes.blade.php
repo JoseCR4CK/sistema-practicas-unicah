@@ -47,6 +47,7 @@
         <div class="filter-search">
             <i class="bi bi-search"></i>
             <input type="search" name="buscar" value="{{ request()->string('buscar') }}" placeholder="Buscar por nombre, cuenta o identidad...">
+            <button type="submit" class="visually-hidden-focusable">Buscar estudiantes</button>
         </div>
 
         <div class="filter-field">

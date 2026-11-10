@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = form.closest('.modal');
         const title = modal.querySelector('.modal-title');
         const oldInput = JSON.parse(form.dataset.oldInput);
-        const editId = oldInput._record || form.dataset.editId;
         let restore = form.dataset.validationFailed === '1';
+        const editId = restore ? String(oldInput._record ?? '') : form.dataset.editId;
 
         modal.addEventListener('show.bs.modal', event => {
             const trigger = event.relatedTarget;

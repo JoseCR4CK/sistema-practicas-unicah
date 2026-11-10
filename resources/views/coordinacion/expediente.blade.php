@@ -15,16 +15,7 @@
     ][$estudiante['cuenta']] ?? null;
     [$visitaDemo, $monografiaDemo, $defensaDemo] = $demo ?? array_fill(0, 3, 'Sin información');
 
-    $etapas = [
-        'Solicitud',
-        'Documentación',
-        'Empresa',
-        'Práctica',
-        'Visita',
-        'Monografía',
-        'Defensa',
-        'Finalización',
-    ];
+    $etapas = \App\Models\Practice::STAGES;
     $iconosEtapas = [
         'bi-check-lg',
         'bi-check-lg',

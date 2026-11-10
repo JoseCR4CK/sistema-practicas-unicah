@@ -112,23 +112,6 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $company1 = Company::where('rtn', '08019000000000')->first()
-            ?? Company::firstOrCreate(
-            ['official_name' => 'Grupo Tecnológico S.A.'],
-            [
-                'commercial_name' => 'GT Solutions',
-                'rtn' => '08019000000000',
-                'sector' => 'Tecnología',
-                'address' => 'Barrio El Centro',
-                'city' => 'Danlí',
-                'department' => 'El Paraíso',
-                'phone' => '2763-0000',
-                'email' => 'info@empresa.demo',
-                'status' => 'ACTIVE',
-            ]
-        );
-
-
         $bossUser1 = User::firstOrCreate(
             ['email' => 'responsable@empresa.demo'],
             [
@@ -141,13 +124,31 @@ class DemoDataSeeder extends Seeder
         );
 
 
+        $company1 = $bossUser1->companyResponsible?->company
+            ?? Company::where('rtn', '08019000000000')->first()
+            ?? Company::firstOrCreate(
+                ['official_name' => 'Grupo Tecnológico S.A.'],
+                [
+                    'commercial_name' => 'GT Solutions',
+                    'rtn' => '08019000000000',
+                    'sector' => 'Tecnología',
+                    'address' => 'Barrio El Centro',
+                    'city' => 'Danlí',
+                    'department' => 'El Paraíso',
+                    'phone' => '2763-0000',
+                    'email' => 'info@empresa.demo',
+                    'status' => 'ACTIVE',
+                ],
+            );
+
+
         $responsible1 = CompanyResponsible::firstOrCreate(
             [
                 'company_id' => $company1->id,
-                'email' => 'responsable@empresa.demo',
+                'user_id' => $bossUser1->id,
             ],
             [
-                'user_id' => $bossUser1->id,
+                'email' => 'responsable@empresa.demo',
                 'full_name' => 'Ing. Roberto Martínez',
                 'position' => 'Jefe inmediato',
                 'phone' => '9999-0001',
@@ -162,16 +163,17 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $andreaUser = User::firstOrCreate(
-            ['email' => 'amartinez@unicah.edu'],
-            [
-                'role_id' => $studentRole->id,
-                'name' => 'Andrea Martínez',
-                'dni' => '0000000000005',
-                'password' => 'Demo1234!',
-                'status' => 'ACTIVE',
-            ]
-        );
+        $andreaUser = User::where('email', 'amartinez@unicah.edu')->first()
+            ?? User::firstOrCreate(
+                ['email' => 'amartinez@unicah.demo'],
+                [
+                    'role_id' => $studentRole->id,
+                    'name' => 'Andrea Martínez',
+                    'dni' => '0000000000005',
+                    'password' => 'Demo1234!',
+                    'status' => 'ACTIVE',
+                ],
+            );
 
 
         $andrea = Student::firstOrCreate(
@@ -213,19 +215,6 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $company2 = CompanyResponsible::where('email', 'jgarcia@empresa.demo')->first()?->company
-            ?? Company::firstOrCreate(
-            ['official_name' => 'Inversiones del Valle S. de R.L.'],
-            [
-                'commercial_name' => 'Inversiones del Valle',
-                'sector' => 'Servicios',
-                'city' => 'Danlí',
-                'department' => 'El Paraíso',
-                'status' => 'ACTIVE',
-            ]
-        );
-
-
         $bossUser2 = User::firstOrCreate(
             ['email' => 'jgarcia@empresa.demo'],
             [
@@ -238,13 +227,26 @@ class DemoDataSeeder extends Seeder
         );
 
 
+        $company2 = $bossUser2->companyResponsible?->company
+            ?? Company::firstOrCreate(
+                ['official_name' => 'Inversiones del Valle S. de R.L.'],
+                [
+                    'commercial_name' => 'Inversiones del Valle',
+                    'sector' => 'Servicios',
+                    'city' => 'Danlí',
+                    'department' => 'El Paraíso',
+                    'status' => 'ACTIVE',
+                ],
+            );
+
+
         $responsible2 = CompanyResponsible::firstOrCreate(
             [
                 'company_id' => $company2->id,
-                'email' => 'jgarcia@empresa.demo',
+                'user_id' => $bossUser2->id,
             ],
             [
-                'user_id' => $bossUser2->id,
+                'email' => 'jgarcia@empresa.demo',
                 'full_name' => 'Lic. José García',
                 'position' => 'Jefe inmediato',
                 'status' => 'ACTIVE',
@@ -258,16 +260,17 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $mariaUser = User::firstOrCreate(
-            ['email' => 'mlopez@unicah.edu'],
-            [
-                'role_id' => $studentRole->id,
-                'name' => 'María López',
-                'dni' => '0000000000007',
-                'password' => 'Demo1234!',
-                'status' => 'ACTIVE',
-            ]
-        );
+        $mariaUser = User::where('email', 'mlopez@unicah.edu')->first()
+            ?? User::firstOrCreate(
+                ['email' => 'mlopez@unicah.demo'],
+                [
+                    'role_id' => $studentRole->id,
+                    'name' => 'María López',
+                    'dni' => '0000000000007',
+                    'password' => 'Demo1234!',
+                    'status' => 'ACTIVE',
+                ],
+            );
 
 
         $maria = Student::firstOrCreate(
@@ -301,24 +304,17 @@ class DemoDataSeeder extends Seeder
                 'completed_hours' => 0,
             ]
         );
-        $company3 = Company::firstOrCreate(
-            ['rtn' => '00000000000003'],
-            ['official_name' => 'Corporación Industrial HN', 'status' => 'ACTIVE'],
-        );
-
-        $company4 = Company::firstOrCreate(
-            ['rtn' => '00000000000004'],
-            ['official_name' => 'Manufacturas Centroamericanas', 'status' => 'ACTIVE'],
-        );
-
         $this->addDemoStudent($studentRole, $teacher, [
             'name' => 'Carlos Rodríguez',
             'email' => 'crodriguez@unicah.demo',
             'dni' => '0000000000008',
             'account' => '0801-2021-00231',
             'career' => 'Ingeniería Industrial',
-        ], [
-            'company_id' => $company3->id,
+        ], fn () => [
+            'company_id' => Company::firstOrCreate(
+                ['rtn' => '00000000000003'],
+                ['official_name' => 'Corporación Industrial HN', 'status' => 'ACTIVE'],
+            )->id,
             'stage' => 'Documentación',
             'status' => 'ACTIVE',
             'progress' => 32,
@@ -330,7 +326,7 @@ class DemoDataSeeder extends Seeder
             'dni' => '0000000000009',
             'account' => '0801-2022-00714',
             'career' => 'Ingeniería Industrial',
-        ], [
+        ], fn () => [
             'company_id' => $company1->id,
             'company_responsible_id' => $responsible1->id,
             'stage' => 'Práctica',
@@ -346,8 +342,11 @@ class DemoDataSeeder extends Seeder
             'dni' => '0000000000010',
             'account' => '0801-2020-00118',
             'career' => 'Ingeniería Industrial',
-        ], [
-            'company_id' => $company4->id,
+        ], fn () => [
+            'company_id' => Company::firstOrCreate(
+                ['rtn' => '00000000000004'],
+                ['official_name' => 'Manufacturas Centroamericanas', 'status' => 'ACTIVE'],
+            )->id,
             'stage' => 'Finalización',
             'status' => 'COMPLETED',
             'progress' => 100,
@@ -356,7 +355,7 @@ class DemoDataSeeder extends Seeder
         ], 'II Período');
     }
 
-    private function addDemoStudent(Role $role, Teacher $teacher, array $data, array $practice, string $period = 'III Período'): void
+    private function addDemoStudent(Role $role, Teacher $teacher, array $data, \Closure $practice, string $period = 'III Período'): void
     {
         $student = Student::where('account_number', $data['account'])->first();
 
@@ -378,9 +377,14 @@ class DemoDataSeeder extends Seeder
             );
         }
 
-        $student->practices()->firstOrCreate(
-            ['academic_period' => $period, 'academic_year' => 2026],
-            $practice + ['teacher_id' => $teacher->id],
-        );
+        if ($student->user->email !== $data['email']) {
+            return;
+        }
+
+        $identity = ['academic_period' => $period, 'academic_year' => 2026];
+
+        if (!$student->practices()->where($identity)->exists()) {
+            $student->practices()->firstOrCreate($identity, $practice() + ['teacher_id' => $teacher->id]);
+        }
     }
 }

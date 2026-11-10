@@ -105,7 +105,7 @@
                         <td><a href="{{ route('coordinacion.estudiante', $practica->student) }}">{{ $practica->student->user->name }}</a></td>
                         <td>{{ $practica->company?->official_name ?? 'Sin empresa asignada' }}</td>
                         <td>{{ $practica->academic_period }} {{ $practica->academic_year }}</td>
-                        <td>{{ $practica->stage }}</td>
+                        <td><a href="{{ route('coordinacion.practica', $practica) }}">{{ $practica->stage }}</a></td>
                         <td>{{ $practica->statusLabel() }}</td>
                     </tr>
                 @empty

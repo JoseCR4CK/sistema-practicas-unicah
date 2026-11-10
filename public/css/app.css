@@ -15246,7 +15246,9 @@ body {
     z-index: 0;
 }
 
-.coord-practice-step:last-child::after {
+.coord-practice-step:last-child::after,
+.coord-practice-step:nth-child(3)::after,
+.coord-practice-step:nth-child(6)::after {
     display: none;
 }
 

@@ -244,7 +244,7 @@
         <div id="companyStudentsList">
             @forelse ($empresa->practices as $practica)
                 <article class="coord-company-student">
-                    <div class="coord-company-student-avatar">{{ Str::initials($practica->student->user->name) }}</div>
+                    <div class="coord-company-student-avatar">{{ Str::initials($practica->student->user->name, true) }}</div>
                     <div>
                         <span>ESTUDIANTE</span>
                         <strong><a href="{{ route('coordinacion.estudiante', $practica->student) }}">{{ $practica->student->user->name }}</a></strong>
@@ -261,7 +261,7 @@
                     </div>
                     <div>
                         <span>Etapa</span>
-                        <strong>{{ $practica->stage }}</strong>
+                        <strong><a href="{{ route('coordinacion.practica', $practica) }}">{{ $practica->stage }}</a></strong>
                         <small>{{ $practica->academic_period }} {{ $practica->academic_year }}</small>
                     </div>
                     <div>

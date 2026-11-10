@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Coordination\CompanyController;
+use App\Http\Controllers\Coordination\PracticeController;
 use App\Http\Controllers\Coordination\StudentController;
 use App\Http\Controllers\Coordination\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -80,18 +81,9 @@ Route::get('/coordinacion/solicitudes/{id}', function ($id) {
 
 })->name('coordinacion.solicitud');
 
-Route::get('/coordinacion/practicas', function () {
-    return view('coordinacion.practicas');
-})->name('coordinacion.practicas');
-
-
-Route::get('/coordinacion/practicas/{id}', function ($id) {
-
-    return view('coordinacion.practica-detalle', [
-        'practicaId' => (int) $id
-    ]);
-
-})->name('coordinacion.practica');
+Route::get('/coordinacion/practicas', [PracticeController::class, 'index'])->name('coordinacion.practicas');
+Route::get('/coordinacion/practicas/{practice}', [PracticeController::class, 'show'])
+    ->whereNumber('practice')->name('coordinacion.practica');
 
 Route::get('/coordinacion/documentos', function () {
     return view('coordinacion.documentos');

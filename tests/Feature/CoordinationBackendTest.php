@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -105,15 +106,21 @@ class CoordinationBackendTest extends TestCase
     {
         $student = Student::where('account_number', '0801-2022-00714')->firstOrFail();
         $student->latestActivePractice->update(['progress' => 51]);
-        $student->latestActivePractice->company->update(['official_name' => 'Empresa editada']);
+        $student->latestActivePractice->company->update(['official_name' => 'Empresa editada', 'rtn' => 'RTN-DE-PRUEBA']);
+        $student->latestActivePractice->companyResponsible->update(['email' => 'responsable-editado@example.test']);
+        $otherCompany = Company::where('rtn', '00000000000003')->firstOrFail();
+        $otherCompany->update(['official_name' => 'Otra empresa editada', 'rtn' => 'OTRO-RTN-DE-PRUEBA']);
 
         $this->seed(DatabaseSeeder::class);
 
         $this->assertDatabaseCount('students', 5);
         $this->assertDatabaseCount('practices', 5);
         $this->assertDatabaseCount('companies', 4);
+        $this->assertDatabaseCount('company_responsibles', 2);
         $this->assertSame(51, $student->fresh()->latestActivePractice->progress);
         $this->assertSame('Empresa editada', $student->fresh()->latestActivePractice->company->official_name);
+        $this->assertSame('responsable-editado@example.test', $student->fresh()->latestActivePractice->companyResponsible->email);
+        $this->assertSame('OTRO-RTN-DE-PRUEBA', $otherCompany->fresh()->rtn);
     }
 
     public function test_company_lists_the_practitioners_and_responsible_from_the_same_practices(): void
@@ -179,6 +186,72 @@ class CoordinationBackendTest extends TestCase
             ->assertSee('Sofía Pérez')->assertSee('Grupo Tecnológico S.A.')
             ->assertViewHas('practicasActivas', 4)->assertViewHas('practicantes', 5);
         $this->get(route('coordinacion.docente', 999999))->assertNotFound();
+    }
+
+    public function test_all_four_domains_show_the_same_practice_relationships(): void
+    {
+        $this->actingAs($this->userWithRole('COORDINACION'));
+        $student = Student::where('account_number', '0801-2022-00458')->firstOrFail();
+        $practice = $student->latestActivePractice;
+        $company = $practice->company;
+        $responsible = $practice->companyResponsible;
+        $teacher = $practice->teacher;
+
+        $this->assertTrue($practice->student->is($student));
+        $this->assertTrue($company->practices()->whereKey($practice->id)->exists());
+        $this->assertTrue($responsible->company->is($company));
+        $this->assertTrue($teacher->practices()->whereKey($practice->id)->exists());
+
+        $company->update(['official_name' => 'Razón social desde Eloquent']);
+        $responsible->update(['full_name' => 'Responsable desde Eloquent']);
+        $teacher->user->update(['name' => 'Docente desde Eloquent']);
+        $practice->update(['stage' => 'Etapa flexible de prueba', 'progress' => 73, 'completed_hours' => 134, 'required_hours' => 377]);
+
+        foreach ([
+            route('coordinacion.estudiante', $student),
+            route('coordinacion.empresa', $company),
+            route('coordinacion.docente', $teacher),
+            route('coordinacion.practica', $practice),
+        ] as $url) {
+            $this->get($url)->assertOk()->assertSee($student->user->name)
+                ->assertSee('Razón social desde Eloquent')->assertSee('Docente desde Eloquent')
+                ->assertSee('Etapa flexible de prueba');
+        }
+
+        $this->get(route('coordinacion.practicas'))->assertOk()->assertSee('Razón social desde Eloquent')
+            ->assertSee('73%')->assertSee(route('coordinacion.practica', $practice));
+        $this->get(route('coordinacion.practica', $practice))->assertOk()
+            ->assertSee('Responsable desde Eloquent')->assertSee('III Período 2026')
+            ->assertSee('01/09/2026')->assertSee('30/11/2026')
+            ->assertSee('Horas completadas')->assertSee('134')->assertSee('Horas requeridas')->assertSee('377');
+        $this->get(route('coordinacion.practica', 999999))->assertNotFound();
+    }
+
+    public function test_practice_counts_from_the_real_start_and_shows_the_visit_threshold_from_day_45(): void
+    {
+        $this->actingAs($this->userWithRole('COORDINACION'));
+        $practice = Student::where('account_number', '0801-2022-00458')->firstOrFail()->latestActivePractice;
+        $url = route('coordinacion.practica', $practice);
+
+        $this->travelTo(Carbon::parse('2026-08-31'));
+        $this->assertNull($practice->currentDay());
+
+        $this->travelTo(Carbon::parse('2026-09-01'));
+        $this->assertSame(1, $practice->currentDay());
+
+        $this->travelTo(Carbon::parse('2026-10-14'));
+        $this->assertSame(44, $practice->currentDay());
+        $this->get($url)->assertOk()->assertDontSee('Día 45 alcanzado');
+
+        foreach (['2026-10-15', '2026-10-16'] as $date) {
+            $this->travelTo(Carbon::parse($date));
+            $this->get($url)->assertOk()->assertSee('Día 45 alcanzado');
+        }
+
+        $practice->update(['start_date' => null, 'proposed_start_date' => '2026-09-01']);
+        $this->assertNull($practice->currentDay());
+        $this->get($url)->assertOk()->assertDontSee('Día 45 alcanzado');
+        $this->travelBack();
     }
 
     private function userWithRole(string $role): User
