@@ -151,6 +151,7 @@ class StudentController extends Controller
             'responsable' => $practice?->companyResponsible?->full_name ?? 'Sin responsable asignado',
             'docente' => $practice?->teacher?->user?->name ?? 'Sin docente asignado',
             'inicio' => $practice?->start_date?->format('d/m/Y') ?? 'Pendiente',
+            'dia_practica' => $practice?->currentDay(),
             'finalizacion' => $practice?->end_date?->format('d/m/Y') ?? 'Pendiente',
             'periodo' => $practice ? "$practice->academic_period $practice->academic_year" : null,
             'periodo_anterior' => $practice ? Str::before($practice->academic_period, ' ').'-'.$practice->academic_year : null,

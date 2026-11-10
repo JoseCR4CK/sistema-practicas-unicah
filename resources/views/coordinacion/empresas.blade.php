@@ -257,7 +257,6 @@
                             type="text"
                             id="companyLegalName" name="official_name" required
                             class="form-control"
-                            placeholder="Ej. Grupo Tecnológico S.A."
                         >
 
                     </div>
@@ -273,7 +272,6 @@
                             type="text"
                             id="companyCommercialName" name="commercial_name"
                             class="form-control"
-                            placeholder="Ej. GT Solutions"
                         >
 
                     </div>
@@ -369,7 +367,6 @@
                             type="text"
                             id="companyCity" name="city"
                             class="form-control"
-                            value="Danlí"
                         >
 
                     </div>
@@ -385,7 +382,6 @@
                             type="text"
                             id="companyDepartment" name="department"
                             class="form-control"
-                            value="El Paraíso"
                         >
 
                     </div>

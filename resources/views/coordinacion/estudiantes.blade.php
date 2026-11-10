@@ -102,7 +102,7 @@
             </h2>
 
             <p>
-                84 estudiantes encontrados
+                {{ $estudiantes->total() }} {{ $estudiantes->total() === 1 ? 'estudiante encontrado' : 'estudiantes encontrados' }}
             </p>
 
         </div>

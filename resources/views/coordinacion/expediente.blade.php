@@ -29,7 +29,7 @@
     $estadosCompletados = [
         'Aprobada',
         'Validada',
-        'Validada',
+        $estudiante['empresa_id'] !== null ? 'Asignada' : 'Sin asignar',
         'Completada',
         'Realizada',
         'Aprobada',
@@ -52,7 +52,7 @@
             $estadoActual = 'Actual';
 
             if ($nombreEtapa === 'Práctica') {
-                $estadoActual = 'En curso';
+                $estadoActual = $estudiante['estado'];
             } elseif ($nombreEtapa === 'Monografía') {
                 $estadoActual = $monografiaDemo;
             }
@@ -139,7 +139,7 @@
                     {{ $estudiante['nombre'] }}
                 </h2>
 
-                <span class="status-pill active">
+                <span class="status-pill {{ $estudiante['estado_codigo'] === 'ACTIVE' ? 'active' : '' }}">
                     {{ $estudiante['estado'] }}
                 </span>
 
@@ -360,7 +360,7 @@
             </span>
 
             <strong>
-                {{ $estudiante['inicio'] === 'Pendiente' ? 'No iniciada' : 'No disponible' }}
+                {{ $estudiante['dia_practica'] ?? 'No iniciada' }}
             </strong>
 
             <p>
@@ -865,7 +865,7 @@
                 <div>
 
                     <strong>
-                        {{ $estudiante['etapa'] === 'Documentación' ? 'Empresa pendiente' : 'Empresa validada' }}
+                        {{ $estudiante['empresa_id'] !== null ? 'Empresa asignada' : 'Sin empresa asignada' }}
                     </strong>
 
                     <span>

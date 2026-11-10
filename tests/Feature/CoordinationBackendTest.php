@@ -59,6 +59,10 @@ class CoordinationBackendTest extends TestCase
         $this->assertTrue($student->latestPractice->is($historical));
         $this->assertTrue($student->latestActivePractice->is($active));
 
+        $this->get(route('coordinacion.estudiantes'))->assertOk()->assertSee('5 estudiantes encontrados');
+        $this->get(route('coordinacion.estudiantes', ['buscar' => 'CUENTA-INEXISTENTE']))
+            ->assertOk()->assertSee('0 estudiantes encontrados');
+
         foreach ([
             route('coordinacion.estudiantes'),
             route('coordinacion.estudiante', $student),
@@ -72,7 +76,8 @@ class CoordinationBackendTest extends TestCase
         }
 
         $this->get(route('coordinacion.estudiantes', ['etapa' => 'Etapa actual de prueba']))
-            ->assertOk()->assertSee('Nombre actualizado en base')->assertDontSee('María López');
+            ->assertOk()->assertSee('1 estudiante encontrado')
+            ->assertSee('Nombre actualizado en base')->assertDontSee('María López');
 
         $this->get(route('coordinacion.estudiante', $student))->assertOk()
             ->assertSee('Ing. Roberto Martínez')->assertSee('Msc. Carlos Martínez')
@@ -98,7 +103,8 @@ class CoordinationBackendTest extends TestCase
         ]);
 
         $this->get(route('coordinacion.estudiante', $student))->assertOk()
-            ->assertSee('Sin empresa asignada')->assertSee('Sin responsable asignado')->assertSee('Sin docente asignado');
+            ->assertSee('Sin empresa asignada')->assertSee('Sin responsable asignado')->assertSee('Sin docente asignado')
+            ->assertDontSee('Empresa validada');
         $this->get(route('coordinacion.estudiante', 999999))->assertNotFound();
     }
 
@@ -136,6 +142,7 @@ class CoordinationBackendTest extends TestCase
             ->assertSee($company->commercial_name);
         $this->get(route('coordinacion.empresa', $company))->assertOk()->assertSee($responsible->full_name)
             ->assertSee('Andrea Martínez')->assertSee('Luis Hernández')->assertSee('Msc. Carlos Martínez');
+        $this->get(route('coordinacion.empresa', 999999))->assertNotFound();
     }
 
     public function test_coordination_can_create_and_edit_companies_and_responsibles_safely(): void
@@ -242,6 +249,8 @@ class CoordinationBackendTest extends TestCase
         $this->travelTo(Carbon::parse('2026-10-14'));
         $this->assertSame(44, $practice->currentDay());
         $this->get($url)->assertOk()->assertDontSee('Día 45 alcanzado');
+        $this->get(route('coordinacion.estudiante', $practice->student))->assertOk()
+            ->assertSeeTextInOrder(['Día actual de práctica', '44', 'Estado de visita']);
 
         foreach (['2026-10-15', '2026-10-16'] as $date) {
             $this->travelTo(Carbon::parse($date));
