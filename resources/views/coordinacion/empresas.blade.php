@@ -29,7 +29,6 @@
         class="btn btn-primary coord-company-add"
         data-bs-toggle="modal"
         data-bs-target="#companyModal"
-        onclick="prepareNewCompany()"
     >
         <i class="bi bi-plus-lg"></i>
         Nueva empresa
@@ -38,6 +37,10 @@
 </div>
 
 
+
+@if (session('status'))
+    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+@endif
 
 <section class="row g-3 mb-4">
 
@@ -51,7 +54,7 @@
 
             <div>
                 <span>Empresas registradas</span>
-                <strong id="companyStatTotal">0</strong>
+                <strong id="companyStatTotal">{{ $empresas->count() }}</strong>
             </div>
 
         </div>
@@ -69,7 +72,7 @@
 
             <div>
                 <span>Practicantes vinculados</span>
-                <strong id="companyStatStudents">0</strong>
+                <strong id="companyStatStudents">{{ $practicantes }}</strong>
             </div>
 
         </div>
@@ -87,7 +90,7 @@
 
             <div>
                 <span>Responsables registrados</span>
-                <strong id="companyStatResponsibles">0</strong>
+                <strong id="companyStatResponsibles">{{ $empresas->sum('responsibles_count') }}</strong>
             </div>
 
         </div>
@@ -110,7 +113,6 @@
                 type="text"
                 id="companySearch"
                 placeholder="Buscar por nombre oficial o comercial..."
-                oninput="renderCompanies()"
             >
 
         </div>
@@ -119,50 +121,60 @@
         <select
             id="companySector"
             class="form-select"
-            onchange="renderCompanies()"
         >
-
-            <option value="">
-                Todos los sectores
-            </option>
-
-            <option value="Tecnología">
-                Tecnología
-            </option>
-
-            <option value="Industrial">
-                Industrial
-            </option>
-
-            <option value="Servicios">
-                Servicios
-            </option>
-
-            <option value="Comercio">
-                Comercio
-            </option>
-
-            <option value="Salud">
-                Salud
-            </option>
-
-            <option value="Educación">
-                Educación
-            </option>
-
-            <option value="Otro">
-                Otro
-            </option>
+            <option value="">Todos los sectores</option>
+            @foreach ($empresas->pluck('sector')->filter()->unique()->sort() as $sector)
+                <option>{{ $sector }}</option>
+            @endforeach
 
         </select>
 
     </div>
 
 
-    <div
-        class="coord-company-list"
-        id="companiesList"
-    ></div>
+    <div class="coord-company-list" id="companiesList">
+        @foreach ($empresas as $empresa)
+            <article class="coord-company-row" data-name="{{ $empresa->official_name }} {{ $empresa->commercial_name }}" data-sector="{{ $empresa->sector }}">
+                <div class="coord-company-icon"><i class="bi bi-building"></i></div>
+                <div class="coord-company-main">
+                    <span>NOMBRE OFICIAL</span>
+                    <strong>{{ $empresa->official_name }}</strong>
+                    <small>{{ $empresa->commercial_name ? 'Nombre comercial: '.$empresa->commercial_name : 'Sin nombre comercial' }}</small>
+                </div>
+                <div>
+                    <span class="coord-company-label">Sector</span>
+                    <strong class="coord-company-value">{{ $empresa->sector ?? 'Sin sector' }}</strong>
+                </div>
+                <div>
+                    <span class="coord-company-label">Practicantes</span>
+                    <strong class="coord-company-value">{{ $empresa->students_count }}</strong>
+                </div>
+                <div>
+                    <span class="coord-company-label">Responsables</span>
+                    <strong class="coord-company-value">{{ $empresa->responsibles_count }}</strong>
+                </div>
+                <span class="coord-company-status {{ $empresa->status === 'ACTIVE' ? 'active' : 'inactive' }}">
+                    {{ ['ACTIVE' => 'Activa', 'INACTIVE' => 'Inactiva'][$empresa->status] ?? $empresa->status }}
+                </span>
+                <div class="coord-company-actions">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#companyModal"
+                        data-record-id="{{ $empresa->id }}" data-action="{{ route('coordinacion.empresas.update', $empresa) }}"
+                        data-fields="{{ json_encode($empresa->only(['official_name', 'commercial_name', 'rtn', 'sector', 'address', 'city', 'department', 'phone', 'email', 'status'])) }}"
+                        title="Editar empresa">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <a href="{{ route('coordinacion.empresa', $empresa) }}" class="coord-teacher-view">
+                        <i class="bi bi-eye"></i> Ver empresa
+                    </a>
+                </div>
+            </article>
+        @endforeach
+        <div class="teacher-load-empty {{ $empresas->isEmpty() ? '' : 'd-none' }}" id="noCompanies">
+            <i class="bi bi-buildings"></i>
+            <strong>No se encontraron empresas</strong>
+            <span>Cambia los filtros o registra una nueva empresa.</span>
+        </div>
+    </div>
 
 </section>
 
@@ -179,7 +191,16 @@
 
     <div class="modal-dialog modal-lg modal-dialog-centered">
 
-        <div class="modal-content coord-company-modal">
+        <form class="modal-content coord-company-modal" method="POST"
+            action="{{ route('coordinacion.empresas.store') }}"
+            data-record-modal
+            data-create-action="{{ route('coordinacion.empresas.store') }}"
+            data-create-title="Nueva empresa" data-edit-title="Editar empresa"
+            data-edit-id="{{ request()->string('editar') }}"
+            data-validation-failed="{{ $errors->any() ? 1 : 0 }}"
+            data-old-input="{{ json_encode(session()->getOldInput()) }}">
+            @csrf
+            <input type="hidden" name="_method" value="PUT" disabled>
 
             <div class="modal-header">
 
@@ -208,10 +229,19 @@
 
 
             <div class="modal-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <input
                     type="hidden"
-                    id="companyId"
+                    id="companyId" name="_record"
                 >
 
 
@@ -225,7 +255,7 @@
 
                         <input
                             type="text"
-                            id="companyLegalName"
+                            id="companyLegalName" name="official_name" required
                             class="form-control"
                             placeholder="Ej. Grupo Tecnológico S.A."
                         >
@@ -241,7 +271,7 @@
 
                         <input
                             type="text"
-                            id="companyCommercialName"
+                            id="companyCommercialName" name="commercial_name"
                             class="form-control"
                             placeholder="Ej. GT Solutions"
                         >
@@ -257,7 +287,7 @@
 
                         <input
                             type="text"
-                            id="companyRtn"
+                            id="companyRtn" name="rtn"
                             class="form-control"
                             placeholder="RTN de la empresa"
                         >
@@ -272,7 +302,7 @@
                         </label>
 
                         <select
-                            id="companyFormSector"
+                            id="companyFormSector" name="sector" required
                             class="form-select"
                         >
 
@@ -321,7 +351,7 @@
 
                         <input
                             type="text"
-                            id="companyAddress"
+                            id="companyAddress" name="address"
                             class="form-control"
                             placeholder="Dirección de la empresa"
                         >
@@ -337,7 +367,7 @@
 
                         <input
                             type="text"
-                            id="companyCity"
+                            id="companyCity" name="city"
                             class="form-control"
                             value="Danlí"
                         >
@@ -353,7 +383,7 @@
 
                         <input
                             type="text"
-                            id="companyDepartment"
+                            id="companyDepartment" name="department"
                             class="form-control"
                             value="El Paraíso"
                         >
@@ -369,7 +399,7 @@
 
                         <input
                             type="text"
-                            id="companyPhone"
+                            id="companyPhone" name="phone"
                             class="form-control"
                         >
 
@@ -384,7 +414,7 @@
 
                         <input
                             type="email"
-                            id="companyEmail"
+                            id="companyEmail" name="email"
                             class="form-control"
                         >
 
@@ -398,14 +428,14 @@
                         </label>
 
                         <select
-                            id="companyStatus"
+                            id="companyStatus" name="status"
                             class="form-select"
                         >
-                            <option value="Activa">
+                            <option value="ACTIVE">
                                 Activa
                             </option>
 
-                            <option value="Inactiva">
+                            <option value="INACTIVE">
                                 Inactiva
                             </option>
                         </select>
@@ -428,9 +458,7 @@
                 </button>
 
                 <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="saveCompany()"
+                    type="submit" class="btn btn-primary"
                 >
                     <i class="bi bi-check-lg"></i>
                     Guardar empresa
@@ -438,585 +466,35 @@
 
             </div>
 
-        </div>
-
+        </form>
     </div>
-
 </div>
 
 @endsection
 
-
-
 @push('scripts')
-
-<script src="{{ asset('js/companies-store.js') }}"></script>
-
+<script src="{{ asset('js/coordination-record-modal.js') }}"></script>
 <script>
-
-function prepareNewCompany() {
-
-    document.getElementById('companyId').value = '';
-
-    document.getElementById('companyModalTitle')
-        .textContent = 'Nueva empresa';
-
-
-    document.getElementById('companyLegalName').value = '';
-    document.getElementById('companyCommercialName').value = '';
-    document.getElementById('companyRtn').value = '';
-    document.getElementById('companyFormSector').value = '';
-    document.getElementById('companyAddress').value = '';
-
-    document.getElementById('companyCity').value =
-        'Danlí';
-
-    document.getElementById('companyDepartment').value =
-        'El Paraíso';
-
-    document.getElementById('companyPhone').value = '';
-    document.getElementById('companyEmail').value = '';
-
-    document.getElementById('companyStatus').value =
-        'Activa';
-
-}
-
-
-function openEditCompany(id) {
-
-    const company =
-        CompanyStore.getById(id);
-
-
-    if (!company) {
-        return;
-    }
-
-
-    document.getElementById('companyId').value =
-        company.id;
-
-    document.getElementById('companyLegalName').value =
-        company.nombre_oficial || '';
-
-    document.getElementById('companyCommercialName').value =
-        company.nombre_comercial || '';
-
-    document.getElementById('companyRtn').value =
-        company.rtn || '';
-
-    document.getElementById('companyFormSector').value =
-        company.sector || '';
-
-    document.getElementById('companyAddress').value =
-        company.direccion || '';
-
-    document.getElementById('companyCity').value =
-        company.municipio || '';
-
-    document.getElementById('companyDepartment').value =
-        company.departamento || '';
-
-    document.getElementById('companyPhone').value =
-        company.telefono || '';
-
-    document.getElementById('companyEmail').value =
-        company.correo || '';
-
-    document.getElementById('companyStatus').value =
-        company.estado || 'Activa';
-
-
-    document.getElementById('companyModalTitle')
-        .textContent = 'Editar empresa';
-
-
-    new bootstrap.Modal(
-        document.getElementById('companyModal')
-    ).show();
-
-}
-
-
-function saveCompany() {
-
-    const id =
-        document.getElementById('companyId').value;
-
-
-    const legalName =
-        document
-            .getElementById('companyLegalName')
-            .value
-            .trim();
-
-
-    const commercialName =
-        document
-            .getElementById('companyCommercialName')
-            .value
-            .trim();
-
-
-    const rtn =
-        document
-            .getElementById('companyRtn')
-            .value
-            .trim();
-
-
-    const sector =
-        document.getElementById(
-            'companyFormSector'
-        ).value;
-
-
-    const address =
-        document
-            .getElementById('companyAddress')
-            .value
-            .trim();
-
-
-    const city =
-        document
-            .getElementById('companyCity')
-            .value
-            .trim();
-
-
-    const department =
-        document
-            .getElementById('companyDepartment')
-            .value
-            .trim();
-
-
-    const phone =
-        document
-            .getElementById('companyPhone')
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById('companyEmail')
-            .value
-            .trim();
-
-
-    const status =
-        document.getElementById(
-            'companyStatus'
-        ).value;
-
-
-    if (!legalName || !sector) {
-
-        alert(
-            'El nombre oficial y el sector son obligatorios.'
-        );
-
-        return;
-    }
-
-
-    const companies =
-        CompanyStore.getAll();
-
-
-    const duplicated =
-        companies.some(company => {
-
-            if (
-                id &&
-                String(company.id) === String(id)
-            ) {
-                return false;
-            }
-
-
-            return (
-                company.nombre_oficial
-                    .toLowerCase()
-                    .trim()
-                ===
-                legalName
-                    .toLowerCase()
-                    .trim()
-            );
-
-        });
-
-
-    if (duplicated) {
-
-        alert(
-            'Ya existe una empresa registrada con ese nombre oficial.'
-        );
-
-        return;
-    }
-
-
-    let company;
-
-
-    if (id) {
-
-        company =
-            CompanyStore.getById(id);
-
-
-        if (!company) {
-            return;
+    const companySearch = document.getElementById('companySearch');
+    const companySector = document.getElementById('companySector');
+    const companyRows = Array.from(document.querySelectorAll('#companiesList .coord-company-row'));
+
+    function filterCompanies() {
+        const search = companySearch.value.trim().toLocaleLowerCase();
+        const sector = companySector.value;
+        let matches = 0;
+
+        for (const row of companyRows) {
+            const nameMatches = row.dataset.name.toLocaleLowerCase().includes(search);
+            const sectorMatches = !sector || row.dataset.sector === sector;
+            row.classList.toggle('d-none', !(nameMatches && sectorMatches));
+            if (nameMatches && sectorMatches) matches++;
         }
 
-
-        company = {
-
-            ...company,
-
-            nombre_oficial: legalName,
-            nombre_comercial: commercialName,
-            rtn,
-            sector,
-            direccion: address,
-            municipio: city,
-            departamento: department,
-            telefono: phone,
-            correo: email,
-            estado: status,
-
-            updated_at:
-                new Date().toISOString()
-
-        };
-
-    } else {
-
-        company = {
-
-            id: CompanyStore.createId(),
-
-            nombre_oficial: legalName,
-            nombre_comercial: commercialName,
-            rtn,
-            sector,
-            direccion: address,
-            municipio: city,
-            departamento: department,
-            telefono: phone,
-            correo: email,
-            estado: status,
-
-            responsables: [],
-            practicantes: [],
-
-            created_at:
-                new Date().toISOString(),
-
-            updated_at:
-                new Date().toISOString()
-
-        };
-
+        document.getElementById('noCompanies').classList.toggle('d-none', matches > 0);
     }
 
-
-    CompanyStore.saveCompany(company);
-
-
-    bootstrap.Modal
-        .getInstance(
-            document.getElementById('companyModal')
-        )
-        .hide();
-
-
-    renderCompanies();
-
-}
-
-
-function renderStats(companies) {
-
-    document.getElementById(
-        'companyStatTotal'
-    ).textContent =
-        companies.length;
-
-
-    const students =
-        companies.reduce(
-            (total, company) =>
-                total +
-                (company.practicantes?.length || 0),
-            0
-        );
-
-
-    document.getElementById(
-        'companyStatStudents'
-    ).textContent =
-        students;
-
-
-    const responsibles =
-        companies.reduce(
-            (total, company) =>
-                total +
-                (company.responsables?.length || 0),
-            0
-        );
-
-
-    document.getElementById(
-        'companyStatResponsibles'
-    ).textContent =
-        responsibles;
-
-}
-
-
-function renderCompanies() {
-
-    const companies =
-        CompanyStore.getAll();
-
-
-    renderStats(companies);
-
-
-    const search =
-        document
-            .getElementById('companySearch')
-            .value
-            .toLowerCase()
-            .trim();
-
-
-    const sector =
-        document.getElementById(
-            'companySector'
-        ).value;
-
-
-    const filtered =
-        companies.filter(company => {
-
-            const text =
-                `${company.nombre_oficial} ${company.nombre_comercial}`
-                    .toLowerCase();
-
-
-            const matchesSearch =
-                text.includes(search);
-
-
-            const matchesSector =
-                !sector ||
-                company.sector === sector;
-
-
-            return (
-                matchesSearch &&
-                matchesSector
-            );
-
-        });
-
-
-    const container =
-        document.getElementById(
-            'companiesList'
-        );
-
-
-    if (filtered.length === 0) {
-
-        container.innerHTML = `
-
-            <div class="teacher-load-empty">
-
-                <i class="bi bi-buildings"></i>
-
-                <strong>
-                    No se encontraron empresas
-                </strong>
-
-                <span>
-                    Cambia los filtros o registra una nueva empresa.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        filtered.map(company => {
-
-            const responsibles =
-                company.responsables?.length || 0;
-
-            const students =
-                company.practicantes?.length || 0;
-
-
-            const statusClass =
-                company.estado === 'Activa'
-                    ? 'active'
-                    : 'inactive';
-
-
-            return `
-
-                <article class="coord-company-row">
-
-                    <div class="coord-company-icon">
-                        <i class="bi bi-building"></i>
-                    </div>
-
-
-                    <div class="coord-company-main">
-
-                        <span>
-                            NOMBRE OFICIAL
-                        </span>
-
-                        <strong>
-                            ${company.nombre_oficial}
-                        </strong>
-
-                        <small>
-                            ${
-                                company.nombre_comercial
-                                    ? `Nombre comercial: ${company.nombre_comercial}`
-                                    : 'Sin nombre comercial'
-                            }
-                        </small>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-company-label">
-                            Sector
-                        </span>
-
-                        <strong class="coord-company-value">
-                            ${company.sector}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-company-label">
-                            Practicantes
-                        </span>
-
-                        <strong class="coord-company-value">
-                            ${students}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-company-label">
-                            Responsables
-                        </span>
-
-                        <strong class="coord-company-value">
-                            ${responsibles}
-                        </strong>
-
-                    </div>
-
-
-                    <span class="coord-company-status ${statusClass}">
-                        ${company.estado}
-                    </span>
-
-
-                    <div class="coord-company-actions">
-
-                        <button
-                            type="button"
-                            onclick="openEditCompany(${company.id})"
-                            title="Editar empresa"
-                        >
-                            <i class="bi bi-pencil"></i>
-                        </button>
-
-
-                        <a
-                            href="/coordinacion/empresas/${company.id}"
-                            class="coord-teacher-view"
-                        >
-                            <i class="bi bi-eye"></i>
-                            Ver empresa
-                        </a>
-
-                    </div>
-
-                </article>
-
-            `;
-
-        }).join('');
-
-}
-
-
-renderCompanies();
-
-
-/*
-|--------------------------------------------------------------------------
-| ABRIR EDICIÓN DESDE DETALLE
-|--------------------------------------------------------------------------
-*/
-
-const query =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-const editCompanyId =
-    query.get('editar');
-
-
-if (editCompanyId) {
-
-    const company =
-        CompanyStore.getById(
-            editCompanyId
-        );
-
-
-    if (company) {
-
-        setTimeout(() => {
-            openEditCompany(editCompanyId);
-        }, 100);
-
-    }
-
-}
-
+    companySearch.addEventListener('input', filterCompanies);
+    companySector.addEventListener('change', filterCompanies);
 </script>
-
 @endpush

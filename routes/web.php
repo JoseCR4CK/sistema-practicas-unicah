@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Coordination\CompanyController;
 use App\Http\Controllers\Coordination\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,18 +109,16 @@ Route::get('/coordinacion/docentes/{id}', function ($id) {
 
 })->name('coordinacion.docente');
 
-Route::get('/coordinacion/empresas', function () {
-    return view('coordinacion.empresas');
-})->name('coordinacion.empresas');
-
-
-Route::get('/coordinacion/empresas/{id}', function ($id) {
-
-    return view('coordinacion.empresa-detalle', [
-        'empresaId' => (int) $id
-    ]);
-
-})->name('coordinacion.empresa');
+Route::get('/coordinacion/empresas', [CompanyController::class, 'index'])->name('coordinacion.empresas');
+Route::post('/coordinacion/empresas', [CompanyController::class, 'store'])->name('coordinacion.empresas.store');
+Route::get('/coordinacion/empresas/{company}', [CompanyController::class, 'show'])
+    ->whereNumber('company')->name('coordinacion.empresa');
+Route::put('/coordinacion/empresas/{company}', [CompanyController::class, 'update'])
+    ->whereNumber('company')->name('coordinacion.empresas.update');
+Route::post('/coordinacion/empresas/{company}/responsables', [CompanyController::class, 'storeResponsible'])
+    ->whereNumber('company')->name('coordinacion.empresas.responsables.store');
+Route::put('/coordinacion/empresas/{company}/responsables/{responsible}', [CompanyController::class, 'updateResponsible'])
+    ->whereNumber(['company', 'responsible'])->scopeBindings()->name('coordinacion.empresas.responsables.update');
 
 Route::get('/coordinacion/solicitudes', function () {
     return view('coordinacion.solicitudes');

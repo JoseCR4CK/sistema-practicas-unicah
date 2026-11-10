@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Company;
 use App\Models\Practice;
 use App\Models\Role;
 use App\Models\Student;
@@ -112,6 +113,53 @@ class CoordinationBackendTest extends TestCase
         $this->assertDatabaseCount('companies', 4);
         $this->assertSame(51, $student->fresh()->latestActivePractice->progress);
         $this->assertSame('Empresa editada', $student->fresh()->latestActivePractice->company->official_name);
+    }
+
+    public function test_company_lists_the_practitioners_and_responsible_from_the_same_practices(): void
+    {
+        $this->actingAs($this->userWithRole('COORDINACION'));
+        $company = Company::where('commercial_name', 'GT Solutions')->firstOrFail();
+        $responsible = $company->responsibles()->firstOrFail();
+
+        $this->assertSame(2, $responsible->practices()->count());
+        $this->assertSame(2, $company->practices()->with('student')->get()->pluck('student.career')->unique()->count());
+
+        $this->get(route('coordinacion.empresas'))->assertOk()->assertSee($company->official_name)
+            ->assertSee($company->commercial_name);
+        $this->get(route('coordinacion.empresa', $company))->assertOk()->assertSee($responsible->full_name)
+            ->assertSee('Andrea Martínez')->assertSee('Luis Hernández')->assertSee('Msc. Carlos Martínez');
+    }
+
+    public function test_coordination_can_create_and_edit_companies_and_responsibles_safely(): void
+    {
+        $this->actingAs($this->userWithRole('COORDINACION'));
+        $companyFields = [
+            'official_name' => 'Empresa <b>demo</b>', 'commercial_name' => 'Comercial de prueba',
+            'sector' => 'Servicios', 'status' => 'ACTIVE',
+        ];
+        $this->post(route('coordinacion.empresas.store'), $companyFields)->assertRedirect(route('coordinacion.empresas'));
+        $company = Company::where('official_name', $companyFields['official_name'])->firstOrFail();
+
+        foreach ([route('coordinacion.empresas'), route('coordinacion.empresa', $company)] as $url) {
+            $this->get($url)->assertOk()->assertSee($company->official_name)->assertDontSee($company->official_name, false);
+        }
+
+        $this->post(route('coordinacion.empresas.store'), $companyFields)->assertSessionHasErrors('official_name');
+        $this->put(route('coordinacion.empresas.update', $company), array_replace($companyFields, ['commercial_name' => 'Nombre actualizado']))
+            ->assertSessionHasNoErrors()->assertRedirect(route('coordinacion.empresas'));
+        $this->assertSame('Nombre actualizado', $company->fresh()->commercial_name);
+
+        $responsibleFields = ['full_name' => 'Responsable de prueba', 'position' => 'Contacto', 'status' => 'ACTIVE'];
+        $this->post(route('coordinacion.empresas.responsables.store', $company), $responsibleFields)
+            ->assertRedirect(route('coordinacion.empresa', $company));
+        $responsible = $company->responsibles()->firstOrFail();
+
+        $anotherCompany = Company::whereKeyNot($company->id)->firstOrFail();
+        $this->put(route('coordinacion.empresas.responsables.update', [$anotherCompany, $responsible]), $responsibleFields)
+            ->assertNotFound();
+        $this->put(route('coordinacion.empresas.responsables.update', [$company, $responsible]),
+            array_replace($responsibleFields, ['position' => 'Cargo actualizado']))->assertRedirect(route('coordinacion.empresa', $company));
+        $this->assertSame('Cargo actualizado', $responsible->fresh()->position);
     }
 
     private function userWithRole(string $role): User
