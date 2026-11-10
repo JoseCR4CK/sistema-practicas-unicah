@@ -2583,7 +2583,9 @@ button {
 }
 
 
-.timeline-step:last-child::after {
+.timeline-step:last-child::after,
+.expediente-timeline .timeline-step:nth-child(3)::after,
+.expediente-timeline .timeline-step:nth-child(6)::after {
 
     display: none;
 

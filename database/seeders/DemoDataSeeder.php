@@ -10,10 +10,16 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DemoDataSeeder extends Seeder
 {
     public function run(): void
+    {
+        DB::transaction($this->seedDemo(...));
+    }
+
+    private function seedDemo(): void
     {
         /*
         |--------------------------------------------------------------------------
@@ -42,7 +48,7 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'root@unicah.demo'],
             [
                 'role_id' => $rootRole->id,
@@ -60,7 +66,7 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'coordinacion@unicah.demo'],
             [
                 'role_id' => $coordinationRole->id,
@@ -78,7 +84,7 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $teacherUser = User::updateOrCreate(
+        $teacherUser = User::firstOrCreate(
             ['email' => 'cmartinez@unicah.demo'],
             [
                 'role_id' => $teacherRole->id,
@@ -90,7 +96,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $teacher = Teacher::updateOrCreate(
+        $teacher = Teacher::firstOrCreate(
             ['user_id' => $teacherUser->id],
             [
                 'employee_code' => 'DOC-001',
@@ -106,7 +112,8 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $company1 = Company::updateOrCreate(
+        $company1 = Company::where('rtn', '08019000000000')->first()
+            ?? Company::firstOrCreate(
             ['official_name' => 'Grupo Tecnológico S.A.'],
             [
                 'commercial_name' => 'GT Solutions',
@@ -122,7 +129,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $bossUser1 = User::updateOrCreate(
+        $bossUser1 = User::firstOrCreate(
             ['email' => 'responsable@empresa.demo'],
             [
                 'role_id' => $bossRole->id,
@@ -134,7 +141,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $responsible1 = CompanyResponsible::updateOrCreate(
+        $responsible1 = CompanyResponsible::firstOrCreate(
             [
                 'company_id' => $company1->id,
                 'email' => 'responsable@empresa.demo',
@@ -155,19 +162,19 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $andreaUser = User::updateOrCreate(
+        $andreaUser = User::firstOrCreate(
             ['email' => 'amartinez@unicah.edu'],
             [
                 'role_id' => $studentRole->id,
                 'name' => 'Andrea Martínez',
-                'dni' => '0703200603787',
+                'dni' => '0000000000005',
                 'password' => 'Demo1234!',
                 'status' => 'ACTIVE',
             ]
         );
 
 
-        $andrea = Student::updateOrCreate(
+        $andrea = Student::firstOrCreate(
             ['account_number' => '0801-2022-00458'],
             [
                 'user_id' => $andreaUser->id,
@@ -177,7 +184,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        Practice::updateOrCreate(
+        Practice::firstOrCreate(
             [
                 'student_id' => $andrea->id,
                 'academic_period' => 'III Período',
@@ -206,7 +213,8 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $company2 = Company::updateOrCreate(
+        $company2 = CompanyResponsible::where('email', 'jgarcia@empresa.demo')->first()?->company
+            ?? Company::firstOrCreate(
             ['official_name' => 'Inversiones del Valle S. de R.L.'],
             [
                 'commercial_name' => 'Inversiones del Valle',
@@ -218,7 +226,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $bossUser2 = User::updateOrCreate(
+        $bossUser2 = User::firstOrCreate(
             ['email' => 'jgarcia@empresa.demo'],
             [
                 'role_id' => $bossRole->id,
@@ -230,7 +238,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $responsible2 = CompanyResponsible::updateOrCreate(
+        $responsible2 = CompanyResponsible::firstOrCreate(
             [
                 'company_id' => $company2->id,
                 'email' => 'jgarcia@empresa.demo',
@@ -250,7 +258,7 @@ class DemoDataSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $mariaUser = User::updateOrCreate(
+        $mariaUser = User::firstOrCreate(
             ['email' => 'mlopez@unicah.edu'],
             [
                 'role_id' => $studentRole->id,
@@ -262,7 +270,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        $maria = Student::updateOrCreate(
+        $maria = Student::firstOrCreate(
             ['account_number' => '0801-2022-00671'],
             [
                 'user_id' => $mariaUser->id,
@@ -272,7 +280,7 @@ class DemoDataSeeder extends Seeder
         );
 
 
-        Practice::updateOrCreate(
+        Practice::firstOrCreate(
             [
                 'student_id' => $maria->id,
                 'academic_period' => 'III Período',
@@ -292,6 +300,87 @@ class DemoDataSeeder extends Seeder
 
                 'completed_hours' => 0,
             ]
+        );
+        $company3 = Company::firstOrCreate(
+            ['rtn' => '00000000000003'],
+            ['official_name' => 'Corporación Industrial HN', 'status' => 'ACTIVE'],
+        );
+
+        $company4 = Company::firstOrCreate(
+            ['rtn' => '00000000000004'],
+            ['official_name' => 'Manufacturas Centroamericanas', 'status' => 'ACTIVE'],
+        );
+
+        $this->addDemoStudent($studentRole, $teacher, [
+            'name' => 'Carlos Rodríguez',
+            'email' => 'crodriguez@unicah.demo',
+            'dni' => '0000000000008',
+            'account' => '0801-2021-00231',
+            'career' => 'Ingeniería Industrial',
+        ], [
+            'company_id' => $company3->id,
+            'stage' => 'Documentación',
+            'status' => 'ACTIVE',
+            'progress' => 32,
+        ]);
+
+        $this->addDemoStudent($studentRole, $teacher, [
+            'name' => 'Luis Hernández',
+            'email' => 'lhernandez@unicah.demo',
+            'dni' => '0000000000009',
+            'account' => '0801-2022-00714',
+            'career' => 'Ingeniería Industrial',
+        ], [
+            'company_id' => $company1->id,
+            'company_responsible_id' => $responsible1->id,
+            'stage' => 'Práctica',
+            'status' => 'ACTIVE',
+            'progress' => 45,
+            'start_date' => '2026-09-08',
+            'end_date' => '2026-12-08',
+        ]);
+
+        $this->addDemoStudent($studentRole, $teacher, [
+            'name' => 'Sofía Pérez',
+            'email' => 'sperez@unicah.demo',
+            'dni' => '0000000000010',
+            'account' => '0801-2020-00118',
+            'career' => 'Ingeniería Industrial',
+        ], [
+            'company_id' => $company4->id,
+            'stage' => 'Finalización',
+            'status' => 'COMPLETED',
+            'progress' => 100,
+            'start_date' => '2026-06-01',
+            'end_date' => '2026-08-31',
+        ], 'II Período');
+    }
+
+    private function addDemoStudent(Role $role, Teacher $teacher, array $data, array $practice, string $period = 'III Período'): void
+    {
+        $student = Student::where('account_number', $data['account'])->first();
+
+        if (!$student) {
+            $user = User::firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name' => $data['name'],
+                    'dni' => $data['dni'],
+                    'role_id' => $role->id,
+                    'password' => 'Demo1234!',
+                    'status' => 'ACTIVE',
+                ],
+            );
+
+            $student = Student::firstOrCreate(
+                ['user_id' => $user->id],
+                ['account_number' => $data['account'], 'career' => $data['career']],
+            );
+        }
+
+        $student->practices()->firstOrCreate(
+            ['academic_period' => $period, 'academic_year' => 2026],
+            $practice + ['teacher_id' => $teacher->id],
         );
     }
 }

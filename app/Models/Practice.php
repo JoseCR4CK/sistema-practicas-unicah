@@ -10,6 +10,17 @@ class Practice extends Model
 {
     use HasFactory;
 
+    public const ACTIVE = 'ACTIVE';
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            self::ACTIVE => 'Activa',
+            'COMPLETED' => 'Finalizada',
+            default => $this->status,
+        };
+    }
+
     protected $fillable = [
         'student_id',
         'company_id',

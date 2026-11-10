@@ -359,9 +359,7 @@
 
             <span>Período</span>
 
-            <strong id="metaPeriod">
-                III Período 2026
-            </strong>
+            <strong id="metaPeriod">{{ $periodo }}</strong>
 
         </div>
 
@@ -370,9 +368,7 @@
 
             <span>Tipo de informe</span>
 
-            <strong id="metaType">
-                Todos los estudiantes
-            </strong>
+            <strong id="metaType">{{ $tipo }}</strong>
 
         </div>
 
@@ -381,7 +377,7 @@
 
             <span>Fecha de generación</span>
 
-            <strong id="metaDate"></strong>
+            <strong id="metaDate">{{ now()->locale('es_HN')->isoFormat('LL') }}</strong>
 
         </div>
 
@@ -397,9 +393,7 @@
                 Registros incluidos
             </span>
 
-            <strong id="summaryTotal">
-                0
-            </strong>
+            <strong id="summaryTotal">{{ $estudiantes->count() }}</strong>
 
         </div>
 
@@ -410,9 +404,7 @@
                 Prácticas activas
             </span>
 
-            <strong id="summaryActive">
-                0
-            </strong>
+            <strong id="summaryActive">{{ $estudiantes->where('estado_codigo', 'ACTIVE')->count() }}</strong>
 
         </div>
 
@@ -423,9 +415,7 @@
                 En documentación
             </span>
 
-            <strong id="summaryDocuments">
-                0
-            </strong>
+            <strong id="summaryDocuments">{{ $estudiantes->where('etapa', 'Documentación')->count() }}</strong>
 
         </div>
 
@@ -436,9 +426,7 @@
                 En visita
             </span>
 
-            <strong id="summaryVisits">
-                0
-            </strong>
+            <strong id="summaryVisits">{{ $estudiantes->where('etapa', 'Visita')->count() }}</strong>
 
         </div>
 
@@ -451,7 +439,30 @@
     </h2>
 
 
-    <div id="reportTableContainer"></div>
+    <div id="reportTableContainer">
+        @if ($estudiantes->isEmpty())
+            <div class="report-empty">No existen estudiantes que coincidan con los criterios seleccionados.</div>
+        @else
+            <table class="report-table">
+                <thead>
+                    <tr><th>Cuenta</th><th>Estudiante</th><th>Carrera</th><th>Empresa</th><th>Etapa</th><th>Estado</th><th>Progreso</th></tr>
+                </thead>
+                <tbody>
+                    @foreach ($estudiantes as $estudiante)
+                        <tr>
+                            <td>{{ $estudiante['cuenta'] }}</td>
+                            <td><strong>{{ $estudiante['nombre'] }}</strong></td>
+                            <td>{{ $estudiante['carrera'] }}</td>
+                            <td>{{ $estudiante['empresa'] }}</td>
+                            <td>{{ $estudiante['etapa'] }}</td>
+                            <td>{{ $estudiante['estado'] }}</td>
+                            <td>{{ $estudiante['progreso'] === null ? '—' : $estudiante['progreso'].'%' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+    </div>
 
 
 
@@ -470,303 +481,6 @@
 </main>
 
 
-
-<script>
-
-/*
-|--------------------------------------------------------------------------
-| DATOS TEMPORALES
-|--------------------------------------------------------------------------
-|
-| Serán reemplazados por consultas a la base de datos.
-|
-*/
-
-const students = [
-
-    {
-        account: '0801-2022-00458',
-        name: 'Andrea Martínez',
-        career: 'Ingeniería en Ciencias de la Computación',
-        company: 'Grupo Tecnológico S.A.',
-        stage: 'Práctica',
-        status: 'Activa',
-        progress: 58,
-        period: 'III-2026'
-    },
-
-    {
-        account: '0801-2021-00231',
-        name: 'Carlos Rodríguez',
-        career: 'Ingeniería Industrial',
-        company: 'Industrias del Norte',
-        stage: 'Documentación',
-        status: 'Activa',
-        progress: 32,
-        period: 'III-2026'
-    },
-
-    {
-        account: '0801-2022-00671',
-        name: 'María López',
-        career: 'Ingeniería en Ciencias de la Computación',
-        company: 'Soluciones Digitales HN',
-        stage: 'Visita',
-        status: 'Activa',
-        progress: 67,
-        period: 'III-2026'
-    },
-
-    {
-        account: '0801-2021-00882',
-        name: 'José Hernández',
-        career: 'Ingeniería Industrial',
-        company: 'Grupo Industrial Centroamericano',
-        stage: 'Monografía',
-        status: 'Activa',
-        progress: 79,
-        period: 'III-2026'
-    }
-
-];
-
-
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-const type =
-    params.get('tipo') || 'todos';
-
-const period =
-    params.get('periodo') || 'III-2026';
-
-const stage =
-    params.get('etapa') || '';
-
-const career =
-    params.get('carrera') || '';
-
-const company =
-    params.get('empresa') || '';
-
-
-let filtered =
-    students.filter(student =>
-        student.period === period
-    );
-
-
-if (type === 'activas') {
-
-    filtered =
-        filtered.filter(student =>
-            student.status === 'Activa'
-        );
-
-}
-
-
-if (type === 'etapa' && stage) {
-
-    filtered =
-        filtered.filter(student =>
-            student.stage === stage
-        );
-
-}
-
-
-if (type === 'carrera' && career) {
-
-    filtered =
-        filtered.filter(student =>
-            student.career === career
-        );
-
-}
-
-
-if (type === 'empresa' && company) {
-
-    filtered =
-        filtered.filter(student =>
-            student.company === company
-        );
-
-}
-
-
-const typeNames = {
-
-    todos:
-        'Todos los estudiantes',
-
-    activas:
-        'Prácticas activas',
-
-    etapa:
-        stage
-            ? `Etapa: ${stage}`
-            : 'Por etapa',
-
-    carrera:
-        career
-            ? `Carrera: ${career}`
-            : 'Por carrera',
-
-    empresa:
-        company
-            ? `Empresa: ${company}`
-            : 'Por empresa'
-
-};
-
-
-document.getElementById('metaType')
-    .textContent =
-        typeNames[type] || 'Informe';
-
-
-document.getElementById('metaPeriod')
-    .textContent =
-        period === 'III-2026'
-            ? 'III Período 2026'
-            : period === 'II-2026'
-                ? 'II Período 2026'
-                : 'I Período 2026';
-
-
-document.getElementById('metaDate')
-    .textContent =
-        new Date().toLocaleDateString(
-            'es-HN',
-            {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            }
-        );
-
-
-document.getElementById('summaryTotal')
-    .textContent =
-        filtered.length;
-
-
-document.getElementById('summaryActive')
-    .textContent =
-        filtered.filter(student =>
-            student.status === 'Activa'
-        ).length;
-
-
-document.getElementById('summaryDocuments')
-    .textContent =
-        filtered.filter(student =>
-            student.stage === 'Documentación'
-        ).length;
-
-
-document.getElementById('summaryVisits')
-    .textContent =
-        filtered.filter(student =>
-            student.stage === 'Visita'
-        ).length;
-
-
-
-const container =
-    document.getElementById(
-        'reportTableContainer'
-    );
-
-
-if (filtered.length === 0) {
-
-    container.innerHTML = `
-
-        <div class="report-empty">
-            No existen estudiantes que coincidan
-            con los criterios seleccionados.
-        </div>
-
-    `;
-
-} else {
-
-    container.innerHTML = `
-
-        <table class="report-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>Cuenta</th>
-                    <th>Estudiante</th>
-                    <th>Carrera</th>
-                    <th>Empresa</th>
-                    <th>Etapa</th>
-                    <th>Estado</th>
-                    <th>Progreso</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                ${filtered.map(student => `
-
-                    <tr>
-
-                        <td>
-                            ${student.account}
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${student.name}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${student.career}
-                        </td>
-
-                        <td>
-                            ${student.company}
-                        </td>
-
-                        <td>
-                            ${student.stage}
-                        </td>
-
-                        <td>
-                            ${student.status}
-                        </td>
-
-                        <td>
-                            ${student.progress}%
-                        </td>
-
-                    </tr>
-
-                `).join('')}
-
-            </tbody>
-
-        </table>
-
-    `;
-
-}
-
-</script>
 
 
 </body>

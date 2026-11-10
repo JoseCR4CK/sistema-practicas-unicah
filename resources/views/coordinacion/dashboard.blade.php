@@ -630,7 +630,9 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiante', 1) }}"
+                            href="{{ isset($expedientes['0801-2022-00458'])
+                                ? route('coordinacion.estudiante', $expedientes['0801-2022-00458'])
+                                : route('coordinacion.estudiantes', ['buscar' => '0801-2022-00458']) }}"
                             class="action-button"
                             title="Ver proceso"
                         >
@@ -682,7 +684,9 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiante', 2) }}"
+                            href="{{ isset($expedientes['0801-2021-00231'])
+                                ? route('coordinacion.estudiante', $expedientes['0801-2021-00231'])
+                                : route('coordinacion.estudiantes', ['buscar' => '0801-2021-00231']) }}"
                             class="action-button"
                         >
 
@@ -733,7 +737,9 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiante', 3) }}"
+                            href="{{ isset($expedientes['0801-2022-00671'])
+                                ? route('coordinacion.estudiante', $expedientes['0801-2022-00671'])
+                                : route('coordinacion.estudiantes', ['buscar' => '0801-2022-00671']) }}"
                             class="action-button"
                         >
 
@@ -784,7 +790,9 @@
                     <td>
 
                         <a
-                            href="{{ route('coordinacion.estudiante', 4) }}"
+                            href="{{ isset($expedientes['0801-2021-00394'])
+                                ? route('coordinacion.estudiante', $expedientes['0801-2021-00394'])
+                                : route('coordinacion.estudiantes', ['buscar' => '0801-2021-00394']) }}"
                             class="action-button"
                         >
 
