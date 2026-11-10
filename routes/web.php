@@ -4,6 +4,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Coordination\CompanyController;
 use App\Http\Controllers\Coordination\StudentController;
+use App\Http\Controllers\Coordination\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,63 +52,9 @@ Route::get('/coordinacion/estudiantes/informe', [StudentController::class, 'repo
 Route::get('/coordinacion/estudiantes/{student}', [StudentController::class, 'show'])
     ->whereNumber('student')->name('coordinacion.estudiante');
 
-Route::get('/coordinacion/docentes', function () {
-    return view('coordinacion.docentes');
-})->name('coordinacion.docentes');
-
-Route::get('/coordinacion/docentes/{id}', function ($id) {
-
-    $docentes = [
-
-        1 => [
-            'id' => 1,
-            'nombre' => 'Msc. Carlos Martínez',
-            'iniciales' => 'CM',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Activo',
-            'practicantes' => 4,
-            'visitas' => 2,
-        ],
-
-        2 => [
-            'id' => 2,
-            'nombre' => 'Ing. Ana Rodríguez',
-            'iniciales' => 'AR',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Atención',
-            'practicantes' => 5,
-            'visitas' => 3,
-        ],
-
-        3 => [
-            'id' => 3,
-            'nombre' => 'Msc. José López',
-            'iniciales' => 'JL',
-            'facultad' => 'Facultad de Administración',
-            'estado' => 'Activo',
-            'practicantes' => 3,
-            'visitas' => 1,
-        ],
-
-        4 => [
-            'id' => 4,
-            'nombre' => 'Ing. María Fernández',
-            'iniciales' => 'MF',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Atención',
-            'practicantes' => 6,
-            'visitas' => 3,
-        ],
-
-    ];
-
-    abort_unless(isset($docentes[$id]), 404);
-
-    return view('coordinacion.docente-detalle', [
-        'docente' => $docentes[$id]
-    ]);
-
-})->name('coordinacion.docente');
+Route::get('/coordinacion/docentes', [TeacherController::class, 'index'])->name('coordinacion.docentes');
+Route::get('/coordinacion/docentes/{teacher}', [TeacherController::class, 'show'])
+    ->whereNumber('teacher')->name('coordinacion.docente');
 
 Route::get('/coordinacion/empresas', [CompanyController::class, 'index'])->name('coordinacion.empresas');
 Route::post('/coordinacion/empresas', [CompanyController::class, 'store'])->name('coordinacion.empresas.store');

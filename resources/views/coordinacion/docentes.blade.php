@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Docentes | Coordinación Académica')
+@section('title', 'Docentes de seguimiento | Coordinación Académica')
 
 @section('content')
 
@@ -12,7 +12,7 @@
     <div>
 
         <h1>
-            Docentes
+            Docentes de seguimiento
         </h1>
 
         <p>
@@ -27,7 +27,7 @@
 
         <i class="bi bi-calendar3"></i>
 
-        III Período 2026
+        Asignaciones registradas
 
     </div>
 
@@ -57,7 +57,7 @@
                 </span>
 
                 <strong>
-                    12
+                    {{ $docentesAsignados }}
                 </strong>
 
             </div>
@@ -84,7 +84,7 @@
                 </span>
 
                 <strong>
-                    38
+                    {{ $practicantes }}
                 </strong>
 
             </div>
@@ -111,7 +111,7 @@
                 </span>
 
                 <strong>
-                    9
+                    <abbr title="Pendiente de integrar con Visitas">—</abbr>
                 </strong>
 
             </div>
@@ -138,7 +138,7 @@
                 </span>
 
                 <strong>
-                    3
+                    <abbr title="Pendiente de integrar con Alertas">—</abbr>
                 </strong>
 
             </div>
@@ -174,18 +174,10 @@
         id="teacherFaculty"
         onchange="filterTeachers()"
     >
-
-        <option value="all">
-            Todas las facultades
-        </option>
-
-        <option value="Ingeniería">
-            Ingeniería
-        </option>
-
-        <option value="Administración">
-            Administración
-        </option>
+        <option value="all">Todas las facultades</option>
+        @foreach ($docentes->pluck('faculty')->filter()->unique()->sort() as $facultad)
+            <option>{{ $facultad }}</option>
+        @endforeach
 
     </select>
 
@@ -199,12 +191,12 @@
             Todos los estados
         </option>
 
-        <option value="Activo">
+        <option value="ACTIVE">
             Activos
         </option>
 
-        <option value="Atención">
-            Requieren atención
+        <option value="INACTIVE">
+            Inactivos
         </option>
 
     </select>
@@ -235,422 +227,48 @@
 
 
     <div class="coord-teacher-list">
-
-
-        <!-- DOCENTE 1 -->
-
-        <article
-            class="coord-teacher-row"
-            data-name="carlos martinez"
-            data-faculty="Ingeniería"
-            data-status="Activo"
-        >
-
-            <div class="coord-teacher-avatar">
-                CM
-            </div>
-
-
-            <div class="coord-teacher-info">
-
-                <span>
-                    DOCENTE
-                </span>
-
-                <strong>
-                    Msc. Carlos Martínez
-                </strong>
-
-                <small>
-                    Facultad de Ingeniería
-                </small>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Practicantes
-                </span>
-
-                <strong>
-                    4
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Visitas próximas
-                </span>
-
-                <strong>
-                    2
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Seguimientos
-                </span>
-
-                <strong>
-                    4 activos
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <span class="badge success">
-
-                    <i class="bi bi-check-circle"></i>
-
-                    Activo
-
-                </span>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="coord-teacher-action"
-            >
-
-                <a
-                    href="{{ route('coordinacion.docente', 1) }}"
-                    class="coord-teacher-view"
-                >
-                    <i class="bi bi-eye"></i>
-                    Ver docente
-                </a>
-
-            </button>
-
-        </article>
-
-
-
-        <!-- DOCENTE 2 -->
-
-        <article
-            class="coord-teacher-row"
-            data-name="ana rodriguez"
-            data-faculty="Ingeniería"
-            data-status="Atención"
-        >
-
-            <div class="coord-teacher-avatar">
-                AR
-            </div>
-
-
-            <div class="coord-teacher-info">
-
-                <span>
-                    DOCENTE
-                </span>
-
-                <strong>
-                    Ing. Ana Rodríguez
-                </strong>
-
-                <small>
-                    Facultad de Ingeniería
-                </small>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Practicantes
-                </span>
-
-                <strong>
-                    5
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Visitas próximas
-                </span>
-
-                <strong>
-                    3
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Seguimientos
-                </span>
-
-                <strong>
-                    5 activos
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <span class="badge warning">
-
-                    <i class="bi bi-exclamation-circle"></i>
-
-                    Atención
-
-                </span>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="coord-teacher-action"
-            >
-
-                <a
-                    href="{{ route('coordinacion.docente', 2) }}"
-                    class="coord-teacher-view"
-                >
-                    <i class="bi bi-eye"></i>
-                    Ver docente
-                </a>
-
-            </button>
-
-        </article>
-
-
-
-        <!-- DOCENTE 3 -->
-
-        <article
-            class="coord-teacher-row"
-            data-name="jose lopez"
-            data-faculty="Administración"
-            data-status="Activo"
-        >
-
-            <div class="coord-teacher-avatar">
-                JL
-            </div>
-
-
-            <div class="coord-teacher-info">
-
-                <span>
-                    DOCENTE
-                </span>
-
-                <strong>
-                    Msc. José López
-                </strong>
-
-                <small>
-                    Facultad de Administración
-                </small>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Practicantes
-                </span>
-
-                <strong>
-                    3
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Visitas próximas
-                </span>
-
-                <strong>
-                    1
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Seguimientos
-                </span>
-
-                <strong>
-                    3 activos
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <span class="badge success">
-
-                    <i class="bi bi-check-circle"></i>
-
-                    Activo
-
-                </span>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="coord-teacher-action"
-            >
-
-                <a
-                    href="{{ route('coordinacion.docente', 3) }}"
-                    class="coord-teacher-view"
-                >
-                    <i class="bi bi-eye"></i>
-                    Ver docente
-                </a>
-
-            </button>
-
-        </article>
-
-
-
-        <!-- DOCENTE 4 -->
-
-        <article
-            class="coord-teacher-row"
-            data-name="maria fernandez"
-            data-faculty="Ingeniería"
-            data-status="Atención"
-        >
-
-            <div class="coord-teacher-avatar">
-                MF
-            </div>
-
-
-            <div class="coord-teacher-info">
-
-                <span>
-                    DOCENTE
-                </span>
-
-                <strong>
-                    Ing. María Fernández
-                </strong>
-
-                <small>
-                    Facultad de Ingeniería
-                </small>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Practicantes
-                </span>
-
-                <strong>
-                    6
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Visitas próximas
-                </span>
-
-                <strong>
-                    3
-                </strong>
-
-            </div>
-
-
-            <div class="coord-teacher-data">
-
-                <span>
-                    Seguimientos
-                </span>
-
-                <strong>
-                    6 activos
-                </strong>
-
-            </div>
-
-
-            <div>
-
-                <span class="badge warning">
-
-                    <i class="bi bi-exclamation-circle"></i>
-
-                    Atención
-
-                </span>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="coord-teacher-action"
-            >
-
-                <a
-                    href="{{ route('coordinacion.docente', 4) }}"
-                    class="coord-teacher-view"
-                >
-                    <i class="bi bi-eye"></i>
-                    Ver docente
-                </a>
-
-            </button>
-
-        </article>
-
-
+        @foreach ($docentes as $docente)
+            <article class="coord-teacher-row"
+                data-name="{{ Str::lower($docente->user->name) }}"
+                data-faculty="{{ $docente->faculty }}"
+                data-status="{{ $docente->user->status }}">
+                <div class="coord-teacher-avatar">{{ Str::initials($docente->user->name, true) }}</div>
+                <div class="coord-teacher-info">
+                    <span>DOCENTE DE SEGUIMIENTO</span>
+                    <strong>{{ $docente->user->name }}</strong>
+                    <small>{{ $docente->faculty ?? 'Sin facultad registrada' }}</small>
+                </div>
+                <div class="coord-teacher-data">
+                    <span>Practicantes</span>
+                    <strong>{{ $docente->students_count }}</strong>
+                </div>
+                <div class="coord-teacher-data">
+                    <span>Visitas próximas</span>
+                    <strong><abbr title="Pendiente de integrar con Visitas">—</abbr></strong>
+                </div>
+                <div class="coord-teacher-data">
+                    <span>Prácticas activas</span>
+                    <strong>{{ $docente->active_practices_count }}</strong>
+                </div>
+                <div>
+                    <span class="badge {{ $docente->user->isActive() ? 'success' : 'warning' }}">
+                        <i class="bi bi-check-circle"></i>
+                        {{ ['ACTIVE' => 'Activo', 'INACTIVE' => 'Inactivo'][$docente->user->status] ?? $docente->user->status }}
+                    </span>
+                </div>
+                <div class="coord-teacher-action">
+                    <a href="{{ route('coordinacion.docente', $docente) }}" class="coord-teacher-view">
+                        <i class="bi bi-eye"></i> Ver docente
+                    </a>
+                </div>
+            </article>
+        @endforeach
     </div>
-
 
     <div
         id="teachersEmpty"
         class="coord-teacher-empty"
-        style="display:none;"
+        style="display:{{ $docentes->isEmpty() ? 'flex' : 'none' }};"
     >
 
         <i class="bi bi-search"></i>

@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Practice;
 use App\Models\Role;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
@@ -160,6 +161,24 @@ class CoordinationBackendTest extends TestCase
         $this->put(route('coordinacion.empresas.responsables.update', [$company, $responsible]),
             array_replace($responsibleFields, ['position' => 'Cargo actualizado']))->assertRedirect(route('coordinacion.empresa', $company));
         $this->assertSame('Cargo actualizado', $responsible->fresh()->position);
+    }
+
+    public function test_teacher_pages_show_real_assignments_and_count_active_practices(): void
+    {
+        $this->actingAs($this->userWithRole('COORDINACION'));
+        $teacher = Teacher::firstOrFail();
+        $teacher->user->update(['name' => 'Docente actualizado']);
+        $this->assertSame(5, $teacher->practices()->count());
+        $this->assertSame(4, $teacher->practices()->where('status', Practice::ACTIVE)->count());
+
+        $this->get(route('coordinacion.docentes'))->assertOk()
+            ->assertSee('Docente actualizado')->assertSee('Docentes de seguimiento')
+            ->assertViewHas('docentes', fn ($teachers) => $teachers->first()->active_practices_count === 4);
+        $this->get(route('coordinacion.docente', $teacher))->assertOk()
+            ->assertSee('Docente actualizado')->assertSee('DOC-001')->assertSee('Andrea Martínez')
+            ->assertSee('Sofía Pérez')->assertSee('Grupo Tecnológico S.A.')
+            ->assertViewHas('practicasActivas', 4)->assertViewHas('practicantes', 5);
+        $this->get(route('coordinacion.docente', 999999))->assertNotFound();
     }
 
     private function userWithRole(string $role): User
