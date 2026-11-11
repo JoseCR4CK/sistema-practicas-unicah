@@ -201,17 +201,18 @@
 
 @push('scripts')
 
-<script src="{{ asset('js/practices-store.js') }}"></script>
 
-<script src="{{ asset('js/visits-store.js') }}"></script>
 
-<script src="{{ asset('js/followups-store.js') }}"></script>
+<script>
+const teacherPractices = {{ Illuminate\Support\Js::from($practiceData) }};
+const teacherVisits = {{ Illuminate\Support\Js::from($visitData) }};
+</script>
+
+<script>const teacherFollowups = {{ Illuminate\Support\Js::from($followupData) }};</script>
 
 
 <script>
 
-const CURRENT_TEACHER =
-    'Msc. Carlos Martínez';
 
 
 
@@ -239,20 +240,7 @@ function getPracticeStudentId(practice) {
 |--------------------------------------------------------------------------
 */
 
-function getTeacherPractices() {
-
-    if (!window.PracticeStore) {
-        return [];
-    }
-
-
-    return PracticeStore
-        .getAll()
-        .filter(practice =>
-            practice.docente === CURRENT_TEACHER
-        );
-
-}
+function getTeacherPractices() { return teacherPractices; }
 
 
 
@@ -262,20 +250,7 @@ function getTeacherPractices() {
 |--------------------------------------------------------------------------
 */
 
-function getTeacherVisits() {
-
-    if (!window.VisitStore) {
-        return [];
-    }
-
-
-    return VisitStore
-        .getAll()
-        .filter(visit =>
-            visit.docente === CURRENT_TEACHER
-        );
-
-}
+function getTeacherVisits() { return teacherVisits; }
 
 
 
@@ -285,20 +260,7 @@ function getTeacherVisits() {
 |--------------------------------------------------------------------------
 */
 
-function getTeacherFollowups() {
-
-    if (!window.FollowupStore) {
-        return [];
-    }
-
-
-    return FollowupStore
-        .getAll()
-        .filter(item =>
-            item.docente === CURRENT_TEACHER
-        );
-
-}
+function getTeacherFollowups() { return teacherFollowups; }
 
 
 

@@ -84,7 +84,7 @@
                 </span>
 
                 <strong>
-                    12
+                    {{ $solicitudesPendientes->count() }}
                 </strong>
 
                 <small>
@@ -114,7 +114,7 @@
                 </span>
 
                 <strong>
-                    7
+                    {{ $attentionDocuments }}
                 </strong>
 
                 <small>
@@ -144,7 +144,7 @@
                 </span>
 
                 <strong>
-                    9
+                    {{ $visitasProgramadas }}
                 </strong>
 
                 <small>
@@ -284,7 +284,7 @@
         <div class="col-12 col-xl-6">
 
             <a
-                href="{{ route('coordinacion.modulo', 'documentos') }}"
+                href="{{ route('coordinacion.documentos') }}"
                 class="coord-alert-card urgent"
             >
 
@@ -311,7 +311,7 @@
 
 
                     <strong>
-                        2 documentos requieren revisión inmediata
+                        {{ $attentionDocuments }} documentos requieren atención
                     </strong>
 
 
@@ -344,7 +344,7 @@
         <div class="col-12 col-xl-6">
 
             <a
-                href="{{ route('coordinacion.modulo', 'visitas') }}"
+                href="{{ route('coordinacion.visitas') }}"
                 class="coord-alert-card warning"
             >
 
@@ -371,7 +371,7 @@
 
 
                     <strong>
-                        3 practicantes están próximos a habilitar visita
+                        {{ $visitasHabilitadas }} visitas habilitadas
                     </strong>
 
 
@@ -591,220 +591,17 @@
 
 
             <tbody>
-
-
-                <tr>
-
-                    <td>
-
-                        <span class="student-name">
-                            Andrea Martínez
-                        </span>
-
-                        <span class="student-code">
-                            0801-2022-00458
-                        </span>
-
-                    </td>
-
-                    <td>
-                        Solicitud de práctica
-                    </td>
-
-                    <td>
-
-                        <span class="badge warning">
-
-                            <i class="bi bi-clock"></i>
-
-                            Pendiente
-
-                        </span>
-
-                    </td>
-
-                    <td>
-                        13/10/2026
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="{{ isset($expedientes['0801-2022-00458'])
-                                ? route('coordinacion.estudiante', $expedientes['0801-2022-00458'])
-                                : route('coordinacion.estudiantes', ['buscar' => '0801-2022-00458']) }}"
-                            class="action-button"
-                            title="Ver proceso"
-                        >
-
-                            <i class="bi bi-eye"></i>
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-
-
-                <tr>
-
-                    <td>
-
-                        <span class="student-name">
-                            Carlos Rodríguez
-                        </span>
-
-                        <span class="student-code">
-                            0801-2021-00231
-                        </span>
-
-                    </td>
-
-                    <td>
-                        Documentación
-                    </td>
-
-                    <td>
-
-                        <span class="badge danger">
-
-                            <i class="bi bi-exclamation-circle"></i>
-
-                            Revisión requerida
-
-                        </span>
-
-                    </td>
-
-                    <td>
-                        12/10/2026
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="{{ isset($expedientes['0801-2021-00231'])
-                                ? route('coordinacion.estudiante', $expedientes['0801-2021-00231'])
-                                : route('coordinacion.estudiantes', ['buscar' => '0801-2021-00231']) }}"
-                            class="action-button"
-                        >
-
-                            <i class="bi bi-eye"></i>
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-
-
-                <tr>
-
-                    <td>
-
-                        <span class="student-name">
-                            María López
-                        </span>
-
-                        <span class="student-code">
-                            0801-2022-00671
-                        </span>
-
-                    </td>
-
-                    <td>
-                        Visita de práctica
-                    </td>
-
-                    <td>
-
-                        <span class="badge info">
-
-                            <i class="bi bi-calendar3"></i>
-
-                            Por programar
-
-                        </span>
-
-                    </td>
-
-                    <td>
-                        16/10/2026
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="{{ isset($expedientes['0801-2022-00671'])
-                                ? route('coordinacion.estudiante', $expedientes['0801-2022-00671'])
-                                : route('coordinacion.estudiantes', ['buscar' => '0801-2022-00671']) }}"
-                            class="action-button"
-                        >
-
-                            <i class="bi bi-eye"></i>
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-
-
-                <tr>
-
-                    <td>
-
-                        <span class="student-name">
-                            José Hernández
-                        </span>
-
-                        <span class="student-code">
-                            0801-2021-00394
-                        </span>
-
-                    </td>
-
-                    <td>
-                        Monografía
-                    </td>
-
-                    <td>
-
-                        <span class="badge success">
-
-                            <i class="bi bi-check-circle"></i>
-
-                            Revisión técnica
-
-                        </span>
-
-                    </td>
-
-                    <td>
-                        11/10/2026
-                    </td>
-
-                    <td>
-
-                        <a
-                            href="{{ isset($expedientes['0801-2021-00394'])
-                                ? route('coordinacion.estudiante', $expedientes['0801-2021-00394'])
-                                : route('coordinacion.estudiantes', ['buscar' => '0801-2021-00394']) }}"
-                            class="action-button"
-                        >
-
-                            <i class="bi bi-eye"></i>
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-
+                @forelse ($solicitudesPendientes->take(5) as $solicitud)
+                    <tr>
+                        <td><span class="student-name">{{ $solicitud->student->user->name }}</span><span class="student-code">{{ $solicitud->student->account_number }}</span></td>
+                        <td>Solicitud de práctica</td>
+                        <td><span class="badge warning">{{ $solicitud->status }}</span></td>
+                        <td>{{ $solicitud->submitted_at->format('d/m/Y') }}</td>
+                        <td><a href="{{ route('coordinacion.solicitud', $solicitud) }}" class="action-button" title="Ver solicitud"><i class="bi bi-eye"></i></a></td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5">Sin solicitudes pendientes.</td></tr>
+                @endforelse
             </tbody>
 
 

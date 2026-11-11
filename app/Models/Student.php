@@ -30,9 +30,19 @@ class Student extends Model
         return $this->hasMany(Practice::class);
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(PracticeRequest::class);
+    }
+
     public function latestPractice(): HasOne
     {
         return $this->hasOne(Practice::class)->latestOfMany();
+    }
+
+    public function preferredPractice(): ?Practice
+    {
+        return $this->latestActivePractice ?? $this->latestPractice;
     }
 
     public function latestActivePractice(): HasOne

@@ -5,12 +5,33 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Practice extends Model
 {
     use HasFactory;
 
     public const ACTIVE = 'ACTIVE';
+
+    public function followups(): HasMany
+    {
+        return $this->hasMany(Followup::class);
+    }
+
+    public function visits(): HasMany
+    {
+        return $this->hasMany(Visit::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(AcademicDocument::class);
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(PracticeRequest::class);
+    }
 
     public const STAGES = [
         'Solicitud',

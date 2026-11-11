@@ -50,7 +50,7 @@
         </span>
 
         <h2>
-            Msc. Carlos Martínez
+            {{ auth()->user()->name }}
         </h2>
 
         <p>
@@ -307,14 +307,15 @@
 
 @push('scripts')
 
-<script src="{{ asset('js/practices-store.js') }}"></script>
-<script src="{{ asset('js/visits-store.js') }}"></script>
-<script src="{{ asset('js/followups-store.js') }}"></script>
+
+<script>
+const teacherPractices = {{ Illuminate\Support\Js::from($practiceData) }};
+const teacherVisits = {{ Illuminate\Support\Js::from($visitData) }};
+</script>
+<script>const teacherFollowups = {{ Illuminate\Support\Js::from($followupData) }};</script>
 
 <script>
 
-const DASHBOARD_TEACHER =
-    'Msc. Carlos Martínez';
 
 
 function dashboardStudentId(practice) {
@@ -663,33 +664,20 @@ function renderDashboardNextActivity(
 function loadTeacherDashboard() {
 
     const practices =
-        PracticeStore
-            .getAll()
-            .filter(item =>
-                item.docente === DASHBOARD_TEACHER
-            );
+        teacherPractices;
 
 
     const visits =
-        VisitStore
-            .getAll()
-            .filter(item =>
-                item.docente === DASHBOARD_TEACHER
-            );
+        teacherVisits;
 
 
     const followups =
-        FollowupStore
-            .getAll()
-            .filter(item =>
-                item.docente === DASHBOARD_TEACHER
-            );
+        teacherFollowups;
 
 
     const activePractices =
         practices.filter(item =>
-            Number(item.progreso) < 100 &&
-            item.etapa !== 'Finalización'
+            item.status === 'ACTIVE'
         );
 
 

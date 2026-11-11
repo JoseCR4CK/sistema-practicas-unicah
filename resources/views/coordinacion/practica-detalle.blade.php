@@ -103,7 +103,7 @@
                 @endif
                 @if ($practica->reachedVisitDay())
                     <strong>Día 45 alcanzado</strong>
-                    <span>La visita de seguimiento puede realizarse a partir del día 45. El estado de la visita queda pendiente de integración.</span>
+                    <span>La visita de seguimiento puede realizarse a partir del día 45.</span>
                 @endif
             </div>
         </div>
@@ -332,7 +332,7 @@
 
                     <div>
                         <span>Estado</span>
-                        <strong>Pendiente de integración</strong>
+                        <strong>{{ $practica->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada' }}</strong>
                     </div>
 
                 </div>

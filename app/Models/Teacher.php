@@ -27,4 +27,9 @@ class Teacher extends Model
     {
         return $this->hasMany(Practice::class);
     }
+
+    public function followups(): HasMany
+    {
+        return $this->hasMany(Followup::class);
+    }
 }

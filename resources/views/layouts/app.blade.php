@@ -103,7 +103,7 @@
                 </span>
 
                 <span class="nav-badge" id="sidebarPendingRequests">
-                    0
+                    {{ $pendingRequests }}
                 </span>
             </a>
 
@@ -162,7 +162,7 @@
                     class="nav-badge"
                     id="sidebarPendingDocuments"
                 >
-                    0
+                    {{ $attentionDocuments }}
                 </span>
             </a>
 
@@ -178,6 +178,8 @@
                 </span>
             </a>
 
+
+            <a href="{{ route('coordinacion.seguimientos') }}" class="nav-item {{ request()->routeIs('coordinacion.seguimientos', 'coordinacion.seguimiento') ? 'active' : '' }}"><i class="bi bi-clipboard-check"></i><span>Seguimientos</span></a>
 
             <a
                 href="{{ route('coordinacion.visitas') }}"
@@ -427,85 +429,9 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
 
-    const badge =
-        document.getElementById('sidebarPendingRequests');
 
-    if (!badge) {
-        return;
-    }
 
-    const stored =
-        localStorage.getItem('unicah_coord_solicitudes_v1');
-
-    if (!stored) {
-        badge.textContent = '0';
-        return;
-    }
-
-    try {
-
-        const requests =
-            JSON.parse(stored) || [];
-
-        const pending =
-            requests.filter(request =>
-                request.estado === 'Pendiente'
-            ).length;
-
-        badge.textContent =
-            pending;
-
-        badge.style.display =
-            pending > 0
-                ? ''
-                : 'none';
-
-    } catch (error) {
-
-        badge.textContent = '0';
-
-    }
-
-});
-</script>
-
-<script src="{{ asset('js/documents-store.js') }}"></script>
-
-<script>
-
-const documentsBadge =
-    document.getElementById(
-        'sidebarPendingDocuments'
-    );
-
-if (
-    documentsBadge &&
-    window.DocumentStore
-) {
-
-    const documents =
-        DocumentStore.getAll();
-
-    const attention =
-        documents.filter(document =>
-            document.estado === 'Pendiente' ||
-            document.estado === 'Corrección requerida'
-        ).length;
-
-    documentsBadge.textContent =
-        attention;
-
-    documentsBadge.style.display =
-        attention > 0
-            ? 'inline-flex'
-            : 'none';
-
-}
-
-</script>
 
 </body>
 

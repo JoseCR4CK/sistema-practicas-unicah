@@ -7,13 +7,13 @@
 @php
     // Estados de la demostración. Visitas, monografías y defensas se integrarán en otro bloque.
     $demo = [
-        '0801-2022-00458' => ['Habilitada', 'Pendiente', 'Pendiente'],
-        '0801-2021-00231' => ['No habilitada', 'Pendiente', 'Pendiente'],
-        '0801-2022-00671' => ['Realizada', 'En revisión', 'Pendiente'],
-        '0801-2022-00714' => ['Habilitada', 'Pendiente', 'Pendiente'],
-        '0801-2020-00118' => ['Realizada', 'Aprobada', 'Realizada'],
+        '0801-2022-00458' => ['Pendiente', 'Pendiente'],
+        '0801-2021-00231' => ['Pendiente', 'Pendiente'],
+        '0801-2022-00671' => ['En revisión', 'Pendiente'],
+        '0801-2022-00714' => ['Pendiente', 'Pendiente'],
+        '0801-2020-00118' => ['Aprobada', 'Realizada'],
     ][$estudiante['cuenta']] ?? null;
-    [$visitaDemo, $monografiaDemo, $defensaDemo] = $demo ?? array_fill(0, 3, 'Sin información');
+    [$monografiaDemo, $defensaDemo] = $demo ?? array_fill(0, 2, 'Sin información');
 
     $etapas = \App\Models\Practice::STAGES;
     $iconosEtapas = [
@@ -27,8 +27,8 @@
         'bi-flag',
     ];
     $estadosCompletados = [
-        'Aprobada',
-        'Validada',
+        $estudiante['solicitud_estado'],
+        $estudiante['documentos_estado'],
         $estudiante['empresa_id'] !== null ? 'Asignada' : 'Sin asignar',
         'Completada',
         'Realizada',
@@ -67,7 +67,7 @@
             $estadoPendiente = 'Pendiente';
 
             if ($nombreEtapa === 'Visita' && $estudiante['etapa'] === 'Práctica') {
-                $estadoPendiente = $visitaDemo;
+                $estadoPendiente = $estudiante['visita_estado'];
             }
 
             $pasosTimeline[] = [
@@ -222,7 +222,7 @@
     </div>
 
 
-    <p class="small text-muted">Los estados de solicitud, documentación, visita, monografía y defensa se muestran como parte del prototipo.</p>
+    <p class="small text-muted">Los estados de monografía y defensa continúan como parte del prototipo.</p>
 
     <div class="practice-timeline expediente-timeline">
 
@@ -364,7 +364,7 @@
             </strong>
 
             <p>
-                Estado de visita: {{ $visitaDemo }}
+                Estado de visita: {{ $estudiante['visita_estado'] }}
             </p>
 
         </div>
@@ -471,7 +471,7 @@
                 </span>
 
                 <strong class="text-success">
-                    Aprobada
+                    {{ $estudiante['solicitud_estado'] }}
                 </strong>
 
             </div>
@@ -484,7 +484,7 @@
                 </span>
 
                 <strong class="text-success">
-                    {{ $estudiante['etapa'] === 'Documentación' ? 'En proceso' : 'Completa' }}
+                    {{ $estudiante['documentos_estado'] }}
                 </strong>
 
             </div>
@@ -549,117 +549,8 @@
     <!-- DOCUMENTOS -->
 
     <div class="tab-content" id="documentos">
-
-        <div class="tab-section-title">
-
-            <div>
-
-                <h3>
-                    Documentación
-                </h3>
-
-                <p>
-                    Documentos presentados por el estudiante.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="documents-list">
-
-
-            <div class="document-row">
-
-                <div class="document-info">
-
-                    <div class="document-icon">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Documento de identidad
-                        </strong>
-
-                        <span>
-                            PDF · Fecha no disponible
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <span class="badge success">
-                    Estado no disponible
-                </span>
-
-            </div>
-
-
-            <div class="document-row">
-
-                <div class="document-info">
-
-                    <div class="document-icon">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Documento testigo 1
-                        </strong>
-
-                        <span>
-                            PDF · Fecha no disponible
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <span class="badge success">
-                    Estado no disponible
-                </span>
-
-            </div>
-
-
-            <div class="document-row">
-
-                <div class="document-info">
-
-                    <div class="document-icon">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Documento testigo 2
-                        </strong>
-
-                        <span>
-                            PDF · Fecha no disponible
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <span class="badge success">
-                    Estado no disponible
-                </span>
-
-            </div>
-
-        </div>
-
+        @include('academic.document-list', ['documentos' => $estudiante['documentos'], 'studentPortal' => false])
     </div>
-
 
     <!-- EMPRESA -->
 
@@ -749,21 +640,24 @@
             <i class="bi bi-calendar-check"></i>
 
             <h3>
-                @if ($visitaDemo === 'Realizada')
+                @if ($estudiante['visita_estado'] === 'Realizada')
                     Visita realizada
-                @elseif ($visitaDemo === 'Habilitada')
+                @elseif ($estudiante['visita_estado'] === 'Habilitada')
                     Visita habilitada
                 @else
-                    {{ $demo ? 'Visita no habilitada' : 'Visita sin información' }}
+                    Visita {{ strtolower($estudiante['visita_estado']) }}
                 @endif
             </h3>
 
             <p>
-                Estado: {{ $visitaDemo }}
+                Estado: {{ $estudiante['visita_estado'] }}
+                @if ($estudiante['visita_id'])
+                    <a href="{{ route('coordinacion.visita', $estudiante['visita_id']) }}">Ver visita</a>
+                @endif
             </p>
 
             <span class="countdown-badge">
-                {{ $visitaDemo }}
+                {{ $estudiante['visita_estado'] }}
             </span>
 
         </div>
@@ -846,7 +740,7 @@
                 <div>
 
                     <strong>
-                        {{ $estudiante['etapa'] === 'Documentación' ? 'Documentación en proceso' : 'Documentación aprobada' }}
+                        {{ $estudiante['documentos_estado'] }}
                     </strong>
 
                     <span>
@@ -884,7 +778,7 @@
                 <div>
 
                     <strong>
-                        Solicitud aprobada
+                        {{ $estudiante['solicitud_estado'] }}
                     </strong>
 
                     <span>
