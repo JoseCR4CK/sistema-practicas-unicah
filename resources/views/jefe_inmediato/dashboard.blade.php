@@ -121,7 +121,7 @@
 
         <div>
             <h2>
-                Practicante asignado
+                Practicantes asignados
             </h2>
 
             <p>

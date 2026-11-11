@@ -263,14 +263,18 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('3.00', $load->credits);
         $this->assertSame('5.00', $load->weekly_class_hours);
         $this->assertDatabaseCount('academic_loads', 1);
-        $this->get(route('docente.carga-academica'))->assertOk()->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)->assertDontSee('<img src=x onerror=alert(1)>', false);
+        $this->get(route('docente.carga-academica'))->assertOk()->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)->assertDontSee('<img src=x onerror=alert(1)>', false)
+            ->assertSee('Registra las asignaturas y horarios que impartes durante cada período académico.')
+            ->assertDontSee('Consulta y gestiona las asignaturas y horarios registrados por el docente');
         $this->post(route('docente.carga-academica.store'), $this->classFields(['academic_year' => 2027, 'academic_period' => 'I', 'valid_from' => '2027-01-01', 'valid_until' => '2027-04-01']))->assertRedirect();
         $this->assertDatabaseCount('academic_loads', 2);
         $this->get(route('docente.carga-academica', ['year' => 2027, 'period' => 'I']))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
         $this->actingAs($foreign->user)->put(route('docente.carga-academica.update', $load), $this->classFields(['revision' => 0]))->assertForbidden();
         $this->get(route('docente.carga-academica'))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
         $this->actingAs($this->userFor('COORDINACION'));
-        $this->get(route('coordinacion.carga-academica', $teacher))->assertOk()->assertSee('Asignatura registrada');
+        $this->get(route('coordinacion.carga-academica', $teacher))->assertOk()->assertSee('Asignatura registrada')
+            ->assertSee('Consulta y gestiona las asignaturas y horarios registrados por el docente durante cada período académico.')
+            ->assertDontSee('Registra las asignaturas y horarios que impartes');
         $updated = $this->classFields(['revision' => 0, 'subject' => 'Asignatura corregida']);
         $this->put(route('coordinacion.carga-academica.update', $load), $updated)->assertSessionHasErrors('reason');
         $updated['reason'] = 'Corregir título registrado';

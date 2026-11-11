@@ -107,9 +107,15 @@ class DeliveryAuditTest extends TestCase
     public function test_boss_reads_only_own_responsibility_without_academic_management(): void
     {
         $boss = $this->user('JEFE_INMEDIATO');
-        $practice = Practice::whereHas('companyResponsible', fn ($query) => $query->where('user_id', $boss->id))->firstOrFail();
+        $practices = Practice::whereHas('companyResponsible', fn ($query) => $query->where('user_id', $boss->id))->latest('id')->get();
         $other = Practice::whereHas('companyResponsible', fn ($query) => $query->where('user_id', '!=', $boss->id))->firstOrFail();
-        $this->actingAs($boss)->get(route('jefe.dashboard'))->assertOk()->assertSee($practice->student->user->name)->assertDontSee($other->student->user->name);
+        $response = $this->actingAs($boss)->get(route('jefe.dashboard'))->assertOk()
+            ->assertSee('Practicantes asignados')->assertDontSee($other->student->user->name)
+            ->assertViewHas('practices', fn ($records) => $records->modelKeys() === $practices->modelKeys());
+        $this->assertGreaterThan(1, $practices->count());
+        foreach ($practices as $practice) {
+            $response->assertSee($practice->student->user->name)->assertSee($practice->student->account_number);
+        }
         foreach (['coordinacion.solicitudes', 'coordinacion.documentos', 'docente.seguimientos', 'docente.carga-academica', 'academico.ternas', 'academico.defensas'] as $route) {
             $this->get(route($route))->assertStatus(in_array($route, ['academico.ternas', 'academico.defensas'], true) ? 200 : 403);
         }

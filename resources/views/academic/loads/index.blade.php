@@ -8,7 +8,7 @@
     $days = $active->flatMap(fn ($item) => $item->weekdays)->unique()->count();
 @endphp
 <div class="page-header">
-    <div><span class="student-home-eyebrow">GESTIÓN ACADÉMICA</span><h1>Carga académica</h1><p>Registra las asignaturas y horarios que impartes durante cada período académico.</p></div>
+    <div><span class="student-home-eyebrow">GESTIÓN ACADÉMICA</span><h1>Carga académica</h1><p>{{ $manager ? 'Consulta y gestiona las asignaturas y horarios registrados por el docente durante cada período académico.' : 'Registra las asignaturas y horarios que impartes durante cada período académico.' }}</p></div>
     <button class="btn btn-primary teacher-load-add" data-bs-toggle="modal" data-bs-target="#academicLoadModal"><i class="bi bi-plus-lg"></i> Agregar clase</button>
 </div>
 @include('academic.closing-feedback')
