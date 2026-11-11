@@ -29,7 +29,7 @@
 
         <i class="bi bi-calendar3"></i>
 
-        III Período 2026
+        {{ now()->locale('es')->translatedFormat('d \d\e F \d\e Y') }}
 
     </div>
 
@@ -213,70 +213,7 @@ function getStudentVisit(studentId) { return teacherVisits.find(visit => String(
 |--------------------------------------------------------------------------
 */
 
-function getVisitStatus(visit) {
-
-    if (!visit) {
-        return 'Sin registro';
-    }
-
-
-    if (visit.estado === 'Realizada') {
-        return 'Realizada';
-    }
-
-
-    if (visit.estado === 'Programada') {
-        return 'Programada';
-    }
-
-
-    if (visit.estado === 'Habilitada') {
-        return 'Habilitada';
-    }
-
-
-    if (visit.estado === 'No habilitada') {
-        return 'No habilitada';
-    }
-
-
-    if (visit.inicio_practica) {
-
-        const start =
-            new Date(
-                visit.inicio_practica +
-                'T00:00:00'
-            );
-
-
-        const today =
-            new Date();
-
-        today.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-
-        const day =
-            Math.floor(
-                (today - start) /
-                86400000
-            ) + 1;
-
-
-        return day >= 45
-            ? 'Habilitada'
-            : 'No habilitada';
-
-    }
-
-
-    return 'Sin registro';
-
-}
+function getVisitStatus(visit) { return visit?.estado ?? 'Sin registro'; }
 
 
 /*

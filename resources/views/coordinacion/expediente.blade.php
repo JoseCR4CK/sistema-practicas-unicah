@@ -68,6 +68,20 @@
             ];
         }
     }
+    foreach ($pasosTimeline as &$paso) {
+        $estadoPersistente = match ($paso['nombre']) {
+            'Visita' => $estudiante['visita_estado'],
+            'Monografía' => $closing['monograph_state'],
+            'Defensa' => $closing['defense_state'],
+            default => null,
+        };
+        if ($estadoPersistente !== null) {
+            $paso['estado'] = $estadoPersistente;
+            $paso['clase'] = in_array($estadoPersistente, ['Realizada', 'Aprobada'], true) ? 'completed'
+                : (in_array($estadoPersistente, ['Habilitada', 'Programada', 'En revisión', 'Requiere corrección', 'En coordinación'], true) ? 'active' : 'pending');
+        }
+    }
+    unset($paso);
 @endphp
 
 <!-- CABECERA -->

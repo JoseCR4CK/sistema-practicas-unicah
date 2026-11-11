@@ -54,11 +54,11 @@
                 </span>
 
                 <strong>
-                    84
+                    {{ $practicasActivas }}
                 </strong>
 
                 <small>
-                    Estudiantes actualmente en proceso
+                    Prácticas actualmente en proceso
                 </small>
 
             </div>

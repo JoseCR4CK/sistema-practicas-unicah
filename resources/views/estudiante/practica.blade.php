@@ -444,7 +444,7 @@
 
         <!-- EMPRESA -->
 
-        <div class="practice-stage completed">
+        <div class="practice-stage {{ $process?->company ? 'completed' : 'pending' }}">
 
             <div class="practice-stage-icon">
 
@@ -458,18 +458,18 @@
                 <div>
 
                     <strong>
-                        Validación de empresa
+                        Empresa de práctica
                     </strong>
 
                     <span>
-                        Empresa y jefe inmediato confirmados
+                        {{ $process?->company?->official_name ?? 'Sin empresa asignada' }} · {{ $process?->companyResponsible?->full_name ?? 'Sin responsable asignado' }}
                     </span>
 
                 </div>
 
 
                 <span class="badge success">
-                    Completada
+                    {{ $process?->company ? 'Asignada' : 'Sin asignar' }}
                 </span>
 
             </div>
@@ -480,7 +480,7 @@
 
         <!-- PRACTICA -->
 
-        <div class="practice-stage active">
+        <div class="practice-stage {{ $process?->status === 'ACTIVE' ? 'active' : ($process?->status === 'COMPLETED' ? 'completed' : 'pending') }}">
 
             <div class="practice-stage-icon">
 
@@ -505,7 +505,7 @@
 
 
                 <span class="badge warning">
-                    En curso
+                    {{ $process?->statusLabel() ?? 'Sin práctica registrada' }}
                 </span>
 
             </div>

@@ -32,7 +32,7 @@
 
         <i class="bi bi-calendar3"></i>
 
-        III Período 2026
+        {{ $process ? $process->academic_period.' '.$process->academic_year : 'Sin práctica registrada' }}
 
     </div>
 
@@ -491,7 +491,7 @@
             </h2>
 
             <p>
-                Grupo Tecnológico S.A.
+                {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
             </p>
 
         </div>
@@ -544,7 +544,7 @@
         </div>
 
 
-        <div class="student-process-step completed">
+        <div class="student-process-step {{ $process?->company ? 'completed' : '' }}">
 
             <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
@@ -557,7 +557,7 @@
         </div>
 
 
-        <div class="student-process-step active">
+        <div class="student-process-step {{ $process?->status === 'ACTIVE' ? 'active' : '' }}">
 
             <div class="student-process-circle">
 
@@ -657,7 +657,7 @@
                 </span>
 
                 <strong>
-                    Pendiente de asignación
+                    {{ $process?->teacher?->user?->name ?? 'Sin docente asignado' }}
                 </strong>
 
                 <a href="{{ route('estudiante.docente') }}">
@@ -690,7 +690,7 @@
                 </span>
 
                 <strong>
-                    Grupo Tecnológico S.A.
+                    {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
                 </strong>
 
                 <a href="{{ route('estudiante.empresa') }}">

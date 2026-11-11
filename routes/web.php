@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AcademicLoadController;
+use App\Http\Controllers\CompanyPortalController;
 use App\Http\Controllers\DefenseController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\MonographController;
@@ -33,7 +34,7 @@ Route::get('/', [
 Route::post('/login', [
     AuthController::class,
     'login'
-])->name('login.attempt');
+])->middleware('throttle:10,1')->name('login.attempt');
 
 Route::post('/logout', [
     AuthController::class,
@@ -124,7 +125,7 @@ Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('co
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
 
 Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
-    if (in_array($modulo, ['ternas', 'monografias', 'defensas'], true)) {
+    if (in_array($modulo, ['solicitudes', 'practicas', 'empresas', 'documentos', 'visitas', 'ternas', 'monografias', 'defensas'], true)) {
         return redirect()->route('coordinacion.'.$modulo);
     }
 
@@ -219,9 +220,7 @@ Route::middleware('closing.schema:defenses')->group(function () {
 Route::get('/estudiante/visita', [VisitController::class, 'index'])->name('estudiante.visita');
 Route::get('/estudiante/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('estudiante.visita.show');
 
-Route::get('/estudiante/empresa', function () {
-    return view('estudiante.empresa');
-})->name('estudiante.empresa');
+Route::get('/estudiante/empresa', [StudentFlowController::class, 'company'])->name('estudiante.empresa');
 
 Route::get('/estudiante/notas', function () {
     return view('estudiante.notas');
@@ -239,9 +238,7 @@ Route::get('/estudiante/agenda', function () {
     return view('estudiante.agenda');
 })->name('estudiante.agenda');
 
-Route::get('/estudiante/docente', function () {
-    return view('estudiante.docente');
-})->name('estudiante.docente');
+Route::get('/estudiante/docente', [StudentFlowController::class, 'teacher'])->name('estudiante.docente');
 
 Route::get('/estudiante/modulo/{modulo}', function ($modulo) {
 
@@ -307,9 +304,7 @@ Route::middleware([
     'role:JEFE_INMEDIATO',
 ])->group(function () {
 
-Route::get('/jefe-inmediato', function () {
-    return view('jefe_inmediato.dashboard');
-})->name('jefe.dashboard');
+Route::get('/jefe-inmediato', [CompanyPortalController::class, 'dashboard'])->name('jefe.dashboard');
 
 Route::get('/jefe-inmediato/modulo/{modulo}', function ($modulo) {
 

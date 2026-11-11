@@ -40,6 +40,8 @@ class TeacherPortalController extends Controller
             'progreso' => $practice->progress,
             'inicio' => $practice->start_date?->format('Y-m-d'),
             'status' => $practice->status,
+            'dia' => $practice->currentDay(),
+            'monografia_estado' => e(app(AcademicClosingSummary::class)->forPractice($practice)['monograph_state']),
         ]);
         $visitData = $practices->flatMap(fn ($practice) => $practice->visits->map(fn ($visit) => [
             'id' => $visit->id,
@@ -48,6 +50,7 @@ class TeacherPortalController extends Controller
             'estudiante' => e($practice->student->user->name),
             'empresa' => e($practice->company?->official_name ?? 'Sin empresa asignada'),
             'inicio_practica' => $practice->start_date?->format('Y-m-d'),
+            'dia' => $practice->currentDay(),
             'estado' => $visit->effectiveStatus() === 'Pendiente' ? 'No habilitada' : $visit->effectiveStatus(),
             'fecha_programada' => $visit->scheduled_date?->format('Y-m-d'),
             'fecha_realizada' => $visit->completed_date?->format('Y-m-d'),

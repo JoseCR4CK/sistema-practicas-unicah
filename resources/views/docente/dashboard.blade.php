@@ -31,7 +31,7 @@
 
         <i class="bi bi-calendar3"></i>
 
-        III Período 2026
+        {{ now()->locale('es')->translatedFormat('d \d\e F \d\e Y') }}
 
     </div>
 
@@ -329,59 +329,10 @@ function dashboardStudentId(practice) {
 }
 
 
-function dashboardCalculateDay(start) {
-
-    if (!start) {
-        return 0;
-    }
-
-    const startDate =
-        new Date(start + 'T00:00:00');
-
-    const today =
-        new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    if (today < startDate) {
-        return 0;
-    }
-
-    return Math.floor(
-        (today - startDate) / 86400000
-    ) + 1;
-
-}
 
 
-function dashboardVisitStatus(visit) {
 
-    if (!visit) {
-        return 'Sin registro';
-    }
-
-    if (visit.estado === 'Realizada') {
-        return 'Realizada';
-    }
-
-    if (visit.estado === 'Programada') {
-        return 'Programada';
-    }
-
-    if (visit.estado === 'Habilitada') {
-        return 'Habilitada';
-    }
-
-    const day =
-        dashboardCalculateDay(
-            visit.inicio_practica
-        );
-
-    return day >= 45
-        ? 'Habilitada'
-        : 'No habilitada';
-
-}
+function dashboardVisitStatus(visit) { return visit?.estado ?? 'Sin registro'; }
 
 function renderDashboardNextActivity(
     practices,
@@ -574,7 +525,7 @@ function renderDashboardNextActivity(
 
     const monograph =
         practices.find(item =>
-            item.etapa === 'Monografía'
+            item.monografia_estado === 'En revisión'
         );
 
 
@@ -601,8 +552,7 @@ function renderDashboardNextActivity(
 
                 <p>
                     ${monograph.estudiante}
-                    se encuentra actualmente en la etapa
-                    de monografía.
+                    tiene una monografía en revisión.
                 </p>
 
             </div>
@@ -703,7 +653,7 @@ function loadTeacherDashboard() {
 
     const processAlerts =
         practices.filter(item =>
-            item.etapa === 'Monografía'
+            item.monografia_estado === 'En revisión'
         );
 
 
@@ -934,9 +884,7 @@ function renderDashboardVisits(visits) {
         visits.map(visit => {
 
             const day =
-                dashboardCalculateDay(
-                    visit.inicio_practica
-                );
+                visit.dia ?? 0;
 
 
             return `

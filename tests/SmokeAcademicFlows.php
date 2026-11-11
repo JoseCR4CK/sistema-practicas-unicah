@@ -26,8 +26,11 @@ foreach (['/coordinacion', '/coordinacion/estudiantes', '/coordinacion/solicitud
 foreach (['/docente', '/docente/practicantes', '/docente/alertas', '/docente/visitas', '/docente/seguimientos'] as $url) {
     $cases[] = [$teacher, $url, 200];
 }
-foreach (['/estudiante', '/estudiante/practica', '/estudiante/solicitudes', '/estudiante/documentos', '/estudiante/visita'] as $url) {
+foreach (['/estudiante', '/estudiante/practica', '/estudiante/empresa', '/estudiante/docente', '/estudiante/solicitudes', '/estudiante/documentos', '/estudiante/visita'] as $url) {
     $cases[] = [$student, $url, 200];
+}
+foreach (App\Models\User::whereHas('role', fn ($query) => $query->where('name', 'JEFE_INMEDIATO'))->get() as $boss) {
+    $cases[] = [$boss, '/jefe-inmediato', 200];
 }
 foreach (['/coordinacion/empresas', '/coordinacion/docentes', '/coordinacion/practicas', '/coordinacion/estudiantes/informe', '/coordinacion/monografias', '/coordinacion/ternas', '/coordinacion/defensas'] as $url) {
     $cases[] = [$coordinator, $url, 200];

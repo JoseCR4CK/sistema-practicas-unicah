@@ -431,6 +431,22 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('Práctica', $committee->practice->fresh()->stage);
     }
 
+    public function test_a_defense_option_cannot_be_used_through_another_defenses_url(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        $otherPractice = Practice::whereKeyNot($committee->practice_id)->firstOrFail();
+        $otherCommittee = AcademicCommittee::firstOrCreate(['practice_id' => $otherPractice->id]);
+        $otherDefense = $this->createDefense($otherCommittee);
+        $this->post(route('coordinacion.defensa.options', $otherDefense), ['starts_at' => '2026-12-01T12:00'])->assertRedirect();
+        $option = $otherDefense->options()->firstOrFail();
+        $this->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertNotFound();
+        $this->actingAs($committee->practice->student->user)
+            ->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertNotFound();
+        $this->assertSame('Pendiente', $defense->fresh()->status);
+        $this->assertSame(0, $option->availabilities()->count());
+    }
+
     public function test_closing_views_and_summary_use_persistent_records_and_missing_ids_return_404(): void
     {
         $committee = $this->confirmedCommittee();

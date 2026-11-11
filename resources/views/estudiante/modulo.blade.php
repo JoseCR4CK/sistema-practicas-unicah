@@ -75,10 +75,8 @@
                     line-height: 1.6;
                 "
             >
-                Esta sección forma parte de la estructura
-                del prototipo. Su integración completa
-                será realizada en las siguientes etapas
-                del proyecto.
+                Esta sección todavía no tiene operaciones disponibles.
+                Consulta tu proceso y tus herramientas personales desde el menú.
             </p>
 
         </div>

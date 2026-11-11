@@ -31,7 +31,7 @@
 
         <i class="bi bi-check-circle"></i>
 
-        Docente asignado
+        {{ $process?->teacher ? 'Docente asignado' : 'Sin docente asignado' }}
 
     </div>
 
@@ -46,7 +46,7 @@
     <div class="teacher-profile-main">
 
         <div class="teacher-avatar">
-            CM
+            {{ $process?->teacher ? Str::initials($process->teacher->user->name, true) : '—' }}
         </div>
 
 
@@ -57,18 +57,18 @@
             </span>
 
             <h2>
-                Msc. Carlos Martínez
+                {{ $process?->teacher?->user?->name ?? 'Sin docente asignado' }}
             </h2>
 
             <p>
-                Facultad de Ingeniería
+                {{ $process?->teacher?->faculty ?? 'Sin facultad registrada' }}
             </p>
 
             <span class="teacher-active-badge">
 
                 <i class="bi bi-check-circle-fill"></i>
 
-                Asignación activa
+                {{ $process?->teacher ? 'Docente asignado' : 'Sin docente asignado' }}
 
             </span>
 
@@ -84,7 +84,7 @@
         </span>
 
         <strong>
-            III Período 2026
+            {{ $process ? $process->academic_period.' '.$process->academic_year : 'Sin período registrado' }}
         </strong>
 
     </div>
@@ -129,7 +129,7 @@
                     </span>
 
                     <strong>
-                        Msc. Carlos Martínez
+                        {{ $process?->teacher?->user?->name ?? 'Sin docente asignado' }}
                     </strong>
 
                 </div>
@@ -142,7 +142,7 @@
                     </span>
 
                     <strong>
-                        Ingeniería
+                        {{ $process?->teacher?->faculty ?? 'Sin facultad registrada' }}
                     </strong>
 
                 </div>
@@ -168,7 +168,7 @@
                     </span>
 
                     <strong class="teacher-success">
-                        Asignado
+                        {{ $process?->teacher ? 'Asignado' : 'Sin asignar' }}
                     </strong>
 
                 </div>
@@ -181,7 +181,7 @@
                     </span>
 
                     <strong>
-                        III Período 2026
+                        {{ $process ? $process->academic_period.' '.$process->academic_year : 'Sin período registrado' }}
                     </strong>
 
                 </div>

@@ -24,7 +24,7 @@
 
         <i class="bi bi-patch-check"></i>
 
-        Empresa validada
+        {{ $process?->company ? 'Empresa asignada' : 'Sin empresa asignada' }}
 
     </div>
 
@@ -52,11 +52,11 @@
             </span>
 
             <h2>
-                Grupo Tecnológico S.A.
+                {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
             </h2>
 
             <p>
-                Información registrada y validada
+                Información registrada
                 para tu proceso de práctica profesional.
             </p>
 
@@ -69,7 +69,7 @@
 
         <i class="bi bi-check-circle"></i>
 
-        Validada
+        {{ $process?->company ? 'Asignada' : 'Sin asignar' }}
 
     </span>
 
@@ -107,7 +107,7 @@
             </span>
 
             <strong>
-                Grupo Tecnológico S.A.
+                {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
             </strong>
 
         </div>
@@ -120,7 +120,7 @@
             </span>
 
             <strong>
-                0801-1999-123456
+                {{ $process?->company?->rtn ?? 'Sin registrar' }}
             </strong>
 
         </div>
@@ -133,7 +133,7 @@
             </span>
 
             <strong>
-                Tegucigalpa
+                {{ $process?->company?->city ?? 'Sin registrar' }}
             </strong>
 
         </div>
@@ -146,7 +146,7 @@
             </span>
 
             <strong>
-                Tegucigalpa, Honduras
+                {{ $process?->company?->address ?? 'Sin registrar' }}
             </strong>
 
         </div>
@@ -159,7 +159,7 @@
             </span>
 
             <strong>
-                +504 2222-2222
+                {{ $process?->company?->phone ?? 'Sin registrar' }}
             </strong>
 
         </div>
@@ -172,7 +172,7 @@
             </span>
 
             <strong>
-                contacto@grupotecnologico.hn
+                {{ $process?->company?->email ?? 'Sin registrar' }}
             </strong>
 
         </div>
@@ -208,18 +208,18 @@
     <div class="company-supervisor-content">
 
         <div class="supervisor-avatar">
-            RM
+            {{ $process?->companyResponsible ? Str::initials($process->companyResponsible->full_name, true) : '—' }}
         </div>
 
 
         <div class="supervisor-main">
 
             <h3>
-                Ing. Roberto Martínez
+                {{ $process?->companyResponsible?->full_name ?? 'Sin responsable asignado' }}
             </h3>
 
             <span>
-                Gerente de Tecnología
+                {{ $process?->companyResponsible?->position ?? 'Sin registrar' }}
             </span>
 
         </div>
@@ -231,7 +231,7 @@
 
                 <i class="bi bi-envelope"></i>
 
-                roberto@empresa.hn
+                {{ $process?->companyResponsible?->email ?? 'Sin registrar' }}
 
             </span>
 
@@ -240,7 +240,7 @@
 
                 <i class="bi bi-telephone"></i>
 
-                +504 9999-9999
+                {{ $process?->companyResponsible?->phone ?? 'Sin registrar' }}
 
             </span>
 
@@ -271,7 +271,7 @@
             </span>
 
             <strong>
-                01/09/2026
+                {{ $process?->start_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -294,7 +294,7 @@
             </span>
 
             <strong>
-                30/11/2026
+                {{ $process?->end_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -317,7 +317,7 @@
             </span>
 
             <strong>
-                Día 44
+                {{ $process?->currentDay() ?? 'Sin iniciar' }}
             </strong>
 
         </div>
@@ -340,7 +340,7 @@
             </span>
 
             <strong>
-                Práctica activa
+                {{ $process?->statusLabel() ?? 'Sin práctica registrada' }}
             </strong>
 
         </div>
@@ -391,13 +391,13 @@
                 </strong>
 
                 <span>
-                    Información validada
+                    {{ $process?->company ? 'Información registrada' : 'Sin empresa registrada' }}
                 </span>
 
             </div>
 
             <span class="badge success">
-                Aprobado
+                Consultar registro
             </span>
 
         </div>
@@ -419,13 +419,13 @@
                 </strong>
 
                 <span>
-                    Responsable confirmado
+                    {{ $process?->companyResponsible ? 'Responsable asignado' : 'Sin responsable asignado' }}
                 </span>
 
             </div>
 
             <span class="badge success">
-                Aprobado
+                Consultar registro
             </span>
 
         </div>
@@ -447,13 +447,13 @@
                 </strong>
 
                 <span>
-                    Inicio y finalización establecidos
+                    {{ $process?->start_date && $process?->end_date ? 'Inicio y finalización registrados' : 'Fechas pendientes' }}
                 </span>
 
             </div>
 
             <span class="badge success">
-                Aprobado
+                Consultar registro
             </span>
 
         </div>
@@ -484,7 +484,7 @@
         <p>
             Estos datos forman parte de tu expediente de práctica.
             Si detectas información incorrecta, deberá ser revisada
-            por el área responsable antes de modificar el registro validado.
+            por el área responsable antes de modificar el registro.
         </p>
 
     </div>

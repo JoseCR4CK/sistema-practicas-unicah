@@ -19,7 +19,7 @@
 
     <div class="page-date">
         <i class="bi bi-buildings"></i>
-        Grupo Tecnológico S.A.
+        {{ $practices->pluck('company.official_name')->filter()->unique()->join(' · ') ?: 'Sin empresa vinculada' }}
     </div>
 
 </div>
@@ -36,12 +36,11 @@
         </span>
 
         <h2>
-            Ing. Roberto Martínez
+            {{ auth()->user()->name }}
         </h2>
 
         <p>
-            Actualmente tienes un estudiante asignado
-            para seguimiento de práctica profesional.
+            Actualmente tienes {{ $practices->unique('student_id')->count() }} practicantes asignados.
         </p>
 
     </div>
@@ -67,7 +66,7 @@
 
             <div>
                 <span>Practicantes asignados</span>
-                <strong>1</strong>
+                <strong>{{ $practices->unique('student_id')->count() }}</strong>
             </div>
 
         </article>
@@ -85,7 +84,7 @@
 
             <div>
                 <span>Prácticas activas</span>
-                <strong>1</strong>
+                <strong>{{ $practices->where('status', 'ACTIVE')->count() }}</strong>
             </div>
 
         </article>
@@ -102,8 +101,8 @@
             </div>
 
             <div>
-                <span>Próximo seguimiento</span>
-                <strong>Día 45</strong>
+                <span>Visitas registradas</span>
+                <strong>{{ $practices->sum(fn ($practice) => $practice->visits->count()) }}</strong>
             </div>
 
         </article>
@@ -114,6 +113,7 @@
 
 
 <!-- ESTUDIANTE -->
+@forelse ($practices as $practice)
 
 <section class="content-card company-student-card">
 
@@ -131,7 +131,7 @@
         </div>
 
         <span class="badge success">
-            Práctica activa
+            {{ $practice->statusLabel() }}
         </span>
 
     </div>
@@ -140,7 +140,7 @@
     <div class="company-student-profile">
 
         <div class="company-student-avatar">
-            AM
+            {{ Str::initials($practice->student->user->name, true) }}
         </div>
 
 
@@ -151,11 +151,11 @@
             </span>
 
             <h3>
-                Andrea Martínez
+                {{ $practice->student->user->name }}
             </h3>
 
             <p>
-                Ingeniería en Ciencias de la Computación
+                {{ $practice->student->career }}
             </p>
 
         </div>
@@ -168,7 +168,7 @@
             </span>
 
             <strong>
-                58%
+                {{ $practice->progress }}%
             </strong>
 
         </div>
@@ -178,7 +178,7 @@
 
     <div class="company-progress-bar">
 
-        <div style="width: 58%;"></div>
+        <div style="width: {{ $practice->progress }}%;"></div>
 
     </div>
 
@@ -192,7 +192,7 @@
             </span>
 
             <strong>
-                0801-2022-00458
+                {{ $practice->student->account_number }}
             </strong>
 
         </div>
@@ -205,7 +205,7 @@
             </span>
 
             <strong>
-                01/09/2026
+                {{ $practice->start_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -218,7 +218,7 @@
             </span>
 
             <strong>
-                30/11/2026
+                {{ $practice->end_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -231,7 +231,7 @@
             </span>
 
             <strong>
-                Día 44
+                {{ $practice->currentDay() ?? 'Sin iniciar' }}
             </strong>
 
         </div>
@@ -268,24 +268,24 @@
 
                 <div>
                     <span>Empresa</span>
-                    <strong>Grupo Tecnológico S.A.</strong>
+                    <strong>{{ $practice->company?->official_name ?? 'Sin empresa asignada' }}</strong>
                 </div>
 
                 <div>
                     <span>Jefe inmediato</span>
-                    <strong>Ing. Roberto Martínez</strong>
+                    <strong>{{ $practice->companyResponsible?->full_name ?? 'Sin responsable asignado' }}</strong>
                 </div>
 
                 <div>
                     <span>Cargo</span>
-                    <strong>Gerente de Tecnología</strong>
+                    <strong>{{ $practice->companyResponsible?->position ?? 'Sin cargo registrado' }}</strong>
                 </div>
 
                 <div>
                     <span>Estado</span>
 
                     <strong class="success-text">
-                        Empresa validada
+                        {{ $practice->company ? 'Empresa asignada' : 'Sin empresa asignada' }}
                     </strong>
                 </div>
 
@@ -328,7 +328,7 @@
                     </span>
 
                     <h3>
-                        Próxima habilitación
+                        {{ $practice->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada' }}
                     </h3>
 
                     <p>
@@ -337,7 +337,7 @@
                     </p>
 
                     <span class="badge warning">
-                        Falta 1 día
+                        {{ $practice->reachedVisitDay() ? 'Umbral del día 45 alcanzado' : 'Consulta el estado de la práctica' }}
                     </span>
 
                 </div>
@@ -352,6 +352,9 @@
 
 
 <!-- NOTA -->
+@empty
+    <section class="content-card p-3">No tienes practicantes relacionados con tu responsabilidad de empresa.</section>
+@endforelse
 
 <section class="documents-info-box">
 

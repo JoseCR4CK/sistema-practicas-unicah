@@ -19,11 +19,21 @@ class StudentFlowController extends Controller
         return $this->page($request, 'estudiante.practica');
     }
 
+    public function company(Request $request)
+    {
+        return $this->page($request, 'estudiante.empresa');
+    }
+
+    public function teacher(Request $request)
+    {
+        return $this->page($request, 'estudiante.docente');
+    }
+
     private function page(Request $request, string $view)
     {
         $student = $request->user()->student;
         $practice = $student?->practices()
-            ->with(['company', 'companyResponsible', 'documents.currentVersion', 'visits', 'applications'])
+            ->with(['company', 'companyResponsible', 'teacher.user', 'documents.currentVersion', 'visits', 'applications'])
             ->orderByRaw('CASE WHEN status = ? THEN 0 ELSE 1 END', [Practice::ACTIVE])->latest('id')->first();
         $application = $practice?->applications->sortByDesc('id')->first()
             ?? $student?->applications()->whereNull('practice_id')->latest('id')->first();

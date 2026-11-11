@@ -69,9 +69,8 @@
                 line-height: 1.6;
             "
         >
-            Este módulo forma parte del seguimiento de prácticas profesionales.
-            Su información funcional será integrada con los registros
-            correspondientes del sistema.
+            Esta sección todavía no tiene operaciones disponibles.
+            Consulta tus practicantes y actividades desde el menú.
         </p>
 
     </div>

@@ -36,6 +36,7 @@ class StudentController extends Controller
     public function dashboard(): View
     {
         return view('coordinacion.dashboard', [
+            'practicasActivas' => Practice::where('status', Practice::ACTIVE)->count(),
             'solicitudesPendientes' => PracticeRequest::where('status', 'Pendiente')->with('student.user')->latest('submitted_at')->get(),
             'visitasProgramadas' => Visit::where('status', 'Programada')->count(),
             'visitasHabilitadas' => Visit::with('practice')->get()->filter(fn ($visit) => $visit->effectiveStatus() === 'Habilitada')->count(),

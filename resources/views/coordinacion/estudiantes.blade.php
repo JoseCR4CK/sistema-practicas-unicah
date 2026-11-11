@@ -27,6 +27,8 @@
         type="button"
         class="primary-button"
         id="openStudentModal"
+        disabled
+        title="El alta de estudiantes no está disponible desde esta pantalla."
     >
         <i class="bi bi-person-plus"></i>
 
@@ -381,17 +383,7 @@
                             Seleccione una carrera
                         </option>
 
-                        <option>
-                            Ingeniería en Ciencias de la Computación
-                        </option>
-
-                        <option>
-                            Ingeniería Industrial
-                        </option>
-
-                        <option>
-                            Administración de Empresas
-                        </option>
+                        @foreach ($carreras as $carrera)<option>{{ $carrera }}</option>@endforeach
 
                     </select>
 
