@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Monograph;
+use App\Models\AcademicLoad;
 use App\Models\AcademicCommittee;
 use App\Models\Defense;
 use App\Models\Practice;
@@ -237,6 +238,86 @@ class AcademicClosingTest extends TestCase
         $this->assertSame(2, $monograph->versions()->count());
         $this->assertSame('Requiere corrección', $first->fresh()->status);
         $this->assertSame('Informe de práctica profesional', $first->fresh()->title);
+    }
+
+    private function classFields(array $overrides = []): array
+    {
+        return array_replace([
+            'academic_period' => 'III', 'academic_year' => 2026, 'subject' => 'Asignatura registrada',
+            'career' => null, 'section' => null, 'weekdays' => [2, 4], 'starts_at' => '15:00', 'ends_at' => '16:00',
+            'valid_from' => '2026-11-01', 'valid_until' => '2026-12-20', 'credits' => 3, 'weekly_class_hours' => 5,
+            'status' => 'ACTIVE', 'submission_key' => (string) Str::uuid(),
+        ], $overrides);
+    }
+
+    public function test_academic_load_is_persistent_scoped_and_preserves_periods_and_corrections(): void
+    {
+        $teacher = Teacher::firstOrFail();
+        $foreign = $this->otherTeacher();
+        $fields = $this->classFields(['teacher_id' => $foreign->id, 'subject' => '<img src=x onerror=alert(1)>']);
+        $this->actingAs($teacher->user)->post(route('docente.carga-academica.store'), $fields)->assertRedirect();
+        $this->post(route('docente.carga-academica.store'), $fields)->assertRedirect();
+        $load = AcademicLoad::firstOrFail();
+        $this->assertSame($teacher->id, $load->teacher_id);
+        $this->assertSame([2, 4], $load->weekdays);
+        $this->assertSame('3.00', $load->credits);
+        $this->assertSame('5.00', $load->weekly_class_hours);
+        $this->assertDatabaseCount('academic_loads', 1);
+        $this->get(route('docente.carga-academica'))->assertOk()->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)->assertDontSee('<img src=x onerror=alert(1)>', false);
+        $this->post(route('docente.carga-academica.store'), $this->classFields(['academic_year' => 2027, 'academic_period' => 'I', 'valid_from' => '2027-01-01', 'valid_until' => '2027-04-01']))->assertRedirect();
+        $this->assertDatabaseCount('academic_loads', 2);
+        $this->get(route('docente.carga-academica', ['year' => 2027, 'period' => 'I']))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
+        $this->actingAs($foreign->user)->put(route('docente.carga-academica.update', $load), $this->classFields(['revision' => 0]))->assertForbidden();
+        $this->get(route('docente.carga-academica'))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
+        $this->actingAs($this->userFor('COORDINACION'));
+        $this->get(route('coordinacion.carga-academica', $teacher))->assertOk()->assertSee('Asignatura registrada');
+        $updated = $this->classFields(['revision' => 0, 'subject' => 'Asignatura corregida']);
+        $this->put(route('coordinacion.carga-academica.update', $load), $updated)->assertSessionHasErrors('reason');
+        $updated['reason'] = 'Corregir título registrado';
+        $this->put(route('coordinacion.carga-academica.update', $load), $updated)->assertRedirect();
+        $this->assertSame('Asignatura corregida', $load->fresh()->subject);
+        $this->assertSame($fields['subject'], $load->changes()->firstOrFail()->before['subject']);
+        $this->put(route('coordinacion.carga-academica.update', $load), $updated)->assertStatus(409);
+        $this->get(route('coordinacion.carga-academica', 999999))->assertNotFound();
+        $this->put(route('coordinacion.carga-academica.update', 999999), $updated)->assertNotFound();
+        $this->actingAs($teacher->user)->get(route('docente.carga-academica'))->assertOk()->assertSee('Asignatura corregida');
+        foreach (['ESTUDIANTE', 'JEFE_INMEDIATO'] as $role) {
+            $this->actingAs($this->userFor($role))->get(route('docente.carga-academica'))->assertForbidden();
+            $this->put(route('coordinacion.carga-academica.update', $load), $updated)->assertForbidden();
+        }
+    }
+
+    public function test_academic_load_conflicts_respect_weekdays_dates_status_and_do_not_invent_other_blocks(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        $teacher = $committee->members->first()->user;
+        $this->actingAs($teacher);
+        foreach ([['ends_at' => '21:51'], ['ends_at' => '14:59'], ['weekdays' => [2, 2]], ['valid_until' => '2026-01-01']] as $invalid) {
+            $this->post(route('docente.carga-academica.store'), $this->classFields($invalid))->assertSessionHasErrors();
+        }
+        $this->post(route('docente.carga-academica.store'), $this->classFields())->assertRedirect();
+        $workflow = app(\App\Services\DefenseScheduling::class);
+        $conflict = fn ($date, $start, $end) => $workflow->hasClassConflict($defense, Carbon::parse("$date $start"), Carbon::parse("$date $end"));
+        $this->assertTrue($conflict('2026-12-01', '15:00', '16:00'));
+        $this->assertFalse($conflict('2026-12-01', '16:00', '17:00'));
+        $this->assertFalse($conflict('2026-12-01', '12:00', '13:00'));
+        $this->assertFalse($conflict('2026-12-02', '15:00', '16:00'));
+        $this->assertFalse($conflict('2027-01-05', '15:00', '16:00'));
+        $load = AcademicLoad::firstOrFail();
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T15:00'])->assertSessionHasErrors('starts_at');
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T12:00'])->assertRedirect();
+        $option = $defense->options()->firstOrFail();
+        foreach ($defense->participants() as $participant) {
+            $this->actingAs($participant)->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertRedirect();
+        }
+        $this->actingAs($teacher)->put(route('docente.carga-academica.update', $load), $this->classFields(['revision' => 0, 'starts_at' => '12:00', 'ends_at' => '13:00']))->assertRedirect();
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertSessionHasErrors('option');
+        $this->get(route('coordinacion.defensa.show', $defense))->assertOk()->assertSee('La opción coincide con horas de clase registradas.');
+        $this->actingAs($teacher)->put(route('docente.carga-academica.update', $load), $this->classFields(['revision' => 1, 'status' => 'INACTIVE']))->assertRedirect();
+        $this->assertFalse($conflict('2026-12-01', '12:00', '13:00'));
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertRedirect();
+        $this->assertSame('Programada', $defense->fresh()->status);
     }
 
     private function confirmedCommittee(): AcademicCommittee

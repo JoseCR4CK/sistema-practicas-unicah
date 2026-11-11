@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AcademicCommittee;
+use App\Models\AcademicLoad;
 use App\Models\Defense;
 use App\Models\DefenseClassBlock;
 use App\Models\DefenseOption;
@@ -52,8 +53,19 @@ class DefenseScheduling
     {
         $teacherIds = $teacherId ? [$teacherId] : Teacher::whereIn('user_id', $defense->committee->members->pluck('user_id'))->pluck('id');
 
-        return DefenseClassBlock::whereIn('teacher_id', $teacherIds)
-            ->where('starts_at', '<', $end)->where('ends_at', '>', $start)->exists();
+        if (DefenseClassBlock::whereIn('teacher_id', $teacherIds)
+            ->where('starts_at', '<', $end)->where('ends_at', '>', $start)->exists()) {
+            return true;
+        }
+
+        // La vigencia explícita evita deducir un calendario institucional de la etiqueta del período.
+        $classes = AcademicLoad::whereIn('teacher_id', $teacherIds)->where('status', 'ACTIVE')
+            ->whereDate('valid_from', '<=', $start->toDateString())
+            ->whereDate('valid_until', '>=', $start->toDateString())
+            ->where('starts_at', '<', $end->format('H:i:s'))
+            ->where('ends_at', '>', $start->format('H:i:s'))->get();
+
+        return $classes->contains(fn ($class) => in_array($start->dayOfWeekIso, $class->weekdays, true));
     }
 
     public function setDuration(Defense $defense, int $duration): void

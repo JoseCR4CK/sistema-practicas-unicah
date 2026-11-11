@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AcademicLoadController;
 use App\Http\Controllers\DefenseController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\MonographController;
@@ -64,6 +65,9 @@ Route::get('/coordinacion/estudiantes/{student}', [StudentController::class, 'sh
     ->whereNumber('student')->name('coordinacion.estudiante');
 
 Route::get('/coordinacion/docentes', [TeacherController::class, 'index'])->name('coordinacion.docentes');
+Route::get('/coordinacion/docentes/{teacher}/carga-academica', [AcademicLoadController::class, 'index'])->whereNumber('teacher')->name('coordinacion.carga-academica');
+Route::post('/coordinacion/docentes/{teacher}/carga-academica', [AcademicLoadController::class, 'store'])->whereNumber('teacher')->name('coordinacion.carga-academica.store');
+Route::put('/coordinacion/carga-academica/{load}', [AcademicLoadController::class, 'update'])->whereNumber('load')->name('coordinacion.carga-academica.update');
 Route::get('/coordinacion/docentes/{teacher}', [TeacherController::class, 'show'])
     ->whereNumber('teacher')->name('coordinacion.docente');
 
@@ -385,9 +389,9 @@ Route::middleware('closing.schema:defenses')->group(function () {
 
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');
 
-Route::get('/docente/carga-academica', function () {
-    return view('docente.carga-academica');
-})->name('docente.carga-academica');
+Route::get('/docente/carga-academica', [AcademicLoadController::class, 'index'])->name('docente.carga-academica');
+Route::post('/docente/carga-academica', [AcademicLoadController::class, 'store'])->name('docente.carga-academica.store');
+Route::put('/docente/carga-academica/{load}', [AcademicLoadController::class, 'update'])->whereNumber('load')->name('docente.carga-academica.update');
 
 });
 

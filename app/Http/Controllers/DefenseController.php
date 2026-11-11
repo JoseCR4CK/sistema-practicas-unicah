@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicCommittee;
+use App\Models\AcademicLoad;
 use App\Models\Defense;
 use App\Models\DefenseClassBlock;
 use App\Models\DefenseOption;
@@ -39,6 +40,7 @@ class DefenseController extends Controller
         return view('academic.defenses.show', [
             'defensa' => $defense,
             'clases' => DefenseClassBlock::whereIn('teacher_id', $teacherIds)->with('teacher.user')->orderBy('starts_at')->get(),
+            'cargas' => AcademicLoad::whereIn('teacher_id', $teacherIds)->where('status', 'ACTIVE')->with('teacher.user')->orderBy('valid_from')->get(),
             'classConflicts' => $defense->options->mapWithKeys(fn ($option) => [
                 $option->id => $workflow->hasClassConflict($defense, $option->starts_at, $option->ends_at),
             ]),

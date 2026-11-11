@@ -81,7 +81,11 @@
     </div>
 </section>
 <section class="content-card mb-4">
-    <div class="card-header"><div><h2>Horas de clase registradas</h2><p>Los integrantes declaran su disponibilidad teniendo en cuenta sus horas de clase.</p></div></div>
+    <div class="card-header"><div><h2>Horas de clase registradas</h2><p>Se contrastan las clases de la carga académica y las clases puntuales registradas. No se deducen otros bloqueos personales.</p></div></div>
+    <div class="table-container table-responsive"><table class="data-table">
+        <thead><tr><th>Docente / asignatura</th><th>Período</th><th>Días</th><th>Horario</th><th>Vigencia</th></tr></thead>
+        <tbody>@forelse ($cargas as $carga)<tr><td>{{ $carga->teacher->user->name }}<br>{{ $carga->subject }}</td><td>{{ $carga->academic_period }} {{ $carga->academic_year }}</td><td>{{ collect($carga->weekdays)->map(fn ($day) => \App\Models\AcademicLoad::DAYS[$day])->join(', ') }}</td><td>{{ substr($carga->starts_at, 0, 5) }} – {{ substr($carga->ends_at, 0, 5) }}</td><td>{{ $carga->valid_from->format('d/m/Y') }} – {{ $carga->valid_until->format('d/m/Y') }}</td></tr>@empty<tr><td colspan="5">No hay clases de carga académica registradas para la terna.</td></tr>@endforelse</tbody>
+    </table></div>
     <div class="table-container table-responsive"><table class="data-table">
         <thead><tr><th>Docente</th><th>Inicio</th><th>Finalización</th></tr></thead>
         <tbody>@forelse ($clases as $clase)<tr><td>{{ $clase->teacher->user->name }}</td><td>{{ $clase->starts_at->format('d/m/Y H:i') }}</td><td>{{ $clase->ends_at->format('d/m/Y H:i') }}</td></tr>@empty<tr><td colspan="3">No hay horas de clase registradas para contrastar.</td></tr>@endforelse</tbody>

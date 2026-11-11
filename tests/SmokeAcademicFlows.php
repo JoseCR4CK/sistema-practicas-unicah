@@ -12,7 +12,7 @@ if ($connection->getDriverName() !== 'mysql' || $connection->getDatabaseName() !
 }
 
 $counts = [];
-foreach ([App\Models\PracticeRequest::class, App\Models\AcademicDocument::class, App\Models\DocumentVersion::class, App\Models\Visit::class, App\Models\Followup::class] as $model) {
+foreach ([App\Models\PracticeRequest::class, App\Models\AcademicDocument::class, App\Models\DocumentVersion::class, App\Models\Visit::class, App\Models\Followup::class, App\Models\Monograph::class, App\Models\MonographVersion::class, App\Models\AcademicCommittee::class, App\Models\Defense::class, App\Models\AcademicLoad::class] as $model) {
     $counts[class_basename($model)] = $model::count();
 }
 $coordinator = App\Models\User::whereHas('role', fn ($query) => $query->where('name', 'COORDINACION'))->firstOrFail();
@@ -28,6 +28,30 @@ foreach (['/docente', '/docente/practicantes', '/docente/alertas', '/docente/vis
 }
 foreach (['/estudiante', '/estudiante/practica', '/estudiante/solicitudes', '/estudiante/documentos', '/estudiante/visita'] as $url) {
     $cases[] = [$student, $url, 200];
+}
+foreach (['/coordinacion/empresas', '/coordinacion/docentes', '/coordinacion/practicas', '/coordinacion/estudiantes/informe', '/coordinacion/monografias', '/coordinacion/ternas', '/coordinacion/defensas'] as $url) {
+    $cases[] = [$coordinator, $url, 200];
+}
+foreach (['/docente/monografias', '/docente/ternas', '/docente/defensas', '/docente/carga-academica'] as $url) {
+    $cases[] = [$teacher, $url, 200];
+}
+foreach (['/estudiante/monografia', '/estudiante/terna', '/estudiante/defensa'] as $url) {
+    $cases[] = [$student, $url, 200];
+}
+$cases[] = [$coordinator, '/coordinacion/docentes/'.$teacher->teacher->id.'/carga-academica', 200];
+$cases[] = [$coordinator, '/coordinacion/docentes/'.$teacher->teacher->id, 200];
+foreach ([App\Models\Monograph::class => '/coordinacion/monografias/', App\Models\AcademicCommittee::class => '/coordinacion/ternas/', App\Models\Defense::class => '/coordinacion/defensas/'] as $model => $prefix) {
+    $cases[] = [$coordinator, $prefix.'999999999', 404];
+    foreach ($model::all() as $record) {
+        $cases[] = [$coordinator, $prefix.$record->id, 200];
+    }
+}
+foreach (App\Models\Monograph::with('practice.teacher.user')->get() as $monograph) {
+    $cases[] = [$monograph->practice->student->user, '/estudiante/monografia/'.$monograph->id, 200];
+    if ($monograph->practice->teacher) {
+        $cases[] = [$monograph->practice->teacher->user, '/docente/monografias/'.$monograph->id, 200];
+        $cases[] = [$monograph->practice->teacher->user, '/docente/practicantes/'.$monograph->practice->student_id, 200];
+    }
 }
 foreach (['/coordinacion/solicitudes/999999999', '/coordinacion/documentos/999999999', '/coordinacion/visitas/999999999', '/coordinacion/seguimientos/999999999'] as $url) {
     $cases[] = [$coordinator, $url, 404];

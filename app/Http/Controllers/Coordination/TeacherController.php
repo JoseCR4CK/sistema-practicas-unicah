@@ -26,7 +26,7 @@ class TeacherController extends Controller
 
     public function show(Teacher $teacher): View
     {
-        $teacher->load(['user', 'practices.student.user', 'practices.company']);
+        $teacher->load(['user', 'practices.student.user', 'practices.company', 'academicLoads']);
 
         return view('coordinacion.docente-detalle', [
             'docente' => $teacher,
