@@ -21,6 +21,13 @@ class StudentController extends Controller
         'latestPractice.company',
         'latestPractice.companyResponsible',
         'latestPractice.teacher.user',
+        'applications',
+        'latestActivePractice.applications',
+        'latestPractice.applications',
+        'latestActivePractice.documents.currentVersion',
+        'latestPractice.documents.currentVersion',
+        'latestActivePractice.visits',
+        'latestPractice.visits',
     ];
 
     public function dashboard(): View
@@ -133,6 +140,10 @@ class StudentController extends Controller
     private function studentData(Student $student): array
     {
         $practice = $student->latestActivePractice ?? $student->latestPractice;
+        $visit = $practice?->visits->sortByDesc('id')->first();
+        $application = $practice?->applications->sortByDesc('id')->first()
+            ?? $student->applications->whereNull('practice_id')->sortByDesc('id')->first();
+        $documents = $practice?->documents ?? collect();
 
         return [
             'id' => $student->id,
@@ -152,6 +163,12 @@ class StudentController extends Controller
             'docente' => $practice?->teacher?->user?->name ?? 'Sin docente asignado',
             'inicio' => $practice?->start_date?->format('d/m/Y') ?? 'Pendiente',
             'dia_practica' => $practice?->currentDay(),
+            'visita_estado' => $visit?->effectiveStatus() ?? 'Sin visita registrada',
+            'visita_id' => $visit?->id,
+            'solicitud_estado' => $application?->status ?? 'Sin solicitud registrada',
+            'solicitud_id' => $application?->id,
+            'documentos' => $documents,
+            'documentos_estado' => $documents->where('currentVersion.status', 'Aprobado')->count().' aprobados de '.$documents->count().' registrados',
             'finalizacion' => $practice?->end_date?->format('d/m/Y') ?? 'Pendiente',
             'periodo' => $practice ? "$practice->academic_period $practice->academic_year" : null,
             'periodo_anterior' => $practice ? Str::before($practice->academic_period, ' ').'-'.$practice->academic_year : null,

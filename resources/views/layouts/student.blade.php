@@ -146,6 +146,8 @@
                 MI PROCESO
             </div>
 
+            <a href="{{ route('estudiante.solicitudes') }}" class="nav-item {{ request()->routeIs('estudiante.solicitudes', 'estudiante.solicitud') ? 'active' : '' }}"><i class="bi bi-file-earmark-text"></i><span>Solicitudes</span></a>
+
             <a
                 href="{{ route('estudiante.documentos') }}"
                 class="nav-item {{ request()->routeIs('estudiante.documentos') ? 'active' : '' }}"

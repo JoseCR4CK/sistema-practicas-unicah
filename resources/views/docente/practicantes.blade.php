@@ -160,15 +160,17 @@
 
 @push('scripts')
 
-<script src="{{ asset('js/practices-store.js') }}"></script>
 
-<script src="{{ asset('js/visits-store.js') }}"></script>
+
+<script>
+const teacherPractices = {{ Illuminate\Support\Js::from($practiceData) }};
+const teacherVisits = {{ Illuminate\Support\Js::from($visitData) }};
+</script>
 
 
 <script>
 
-const CURRENT_TEACHER =
-    'Msc. Carlos Martínez';
+const CURRENT_TEACHER_NAME = {{ Illuminate\Support\Js::from(e(auth()->user()->name)) }};
 
 
 /*
@@ -194,20 +196,7 @@ function getPracticeStudentId(practice) {
 |--------------------------------------------------------------------------
 */
 
-function getTeacherPractices() {
-
-    if (!window.PracticeStore) {
-        return [];
-    }
-
-
-    return PracticeStore
-        .getAll()
-        .filter(practice =>
-            practice.docente === CURRENT_TEACHER
-        );
-
-}
+function getTeacherPractices() { return teacherPractices; }
 
 
 /*
@@ -216,23 +205,7 @@ function getTeacherPractices() {
 |--------------------------------------------------------------------------
 */
 
-function getStudentVisit(studentId) {
-
-    if (!window.VisitStore) {
-        return null;
-    }
-
-
-    return VisitStore
-        .getAll()
-        .find(visit =>
-            String(
-                visit.student_id ??
-                visit.estudiante_id
-            ) === String(studentId)
-        );
-
-}
+function getStudentVisit(studentId) { return teacherVisits.find(visit => String(visit.student_id) === String(studentId)) || null; }
 
 
 /*

@@ -1,13 +1,13 @@
-@extends('layouts.app')
+@extends(($studentPortal ?? false) ? 'layouts.student' : 'layouts.app')
 @section('title', 'Detalle de solicitud | UNICAH')
 @section('content')
-<div class="page-header"><div><span class="student-home-eyebrow">SOLICITUD DE PRÁCTICA</span><h1>{{ $solicitud->student->user->name }}</h1><p>Revisa la información antes de tomar una decisión.</p></div><a href="{{ route('coordinacion.solicitudes') }}" class="btn btn-light coord-back-button">Volver a solicitudes</a></div>
+<div class="page-header"><div><span class="student-home-eyebrow">SOLICITUD DE PRÁCTICA</span><h1>{{ $solicitud->student->user->name }}</h1><p>Revisa la información antes de tomar una decisión.</p></div><a href="{{ route(($studentPortal ?? false) ? 'estudiante.solicitudes' : 'coordinacion.solicitudes') }}" class="btn btn-light coord-back-button">Volver a solicitudes</a></div>
 @if (session('status'))<div class="alert alert-success">{{ session('status') }}</div>@endif
 @if ($errors->any())<div class="alert alert-danger">@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 <section class="coord-request-detail-header mb-4">
     <div class="coord-request-detail-icon"><i class="bi bi-file-earmark-text"></i></div>
     <div><span>ESTADO DE LA SOLICITUD</span><strong>{{ $solicitud->status }}</strong><small>{{ $solicitud->submitted_at->format('d/m/Y H:i') }}</small></div>
-    @if ($solicitud->status === 'Pendiente')
+    @if (!($studentPortal ?? false) && $solicitud->status === 'Pendiente')
         <div class="coord-request-detail-actions">
             <button class="btn coord-request-reject" data-bs-toggle="modal" data-bs-target="#rejectRequestModal">Rechazar</button>
             <form method="POST" action="{{ route('coordinacion.solicitud.review', $solicitud) }}">@csrf<input type="hidden" name="status" value="Aprobada"><button class="btn btn-success">Aprobar solicitud</button></form>
@@ -42,6 +42,7 @@
     </div>
     <div class="coord-request-observation"><p>{{ $solicitud->observation ?? 'Sin observaciones' }}</p></div>
 </section>
+@if (!($studentPortal ?? false))
 <div class="modal fade" id="rejectRequestModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content coord-company-modal" method="POST" action="{{ route('coordinacion.solicitud.review', $solicitud) }}">
@@ -52,4 +53,5 @@
         </form>
     </div>
 </div>
+@endif
 @endsection

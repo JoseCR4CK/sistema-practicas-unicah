@@ -8,7 +8,7 @@ use Illuminate\View\View;
 
 class PracticeController extends Controller
 {
-    private const RELATIONS = ['student.user', 'company', 'companyResponsible', 'teacher.user'];
+    private const RELATIONS = ['student.user', 'company', 'companyResponsible', 'teacher.user', 'visits'];
 
     public function index(): View
     {
