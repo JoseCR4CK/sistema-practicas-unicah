@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             DemoDataSeeder::class,
             AcademicFlowSeeder::class,
             AcademicClosingSeeder::class,
+            DevelopmentTextCleanupSeeder::class,
         ]);
     }
 }

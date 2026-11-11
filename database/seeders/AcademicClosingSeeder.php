@@ -19,6 +19,9 @@ class AcademicClosingSeeder extends Seeder
         $practices = Practice::where('status', Practice::ACTIVE)->where('stage', 'Monografía')
             ->whereDate('start_date', '<=', today())->whereNotNull('end_date')->with('student.user')->get();
         foreach ($practices as $practice) {
+            if (!str_ends_with($practice->student->user->email, '.demo')) {
+                continue;
+            }
             if (Schema::hasTable('academic_committees')) {
                 AcademicCommittee::firstOrCreate(['practice_id' => $practice->id]);
             }

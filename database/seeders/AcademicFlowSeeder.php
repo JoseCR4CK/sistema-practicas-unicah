@@ -21,7 +21,7 @@ class AcademicFlowSeeder extends Seeder
 
             PracticeRequest::firstOrCreate(
                 ['practice_id' => $practice->id, 'student_id' => $practice->student_id],
-                ['status' => 'Pendiente', 'submitted_at' => now(), 'student_observation' => 'Solicitud de demostración para desarrollo.'],
+                ['status' => 'Pendiente', 'submitted_at' => now(), 'student_observation' => 'Solicitud de práctica profesional.'],
             );
 
             // Las visitas de ejemplo se generan únicamente para prácticas demo activas.
@@ -39,7 +39,7 @@ class AcademicFlowSeeder extends Seeder
                 $document = AcademicDocument::firstOrCreate(['practice_id' => $practice->id, 'type' => $type]);
                 $document->versions()->firstOrCreate(
                     ['version' => 1],
-                    ['status' => DocumentVersion::PENDING, 'uploaded_by' => $practice->student->user_id, 'uploaded_at' => now(), 'submission_note' => 'Metadatos de demostración. Sin archivo adjunto.'],
+                    ['status' => DocumentVersion::PENDING, 'uploaded_by' => $practice->student->user_id, 'uploaded_at' => now(), 'submission_note' => 'Información de la versión del documento.'],
                 );
             }
         }
