@@ -40,7 +40,7 @@
 
             <div>
                 <span>Prácticas</span>
-                <strong id="practiceStatTotal">0</strong>
+                <strong id="practiceStatTotal">{{ $practicas->count() }}</strong>
             </div>
 
         </div>
@@ -58,7 +58,7 @@
 
             <div>
                 <span>Activas</span>
-                <strong id="practiceStatActive">0</strong>
+                <strong id="practiceStatActive">{{ $activas }}</strong>
             </div>
 
         </div>
@@ -75,8 +75,8 @@
             </div>
 
             <div>
-                <span>Visita habilitada</span>
-                <strong id="practiceStatVisits">0</strong>
+                <span>Día 45 alcanzado</span>
+                <strong id="practiceStatVisits">{{ $umbralVisita }}</strong>
             </div>
 
         </div>
@@ -94,7 +94,7 @@
 
             <div>
                 <span>Requieren atención</span>
-                <strong id="practiceStatAlerts">0</strong>
+                <strong id="practiceStatAlerts">{{ $requierenAtencion }}</strong>
             </div>
 
         </div>
@@ -117,7 +117,6 @@
                 type="text"
                 id="practiceSearch"
                 placeholder="Buscar estudiante, cuenta o empresa..."
-                oninput="renderPractices()"
             >
 
         </div>
@@ -126,32 +125,11 @@
         <select
             id="practiceStage"
             class="form-select"
-            onchange="renderPractices()"
         >
-
-            <option value="">
-                Todas las etapas
-            </option>
-
-            <option value="Documentación">
-                Documentación
-            </option>
-
-            <option value="Práctica">
-                Práctica
-            </option>
-
-            <option value="Visita">
-                Visita
-            </option>
-
-            <option value="Monografía">
-                Monografía
-            </option>
-
-            <option value="Defensa">
-                Defensa
-            </option>
+            <option value="">Todas las etapas</option>
+            @foreach ($etapas as $etapa)
+                <option>{{ $etapa }}</option>
+            @endforeach
 
         </select>
 
@@ -159,7 +137,6 @@
         <select
             id="practiceAttention"
             class="form-select"
-            onchange="renderPractices()"
         >
 
             <option value="">
@@ -179,7 +156,60 @@
     </div>
 
 
-    <div id="practicesList"></div>
+    <div id="practicesList">
+        @foreach ($practicas as $practica)
+            @php($requiereDocente = $practica->needsTeacher())
+            <article class="coord-practice-row"
+                data-search="{{ $practica->student->user->name }} {{ $practica->student->account_number }} {{ $practica->company?->official_name }}"
+                data-stage="{{ $practica->stage }}"
+                data-attention="{{ $requiereDocente ? 'attention' : 'normal' }}">
+                <div class="coord-request-avatar">{{ Str::initials($practica->student->user->name, true) }}</div>
+                <div class="coord-practice-student">
+                    <span>ESTUDIANTE</span>
+                    <strong>{{ $practica->student->user->name }}</strong>
+                    <small>{{ $practica->student->account_number }}</small>
+                </div>
+                <div>
+                    <span class="coord-request-label">Empresa</span>
+                    <strong class="coord-request-value">{{ $practica->company?->official_name ?? 'Sin empresa asignada' }}</strong>
+                </div>
+                <div>
+                    <span class="coord-request-label">Docente de seguimiento</span>
+                    <strong class="coord-request-value">{{ $practica->teacher?->user?->name ?? 'Sin docente asignado' }}</strong>
+                </div>
+                <div>
+                    <span class="coord-request-label">Etapa · Estado</span>
+                    <strong class="coord-request-value">{{ $practica->stage }} · {{ $practica->statusLabel() }}</strong>
+                </div>
+                <div>
+                    <span class="coord-request-label">Día</span>
+                    <strong class="coord-request-value">{{ $practica->currentDay() ?? '—' }}</strong>
+                </div>
+                <div class="coord-practice-progress">
+                    <span>Progreso</span>
+                    <strong>{{ $practica->progress }}%</strong>
+                    <div><span style="width: {{ $practica->progress }}%"></span></div>
+                </div>
+                <div>
+                    @if ($requiereDocente)
+                        <span class="coord-practice-alert danger">Sin docente asignado</span>
+                    @elseif ($practica->reachedVisitDay())
+                        <span class="coord-practice-alert normal">Día 45 alcanzado</span>
+                    @else
+                        <span class="coord-practice-alert normal">Sin alertas</span>
+                    @endif
+                </div>
+                <a href="{{ route('coordinacion.practica', $practica) }}" class="coord-teacher-view">
+                    <i class="bi bi-eye"></i> Ver
+                </a>
+            </article>
+        @endforeach
+        <div id="noPractices" class="teacher-load-empty {{ $practicas->isEmpty() ? '' : 'd-none' }}">
+            <i class="bi bi-search"></i>
+            <strong>No se encontraron prácticas</strong>
+            <span>Intenta modificar los filtros de búsqueda.</span>
+        </div>
+    </div>
 
 </section>
 
@@ -188,430 +218,32 @@
 
 
 @push('scripts')
-
-<script src="{{ asset('js/practices-store.js') }}"></script>
-
 <script>
+    const practiceSearch = document.getElementById('practiceSearch');
+    const practiceStage = document.getElementById('practiceStage');
+    const practiceAttention = document.getElementById('practiceAttention');
+    const practiceRows = Array.from(document.querySelectorAll('#practicesList .coord-practice-row'));
 
-function formatPracticeDate(date) {
+    function filterPractices() {
+        const search = practiceSearch.value.trim().toLocaleLowerCase();
+        const stage = practiceStage.value;
+        const attention = practiceAttention.value;
+        let visible = 0;
 
-    if (!date) {
-        return '—';
-    }
+        for (const row of practiceRows) {
+            const matches = row.dataset.search.toLocaleLowerCase().includes(search)
+                && (!stage || row.dataset.stage === stage)
+                && (!attention || row.dataset.attention === attention);
 
-
-    return new Date(
-        date + 'T12:00:00'
-    ).toLocaleDateString(
-        'es-HN',
-        {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
+            row.classList.toggle('d-none', !matches);
+            if (matches) visible++;
         }
-    );
 
-}
-
-
-function calculatePracticeDay(start) {
-
-    const startDate =
-        new Date(start + 'T00:00:00');
-
-
-    const today =
-        new Date();
-
-
-    today.setHours(0, 0, 0, 0);
-
-
-    if (today < startDate) {
-        return 0;
+        document.getElementById('noPractices').classList.toggle('d-none', visible > 0);
     }
 
-
-    const milliseconds =
-        today - startDate;
-
-
-    return Math.floor(
-        milliseconds / 86400000
-    ) + 1;
-
-}
-
-
-function getPracticeAlert(practice) {
-
-    const practiceStartedStages = [
-        'Práctica',
-        'Visita',
-        'Monografía',
-        'Defensa',
-        'Finalización'
-    ];
-
-    if (!practiceStartedStages.includes(practice.etapa)) {
-        return null;
-    }
-
-    const day =
-        practiceStartedStages.includes(practice.etapa)
-            ? calculatePracticeDay(practice.inicio)
-            : null;
-
-
-    if (
-        day >= 45 &&
-        practice.visita_estado === 'Pendiente'
-    ) {
-
-        return {
-            level: 'warning',
-            text: 'Visita habilitada'
-        };
-
-    }
-
-
-    if (!practice.docente) {
-
-        return {
-            level: 'danger',
-            text: 'Sin docente asignado'
-        };
-
-    }
-
-
-    return null;
-
-}
-
-
-function renderPracticeStats(practices) {
-
-    document.getElementById(
-        'practiceStatTotal'
-    ).textContent =
-        practices.length;
-
-
-    document.getElementById(
-        'practiceStatActive'
-    ).textContent =
-        practices.filter(item =>
-            item.estado === 'Activa'
-        ).length;
-
-
-    document.getElementById(
-        'practiceStatVisits'
-    ).textContent =
-        practices.filter(item => {
-
-            const day =
-                calculatePracticeDay(
-                    item.inicio
-                );
-
-
-            return (
-                day >= 45 &&
-                item.visita_estado === 'Pendiente'
-            );
-
-        }).length;
-
-
-    document.getElementById(
-        'practiceStatAlerts'
-    ).textContent =
-        practices.filter(item =>
-            getPracticeAlert(item)
-        ).length;
-
-}
-
-
-function renderPractices() {
-
-    const practices =
-        PracticeStore.getAll();
-
-
-    renderPracticeStats(practices);
-
-
-    const search =
-        document
-            .getElementById('practiceSearch')
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    const stage =
-        document.getElementById(
-            'practiceStage'
-        ).value;
-
-
-    const attention =
-        document.getElementById(
-            'practiceAttention'
-        ).value;
-
-
-    const filtered =
-        practices.filter(practice => {
-
-            const searchable =
-                `
-                    ${practice.estudiante}
-                    ${practice.cuenta}
-                    ${practice.empresa}
-                    ${practice.docente}
-                `
-                .toLowerCase();
-
-
-            const matchesSearch =
-                searchable.includes(search);
-
-
-            const matchesStage =
-                !stage ||
-                practice.etapa === stage;
-
-
-            const alert =
-                getPracticeAlert(practice);
-
-
-            let matchesAttention = true;
-
-
-            if (attention === 'attention') {
-
-                matchesAttention =
-                    !!alert;
-
-            }
-
-
-            if (attention === 'normal') {
-
-                matchesAttention =
-                    !alert;
-
-            }
-
-
-            return (
-                matchesSearch &&
-                matchesStage &&
-                matchesAttention
-            );
-
-        });
-
-
-    const container =
-        document.getElementById(
-            'practicesList'
-        );
-
-
-    if (!filtered.length) {
-
-        container.innerHTML = `
-
-            <div class="teacher-load-empty">
-
-                <i class="bi bi-briefcase"></i>
-
-                <strong>
-                    No se encontraron prácticas
-                </strong>
-
-                <span>
-                    Cambia los criterios de búsqueda o filtrado.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        filtered.map(practice => {
-
-            const initials =
-                practice.estudiante
-                    .split(' ')
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map(word =>
-                        word.charAt(0)
-                    )
-                    .join('')
-                    .toUpperCase();
-
-
-            const day =
-                calculatePracticeDay(
-                    practice.inicio
-                );
-
-
-            const alert =
-                getPracticeAlert(
-                    practice
-                );
-
-
-            return `
-
-                <article class="coord-practice-row">
-
-                    <div class="coord-request-avatar">
-                        ${initials}
-                    </div>
-
-
-                    <div class="coord-practice-student">
-
-                        <span>
-                            ESTUDIANTE
-                        </span>
-
-                        <strong>
-                            ${practice.estudiante}
-                        </strong>
-
-                        <small>
-                            ${practice.cuenta}
-                        </small>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-request-label">
-                            Empresa
-                        </span>
-
-                        <strong class="coord-request-value">
-                            ${practice.empresa}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-request-label">
-                            Docente asignado
-                        </span>
-
-                        <strong class="coord-request-value">
-                            ${practice.docente || 'Pendiente'}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-request-label">
-                            Etapa
-                        </span>
-
-                        <strong class="coord-request-value">
-                            ${practice.etapa}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="coord-request-label">
-                            Día
-                        </span>
-
-                        <strong class="coord-request-value">
-                            ${day ?? '—'}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="coord-practice-progress">
-
-                        <span>
-                            Progreso
-                        </span>
-
-                        <strong>
-                            ${practice.progreso}%
-                        </strong>
-
-                        <div>
-                            <span
-                                style="width:${practice.progreso}%"
-                            ></span>
-                        </div>
-
-                    </div>
-
-
-                    <div>
-
-                        ${
-                            alert
-                                ? `
-                                    <span class="coord-practice-alert ${alert.level}">
-                                        ${alert.text}
-                                    </span>
-                                `
-                                : `
-                                    <span class="coord-practice-alert normal">
-                                        Sin alertas
-                                    </span>
-                                `
-                        }
-
-                    </div>
-
-
-                    <a
-                        href="/coordinacion/practicas/${practice.id}"
-                        class="coord-teacher-view"
-                    >
-                        <i class="bi bi-eye"></i>
-                        Ver
-                    </a>
-
-                </article>
-
-            `;
-
-        }).join('');
-
-}
-
-
-renderPractices();
-
+    practiceSearch.addEventListener('input', filterPractices);
+    practiceStage.addEventListener('change', filterPractices);
+    practiceAttention.addEventListener('change', filterPractices);
 </script>
-
 @endpush

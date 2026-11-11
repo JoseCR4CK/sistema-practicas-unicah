@@ -5,16 +5,17 @@
 @section('content')
 
 @php
-    $etapas = [
-        'Solicitud',
-        'Documentación',
-        'Empresa',
-        'Práctica',
-        'Visita',
-        'Monografía',
-        'Defensa',
-        'Finalización',
-    ];
+    // Estados de la demostración. Visitas, monografías y defensas se integrarán en otro bloque.
+    $demo = [
+        '0801-2022-00458' => ['Habilitada', 'Pendiente', 'Pendiente'],
+        '0801-2021-00231' => ['No habilitada', 'Pendiente', 'Pendiente'],
+        '0801-2022-00671' => ['Realizada', 'En revisión', 'Pendiente'],
+        '0801-2022-00714' => ['Habilitada', 'Pendiente', 'Pendiente'],
+        '0801-2020-00118' => ['Realizada', 'Aprobada', 'Realizada'],
+    ][$estudiante['cuenta']] ?? null;
+    [$visitaDemo, $monografiaDemo, $defensaDemo] = $demo ?? array_fill(0, 3, 'Sin información');
+
+    $etapas = \App\Models\Practice::STAGES;
     $iconosEtapas = [
         'bi-check-lg',
         'bi-check-lg',
@@ -28,7 +29,7 @@
     $estadosCompletados = [
         'Aprobada',
         'Validada',
-        'Validada',
+        $estudiante['empresa_id'] !== null ? 'Asignada' : 'Sin asignar',
         'Completada',
         'Realizada',
         'Aprobada',
@@ -36,12 +37,11 @@
         'Completada',
     ];
     $indiceActual = array_search($estudiante['etapa'], $etapas, true);
-    $finalizado = $estudiante['etapa'] === 'Finalización'
-        || $estudiante['progreso'] === 100;
+    $finalizado = $estudiante['etapa'] === 'Finalización';
     $pasosTimeline = [];
 
     foreach ($etapas as $indice => $nombreEtapa) {
-        if ($finalizado || $indice < $indiceActual) {
+        if ($finalizado || ($indiceActual !== false && $indice < $indiceActual)) {
             $pasosTimeline[] = [
                 'nombre' => $nombreEtapa,
                 'icono' => $iconosEtapas[$indice],
@@ -52,9 +52,9 @@
             $estadoActual = 'Actual';
 
             if ($nombreEtapa === 'Práctica') {
-                $estadoActual = 'En curso';
+                $estadoActual = $estudiante['estado'];
             } elseif ($nombreEtapa === 'Monografía') {
-                $estadoActual = $estudiante['monografia_estado'];
+                $estadoActual = $monografiaDemo;
             }
 
             $pasosTimeline[] = [
@@ -67,7 +67,7 @@
             $estadoPendiente = 'Pendiente';
 
             if ($nombreEtapa === 'Visita' && $estudiante['etapa'] === 'Práctica') {
-                $estadoPendiente = $estudiante['visita_estado'];
+                $estadoPendiente = $visitaDemo;
             }
 
             $pasosTimeline[] = [
@@ -139,7 +139,7 @@
                     {{ $estudiante['nombre'] }}
                 </h2>
 
-                <span class="status-pill active">
+                <span class="status-pill {{ $estudiante['estado_codigo'] === 'ACTIVE' ? 'active' : '' }}">
                     {{ $estudiante['estado'] }}
                 </span>
 
@@ -206,7 +206,7 @@
         </div>
 
         <div class="progress-percentage">
-            {{ $estudiante['progreso'] }}%
+            {{ $estudiante['progreso'] === null ? '—' : $estudiante['progreso'].'%' }}
         </div>
 
     </div>
@@ -216,13 +216,15 @@
 
         <div
             class="main-progress-fill"
-            style="width: {{ $estudiante['progreso'] }}%"
+            style="width: {{ $estudiante['progreso'] ?? 0 }}%"
         ></div>
 
     </div>
 
 
-    <div class="practice-timeline">
+    <p class="small text-muted">Los estados de solicitud, documentación, visita, monografía y defensa se muestran como parte del prototipo.</p>
+
+    <div class="practice-timeline expediente-timeline">
 
         @foreach ($pasosTimeline as $paso)
             <div class="timeline-step {{ $paso['clase'] }}">
@@ -233,7 +235,7 @@
 
                 <div>
                     <strong>
-                        {{ $paso['nombre'] }}
+                        {{ $paso['nombre'] === 'Documentación' ? 'Documentos' : $paso['nombre'] }}
                     </strong>
 
                     <span>
@@ -358,11 +360,11 @@
             </span>
 
             <strong>
-                {{ $estudiante['inicio'] === 'Pendiente' ? 'No iniciada' : 'No disponible' }}
+                {{ $estudiante['dia_practica'] ?? 'No iniciada' }}
             </strong>
 
             <p>
-                Estado de visita: {{ $estudiante['visita_estado'] }}
+                Estado de visita: {{ $visitaDemo }}
             </p>
 
         </div>
@@ -747,21 +749,21 @@
             <i class="bi bi-calendar-check"></i>
 
             <h3>
-                @if ($estudiante['visita_estado'] === 'Realizada')
+                @if ($visitaDemo === 'Realizada')
                     Visita realizada
-                @elseif ($estudiante['visita_estado'] === 'Habilitada')
+                @elseif ($visitaDemo === 'Habilitada')
                     Visita habilitada
                 @else
-                    Visita no habilitada
+                    {{ $demo ? 'Visita no habilitada' : 'Visita sin información' }}
                 @endif
             </h3>
 
             <p>
-                Estado: {{ $estudiante['visita_estado'] }}
+                Estado: {{ $visitaDemo }}
             </p>
 
             <span class="countdown-badge">
-                {{ $estudiante['visita_estado'] }}
+                {{ $visitaDemo }}
             </span>
 
         </div>
@@ -778,11 +780,11 @@
             <i class="bi bi-journal-text"></i>
 
             <h3>
-                Monografía {{ strtolower($estudiante['monografia_estado']) }}
+                Monografía {{ strtolower($monografiaDemo) }}
             </h3>
 
             <p>
-                Estado: {{ $estudiante['monografia_estado'] }}
+                Estado: {{ $monografiaDemo }}
             </p>
 
         </div>
@@ -799,11 +801,11 @@
             <i class="bi bi-mortarboard"></i>
 
             <h3>
-                Defensa {{ strtolower($estudiante['defensa_estado']) }}
+                Defensa {{ strtolower($defensaDemo) }}
             </h3>
 
             <p>
-                Estado: {{ $estudiante['defensa_estado'] }}
+                Estado: {{ $defensaDemo }}
             </p>
 
         </div>
@@ -863,7 +865,7 @@
                 <div>
 
                     <strong>
-                        {{ $estudiante['etapa'] === 'Documentación' ? 'Empresa pendiente' : 'Empresa validada' }}
+                        {{ $estudiante['empresa_id'] !== null ? 'Empresa asignada' : 'Sin empresa asignada' }}
                     </strong>
 
                     <span>

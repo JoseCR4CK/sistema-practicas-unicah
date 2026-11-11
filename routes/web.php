@@ -2,6 +2,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Coordination\CompanyController;
+use App\Http\Controllers\Coordination\PracticeController;
+use App\Http\Controllers\Coordination\StudentController;
+use App\Http\Controllers\Coordination\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,207 +41,32 @@ Route::middleware([
     'role:COORDINACION,ROOT',
 ])->group(function () {
 
-Route::get('/coordinacion', function () {
-    return view('coordinacion.dashboard');
-})->name('coordinacion.dashboard');
+Route::get('/coordinacion', [StudentController::class, 'dashboard'])
+    ->name('coordinacion.dashboard');
 
-Route::get('/coordinacion/estudiantes', function () {
-    return view('coordinacion.estudiantes');
-})->name('coordinacion.estudiantes');
+Route::get('/coordinacion/estudiantes', [StudentController::class, 'index'])
+    ->name('coordinacion.estudiantes');
 
-Route::get('/coordinacion/estudiantes/informe', function () {
-    return view('coordinacion.informe-estudiantes');
-})->name('coordinacion.estudiantes.informe');
+Route::get('/coordinacion/estudiantes/informe', [StudentController::class, 'report'])
+    ->name('coordinacion.estudiantes.informe');
 
-Route::get('/coordinacion/estudiantes/{id}', function ($id) {
+Route::get('/coordinacion/estudiantes/{student}', [StudentController::class, 'show'])
+    ->whereNumber('student')->name('coordinacion.estudiante');
 
-    $estudiantes = [
+Route::get('/coordinacion/docentes', [TeacherController::class, 'index'])->name('coordinacion.docentes');
+Route::get('/coordinacion/docentes/{teacher}', [TeacherController::class, 'show'])
+    ->whereNumber('teacher')->name('coordinacion.docente');
 
-        1 => [
-            'id' => 1,
-            'nombre' => 'Andrea Martínez',
-            'iniciales' => 'AM',
-            'cuenta' => '0801-2022-00458',
-            'correo' => 'amartinez@unicah.edu',
-            'telefono' => '0801-2003-12345',
-            'carrera' => 'Ingeniería en Ciencias de la Computación',
-            'estado' => 'En práctica',
-            'etapa' => 'Práctica',
-            'progreso' => 58,
-            'empresa' => 'Grupo Tecnológico S.A.',
-            'responsable' => 'Ing. Roberto Martínez',
-            'docente' => 'Msc. Carlos Martínez',
-            'inicio' => '01/09/2026',
-            'finalizacion' => '30/11/2026',
-            'visita_estado' => 'Habilitada',
-            'monografia_estado' => 'Pendiente',
-            'defensa_estado' => 'Pendiente',
-        ],
-
-        2 => [
-            'id' => 2,
-            'nombre' => 'Carlos Rodríguez',
-            'iniciales' => 'CR',
-            'cuenta' => '0801-2021-00231',
-            'correo' => 'crodriguez@unicah.edu',
-            'telefono' => 'No registrado',
-            'carrera' => 'Ingeniería Industrial',
-            'estado' => 'En proceso',
-            'etapa' => 'Documentación',
-            'progreso' => 32,
-            'empresa' => 'Corporación Industrial HN',
-            'responsable' => 'Lic. Ana López',
-            'docente' => 'Ing. Ana Rodríguez',
-            'inicio' => 'Pendiente',
-            'finalizacion' => 'Pendiente',
-            'visita_estado' => 'No habilitada',
-            'monografia_estado' => 'Pendiente',
-            'defensa_estado' => 'Pendiente',
-        ],
-
-        3 => [
-            'id' => 3,
-            'nombre' => 'María López',
-            'iniciales' => 'ML',
-            'cuenta' => '0801-2022-00671',
-            'correo' => 'mlopez@unicah.edu',
-            'telefono' => 'No registrado',
-            'carrera' => 'Administración de Empresas',
-            'estado' => 'En práctica',
-            'etapa' => 'Monografía',
-            'progreso' => 79,
-            'empresa' => 'Inversiones del Valle S. de R.L.',
-            'responsable' => 'Lic. José García',
-            'docente' => 'Msc. Carlos Martínez',
-            'inicio' => '20/08/2026',
-            'finalizacion' => '20/11/2026',
-            'visita_estado' => 'Realizada',
-            'monografia_estado' => 'En revisión',
-            'defensa_estado' => 'Pendiente',
-        ],
-
-        4 => [
-            'id' => 4,
-            'nombre' => 'Luis Hernández',
-            'iniciales' => 'LH',
-            'cuenta' => '0801-2022-00714',
-            'correo' => 'lhernandez@unicah.edu',
-            'telefono' => 'No registrado',
-            'carrera' => 'Ingeniería Industrial',
-            'estado' => 'En práctica',
-            'etapa' => 'Práctica',
-            'progreso' => 45,
-            'empresa' => 'Grupo Tecnológico S.A.',
-            'responsable' => 'Ing. Roberto Martínez',
-            'docente' => 'Ing. María Fernández',
-            'inicio' => '08/09/2026',
-            'finalizacion' => '08/12/2026',
-            'visita_estado' => 'Habilitada',
-            'monografia_estado' => 'Pendiente',
-            'defensa_estado' => 'Pendiente',
-        ],
-
-        5 => [
-            'id' => 5,
-            'nombre' => 'Sofía Pérez',
-            'iniciales' => 'SP',
-            'cuenta' => '0801-2020-00118',
-            'correo' => 'sperez@unicah.edu',
-            'telefono' => 'No registrado',
-            'carrera' => 'Ingeniería Industrial',
-            'estado' => 'Finalizado',
-            'etapa' => 'Finalización',
-            'progreso' => 100,
-            'empresa' => 'Manufacturas Centroamericanas',
-            'responsable' => 'Responsable de empresa',
-            'docente' => 'Docente de seguimiento',
-            'inicio' => '01/06/2026',
-            'finalizacion' => '31/08/2026',
-            'visita_estado' => 'Realizada',
-            'monografia_estado' => 'Aprobada',
-            'defensa_estado' => 'Realizada',
-        ],
-
-    ];
-
-    abort_unless(isset($estudiantes[$id]), 404);
-
-    return view('coordinacion.expediente', [
-        'estudiante' => $estudiantes[$id]
-    ]);
-
-})->name('coordinacion.estudiante');
-
-Route::get('/coordinacion/docentes', function () {
-    return view('coordinacion.docentes');
-})->name('coordinacion.docentes');
-
-Route::get('/coordinacion/docentes/{id}', function ($id) {
-
-    $docentes = [
-
-        1 => [
-            'id' => 1,
-            'nombre' => 'Msc. Carlos Martínez',
-            'iniciales' => 'CM',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Activo',
-            'practicantes' => 4,
-            'visitas' => 2,
-        ],
-
-        2 => [
-            'id' => 2,
-            'nombre' => 'Ing. Ana Rodríguez',
-            'iniciales' => 'AR',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Atención',
-            'practicantes' => 5,
-            'visitas' => 3,
-        ],
-
-        3 => [
-            'id' => 3,
-            'nombre' => 'Msc. José López',
-            'iniciales' => 'JL',
-            'facultad' => 'Facultad de Administración',
-            'estado' => 'Activo',
-            'practicantes' => 3,
-            'visitas' => 1,
-        ],
-
-        4 => [
-            'id' => 4,
-            'nombre' => 'Ing. María Fernández',
-            'iniciales' => 'MF',
-            'facultad' => 'Facultad de Ingeniería',
-            'estado' => 'Atención',
-            'practicantes' => 6,
-            'visitas' => 3,
-        ],
-
-    ];
-
-    abort_unless(isset($docentes[$id]), 404);
-
-    return view('coordinacion.docente-detalle', [
-        'docente' => $docentes[$id]
-    ]);
-
-})->name('coordinacion.docente');
-
-Route::get('/coordinacion/empresas', function () {
-    return view('coordinacion.empresas');
-})->name('coordinacion.empresas');
-
-
-Route::get('/coordinacion/empresas/{id}', function ($id) {
-
-    return view('coordinacion.empresa-detalle', [
-        'empresaId' => (int) $id
-    ]);
-
-})->name('coordinacion.empresa');
+Route::get('/coordinacion/empresas', [CompanyController::class, 'index'])->name('coordinacion.empresas');
+Route::post('/coordinacion/empresas', [CompanyController::class, 'store'])->name('coordinacion.empresas.store');
+Route::get('/coordinacion/empresas/{company}', [CompanyController::class, 'show'])
+    ->whereNumber('company')->name('coordinacion.empresa');
+Route::put('/coordinacion/empresas/{company}', [CompanyController::class, 'update'])
+    ->whereNumber('company')->name('coordinacion.empresas.update');
+Route::post('/coordinacion/empresas/{company}/responsables', [CompanyController::class, 'storeResponsible'])
+    ->whereNumber('company')->name('coordinacion.empresas.responsables.store');
+Route::put('/coordinacion/empresas/{company}/responsables/{responsible}', [CompanyController::class, 'updateResponsible'])
+    ->whereNumber(['company', 'responsible'])->scopeBindings()->name('coordinacion.empresas.responsables.update');
 
 Route::get('/coordinacion/solicitudes', function () {
     return view('coordinacion.solicitudes');
@@ -252,18 +81,9 @@ Route::get('/coordinacion/solicitudes/{id}', function ($id) {
 
 })->name('coordinacion.solicitud');
 
-Route::get('/coordinacion/practicas', function () {
-    return view('coordinacion.practicas');
-})->name('coordinacion.practicas');
-
-
-Route::get('/coordinacion/practicas/{id}', function ($id) {
-
-    return view('coordinacion.practica-detalle', [
-        'practicaId' => (int) $id
-    ]);
-
-})->name('coordinacion.practica');
+Route::get('/coordinacion/practicas', [PracticeController::class, 'index'])->name('coordinacion.practicas');
+Route::get('/coordinacion/practicas/{practice}', [PracticeController::class, 'show'])
+    ->whereNumber('practice')->name('coordinacion.practica');
 
 Route::get('/coordinacion/documentos', function () {
     return view('coordinacion.documentos');

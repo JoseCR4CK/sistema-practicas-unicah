@@ -43,128 +43,44 @@
 
 <section class="content-card filters-card">
 
-    <div class="filters-grid">
-
-
-        <!-- BUSCADOR -->
-
+    <form class="filters-grid" id="studentFilters" method="GET" action="{{ route('coordinacion.estudiantes') }}">
         <div class="filter-search">
-
             <i class="bi bi-search"></i>
-
-            <input
-                type="text"
-                placeholder="Buscar por nombre, cuenta o identidad..."
-            >
-
+            <input type="search" name="buscar" value="{{ request()->string('buscar') }}" placeholder="Buscar por nombre, cuenta o identidad...">
+            <button type="submit" class="visually-hidden-focusable">Buscar estudiantes</button>
         </div>
-
-
-
-        <!-- CARRERA -->
 
         <div class="filter-field">
-
-            <label>
-                Carrera
-            </label>
-
-            <select>
-
-                <option>
-                    Todas
-                </option>
-
-                <option>
-                    Ingeniería en Ciencias de la Computación
-                </option>
-
-                <option>
-                    Ingeniería Industrial
-                </option>
-
-                <option>
-                    Administración de Empresas
-                </option>
-
+            <label for="studentCareer">Carrera</label>
+            <select id="studentCareer" name="carrera" onchange="this.form.submit()">
+                <option value="">Todas</option>
+                @foreach ($carreras as $carrera)
+                    <option @selected(request('carrera') === $carrera)>{{ $carrera }}</option>
+                @endforeach
             </select>
-
         </div>
-
-
-
-        <!-- ESTADO -->
 
         <div class="filter-field">
-
-            <label>
-                Estado
-            </label>
-
-            <select>
-
-                <option>
-                    Todos
-                </option>
-
-                <option>
-                    En proceso
-                </option>
-
-                <option>
-                    Pendiente
-                </option>
-
-                <option>
-                    Finalizado
-                </option>
-
+            <label for="studentStatus">Estado</label>
+            <select id="studentStatus" name="estado" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                @foreach ($estados as $estado)
+                    <option value="{{ $estado->status }}" @selected(request('estado') === $estado->status)>{{ $estado->statusLabel() }}</option>
+                @endforeach
+                <option value="sin-practica" @selected(request('estado') === 'sin-practica')>Sin práctica</option>
             </select>
-
         </div>
-
-
-
-        <!-- ETAPA -->
 
         <div class="filter-field">
-
-            <label>
-                Etapa
-            </label>
-
-            <select>
-
-                <option>
-                    Todas
-                </option>
-
-                <option>
-                    Solicitud
-                </option>
-
-                <option>
-                    Documentación
-                </option>
-
-                <option>
-                    Práctica
-                </option>
-
-                <option>
-                    Monografía
-                </option>
-
-                <option>
-                    Defensa
-                </option>
-
+            <label for="studentStage">Etapa</label>
+            <select id="studentStage" name="etapa" onchange="this.form.submit()">
+                <option value="">Todas</option>
+                @foreach ($etapas as $etapa)
+                    <option @selected(request('etapa') === $etapa)>{{ $etapa }}</option>
+                @endforeach
             </select>
-
         </div>
-
-
-    </div>
+    </form>
 
 </section>
 
@@ -186,7 +102,7 @@
             </h2>
 
             <p>
-                84 estudiantes encontrados
+                {{ $estudiantes->total() }} {{ $estudiantes->total() === 1 ? 'estudiante encontrado' : 'estudiantes encontrados' }}
             </p>
 
         </div>
@@ -254,561 +170,53 @@
 
 
             <tbody>
-
-
-                <!-- ESTUDIANTE 1 -->
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-cell">
-
-                            <div class="student-avatar">
-                                AM
+                @forelse ($estudiantes as $estudiante)
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="student-avatar">{{ $estudiante['iniciales'] }}</div>
+                                <div>
+                                    <span class="student-name">{{ $estudiante['nombre'] }}</span>
+                                    <span class="student-email">{{ $estudiante['correo'] }}</span>
+                                </div>
                             </div>
-
-
-                            <div>
-
-                                <span class="student-name">
-                                    Andrea Martínez
-                                </span>
-
-                                <span class="student-email">
-                                    amartinez@unicah.edu
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-                        0801-2022-00458
-                    </td>
-
-
-                    <td>
-                        Ing. Ciencias de la Computación
-                    </td>
-
-
-                    <td>
-                        Grupo Tecnológico S.A.
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge success">
-
-                            <i class="bi bi-circle-fill"></i>
-
-                            En proceso
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        Solicitud
-                    </td>
-
-
-                    <td>
-
-                        <div class="progress-cell">
-
-                            <div class="progress-bar">
-
-                                <div
-                                    class="progress-fill"
-                                    style="width: 15%;"
-                                ></div>
-
-                            </div>
-
-                            <span>
-                                15%
+                        </td>
+                        <td>{{ $estudiante['cuenta'] }}</td>
+                        <td>{{ $estudiante['carrera'] }}</td>
+                        <td>{{ $estudiante['empresa'] }}</td>
+                        <td>
+                            <span class="badge {{ $estudiante['estado_codigo'] === 'ACTIVE' ? 'success' : 'warning' }}">
+                                <i class="bi bi-circle-fill"></i>
+                                {{ $estudiante['estado'] }}
                             </span>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <a
-                                href="{{ route('coordinacion.estudiante', 1) }}"
-                                class="action-button"
-                                title="Ver expediente"
-                            >
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-
-                            <button
-                                type="button"
-                                class="action-button"
-                                title="Editar"
-                            >
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-
-                <!-- ESTUDIANTE 2 -->
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-cell">
-
-                            <div class="student-avatar">
-                                CR
+                        </td>
+                        <td>{{ $estudiante['etapa'] }}</td>
+                        <td>
+                            @if ($estudiante['progreso'] === null)
+                                —
+                            @else
+                                <div class="progress-cell">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{ $estudiante['progreso'] }}%;"></div>
+                                    </div>
+                                    <span>{{ $estudiante['progreso'] }}%</span>
+                                </div>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{{ route('coordinacion.estudiante', $estudiante['id']) }}" class="action-button" title="Ver expediente">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button type="button" class="action-button" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                             </div>
-
-
-                            <div>
-
-                                <span class="student-name">
-                                    Carlos Rodríguez
-                                </span>
-
-                                <span class="student-email">
-                                    crodriguez@unicah.edu
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-                        0801-2021-00231
-                    </td>
-
-
-                    <td>
-                        Ingeniería Industrial
-                    </td>
-
-
-                    <td>
-                        Corporación Industrial HN
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge success">
-
-                            <i class="bi bi-circle-fill"></i>
-
-                            En práctica
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        Seguimiento
-                    </td>
-
-
-                    <td>
-
-                        <div class="progress-cell">
-
-                            <div class="progress-bar">
-
-                                <div
-                                    class="progress-fill"
-                                    style="width: 58%;"
-                                ></div>
-
-                            </div>
-
-                            <span>
-                                58%
-                            </span>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <a
-                                href="{{ route('coordinacion.estudiante', 2) }}"
-                                class="action-button"
-                            >
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-
-                            <button
-                                type="button"
-                                class="action-button"
-                            >
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-
-                <!-- ESTUDIANTE 3 -->
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-cell">
-
-                            <div class="student-avatar">
-                                ML
-                            </div>
-
-
-                            <div>
-
-                                <span class="student-name">
-                                    María López
-                                </span>
-
-                                <span class="student-email">
-                                    mlopez@unicah.edu
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-                        0801-2022-00671
-                    </td>
-
-
-                    <td>
-                        Administración de Empresas
-                    </td>
-
-
-                    <td>
-                        Inversiones del Valle
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge info">
-
-                            <i class="bi bi-circle-fill"></i>
-
-                            Revisión
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        Monografía
-                    </td>
-
-
-                    <td>
-
-                        <div class="progress-cell">
-
-                            <div class="progress-bar">
-
-                                <div
-                                    class="progress-fill"
-                                    style="width: 78%;"
-                                ></div>
-
-                            </div>
-
-                            <span>
-                                78%
-                            </span>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <a
-                                href="{{ route('coordinacion.estudiante', 3) }}"
-                                class="action-button"
-                            >
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-
-                            <button
-                                type="button"
-                                class="action-button"
-                            >
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-
-                <!-- ESTUDIANTE 4 -->
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-cell">
-
-                            <div class="student-avatar">
-                                JH
-                            </div>
-
-
-                            <div>
-
-                                <span class="student-name">
-                                    José Hernández
-                                </span>
-
-                                <span class="student-email">
-                                    jhernandez@unicah.edu
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-                        0801-2021-00394
-                    </td>
-
-
-                    <td>
-                        Ing. Ciencias de la Computación
-                    </td>
-
-
-                    <td>
-                        Soluciones Digitales HN
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge warning">
-
-                            <i class="bi bi-circle-fill"></i>
-
-                            Por finalizar
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        Defensa
-                    </td>
-
-
-                    <td>
-
-                        <div class="progress-cell">
-
-                            <div class="progress-bar">
-
-                                <div
-                                    class="progress-fill"
-                                    style="width: 92%;"
-                                ></div>
-
-                            </div>
-
-                            <span>
-                                92%
-                            </span>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <a
-                                href="{{ route('coordinacion.estudiante', 4) }}"
-                                class="action-button"
-                            >
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-
-                            <button
-                                type="button"
-                                class="action-button"
-                            >
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-
-                <!-- ESTUDIANTE 5 -->
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-cell">
-
-                            <div class="student-avatar">
-                                SP
-                            </div>
-
-
-                            <div>
-
-                                <span class="student-name">
-                                    Sofía Pérez
-                                </span>
-
-                                <span class="student-email">
-                                    sperez@unicah.edu
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-                        0801-2020-00118
-                    </td>
-
-
-                    <td>
-                        Ingeniería Industrial
-                    </td>
-
-
-                    <td>
-                        Manufacturas Centroamericanas
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge success">
-
-                            <i class="bi bi-check-circle"></i>
-
-                            Finalizado
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        Finalizado
-                    </td>
-
-
-                    <td>
-
-                        <div class="progress-cell">
-
-                            <div class="progress-bar">
-
-                                <div
-                                    class="progress-fill complete"
-                                    style="width: 100%;"
-                                ></div>
-
-                            </div>
-
-                            <span>
-                                100%
-                            </span>
-
-                        </div>
-
-                    </td>
-
-
-                    <td>
-
-                        <div class="table-actions">
-
-                            <a
-                                href="{{ route('coordinacion.estudiante', 5) }}"
-                                class="action-button"
-                            >
-                                <i class="bi bi-eye"></i>
-                            </a>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="8">No se encontraron estudiantes.</td></tr>
+                @endforelse
             </tbody>
 
 
@@ -822,46 +230,16 @@
     <!-- PAGINACIÓN -->
 
     <div class="table-footer">
-
-
-        <span>
-            Mostrando 1 - 5 de 84 estudiantes
-        </span>
-
-
+        <span>Mostrando {{ $estudiantes->firstItem() ?? 0 }} - {{ $estudiantes->lastItem() ?? 0 }} de {{ $estudiantes->total() }} estudiantes</span>
         <div class="pagination">
-
-            <button disabled>
+            <button form="studentFilters" name="page" value="{{ $estudiantes->currentPage() - 1 }}" @disabled($estudiantes->onFirstPage()) aria-label="Página anterior">
                 <i class="bi bi-chevron-left"></i>
             </button>
-
-            <button class="active">
-                1
-            </button>
-
-            <button>
-                2
-            </button>
-
-            <button>
-                3
-            </button>
-
-            <button>
-                ...
-            </button>
-
-            <button>
-                17
-            </button>
-
-            <button>
+            <button type="button" class="active" aria-current="page">{{ $estudiantes->currentPage() }}</button>
+            <button form="studentFilters" name="page" value="{{ $estudiantes->currentPage() + 1 }}" @disabled(!$estudiantes->hasMorePages()) aria-label="Página siguiente">
                 <i class="bi bi-chevron-right"></i>
             </button>
-
         </div>
-
-
     </div>
 
 
@@ -1135,17 +513,10 @@
                         id="reportPeriod"
                         class="form-select"
                     >
-                        <option value="III-2026">
-                            III Período 2026
-                        </option>
-
-                        <option value="II-2026">
-                            II Período 2026
-                        </option>
-
-                        <option value="I-2026">
-                            I Período 2026
-                        </option>
+                        <option value="">Todos</option>
+                        @foreach ($periodos as $periodo)
+                            <option>{{ $periodo->academic_period }} {{ $periodo->academic_year }}</option>
+                        @endforeach
                     </select>
 
                 </div>
@@ -1164,33 +535,10 @@
                         id="reportStage"
                         class="form-select"
                     >
-                        <option value="">
-                            Todas
-                        </option>
-
-                        <option value="Solicitud">
-                            Solicitud
-                        </option>
-
-                        <option value="Documentación">
-                            Documentación
-                        </option>
-
-                        <option value="Práctica">
-                            Práctica
-                        </option>
-
-                        <option value="Visita">
-                            Visita
-                        </option>
-
-                        <option value="Monografía">
-                            Monografía
-                        </option>
-
-                        <option value="Defensa">
-                            Defensa
-                        </option>
+                        <option value="">Todas</option>
+                        @foreach ($etapas as $etapa)
+                            <option>{{ $etapa }}</option>
+                        @endforeach
                     </select>
 
                 </div>
@@ -1209,17 +557,10 @@
                         id="reportCareer"
                         class="form-select"
                     >
-                        <option value="">
-                            Todas
-                        </option>
-
-                        <option value="Ingeniería en Ciencias de la Computación">
-                            Ingeniería en Ciencias de la Computación
-                        </option>
-
-                        <option value="Ingeniería Industrial">
-                            Ingeniería Industrial
-                        </option>
+                        <option value="">Todas</option>
+                        @foreach ($carreras as $carrera)
+                            <option>{{ $carrera }}</option>
+                        @endforeach
                     </select>
 
                 </div>
@@ -1238,21 +579,10 @@
                         id="reportCompany"
                         class="form-select"
                     >
-                        <option value="">
-                            Todas
-                        </option>
-
-                        <option value="Grupo Tecnológico S.A.">
-                            Grupo Tecnológico S.A.
-                        </option>
-
-                        <option value="Industrias del Norte">
-                            Industrias del Norte
-                        </option>
-
-                        <option value="Soluciones Digitales HN">
-                            Soluciones Digitales HN
-                        </option>
+                        <option value="">Todas</option>
+                        @foreach ($empresas as $id => $empresa)
+                            <option value="{{ $id }}">{{ $empresa }}</option>
+                        @endforeach
                     </select>
 
                 </div>

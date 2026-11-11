@@ -13,9 +13,7 @@
             EMPRESA
         </span>
 
-        <h1 id="companyDetailTitle">
-            Empresa
-        </h1>
+        <h1>{{ $empresa->official_name }}</h1>
 
         <p>
             Información institucional, responsables
@@ -37,7 +35,7 @@
 
 
         <a
-            href="{{ route('coordinacion.empresas') }}?editar={{ $empresaId }}"
+            href="{{ route('coordinacion.empresas', ['editar' => $empresa->id]) }}"
             class="btn btn-primary"
         >
             <i class="bi bi-pencil"></i>
@@ -50,29 +48,9 @@
 
 
 
-<div id="companyNotFound" class="d-none">
-
-    <section class="content-card">
-
-        <div class="teacher-load-empty">
-
-            <i class="bi bi-exclamation-circle"></i>
-
-            <strong>
-                Empresa no encontrada
-            </strong>
-
-            <span>
-                El registro solicitado no existe.
-            </span>
-
-        </div>
-
-    </section>
-
-</div>
-
-
+@if (session('status'))
+    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+@endif
 
 <div id="companyDetailContent">
 
@@ -92,9 +70,9 @@
                 NOMBRE OFICIAL / RAZÓN SOCIAL
             </span>
 
-            <strong id="companyDetailLegalName"></strong>
+            <strong>{{ $empresa->official_name }}</strong>
 
-            <small id="companyDetailCommercialName"></small>
+            <small>{{ $empresa->commercial_name ? 'Nombre comercial: '.$empresa->commercial_name : 'Sin nombre comercial' }}</small>
 
         </div>
 
@@ -103,17 +81,17 @@
 
             <div>
                 <span>Sector</span>
-                <strong id="companyDetailSector"></strong>
+                <strong>{{ $empresa->sector ?? 'Sin sector' }}</strong>
             </div>
 
             <div>
                 <span>Estado</span>
-                <strong id="companyDetailStatus"></strong>
+                <strong>{{ ['ACTIVE' => 'Activa', 'INACTIVE' => 'Inactiva'][$empresa->status] ?? $empresa->status }}</strong>
             </div>
 
             <div>
                 <span>Ubicación</span>
-                <strong id="companyDetailLocation"></strong>
+                <strong>{{ collect([$empresa->city, $empresa->department])->filter()->implode(', ') ?: 'No registrada' }}</strong>
             </div>
 
         </div>
@@ -143,22 +121,22 @@
 
             <div>
                 <span>RTN</span>
-                <strong id="companyDetailRtn"></strong>
+                <strong>{{ $empresa->rtn ?? 'No registrado' }}</strong>
             </div>
 
             <div>
                 <span>Teléfono</span>
-                <strong id="companyDetailPhone"></strong>
+                <strong>{{ $empresa->phone ?? 'No registrado' }}</strong>
             </div>
 
             <div>
                 <span>Correo</span>
-                <strong id="companyDetailEmail"></strong>
+                <strong>{{ $empresa->email ?? 'No registrado' }}</strong>
             </div>
 
             <div>
                 <span>Dirección</span>
-                <strong id="companyDetailAddress"></strong>
+                <strong>{{ $empresa->address ?? 'No registrada' }}</strong>
             </div>
 
         </div>
@@ -192,7 +170,6 @@
                 class="btn btn-primary coord-small-action"
                 data-bs-toggle="modal"
                 data-bs-target="#responsibleModal"
-                onclick="prepareNewResponsible()"
             >
                 <i class="bi bi-person-plus"></i>
                 Agregar responsable
@@ -201,7 +178,42 @@
         </div>
 
 
-        <div id="responsiblesList"></div>
+        <div id="responsiblesList">
+            @forelse ($empresa->responsibles as $responsable)
+                <article class="coord-responsible-row">
+                    <div class="coord-responsible-avatar"><i class="bi bi-person"></i></div>
+                    <div>
+                        <span>RESPONSABLE</span>
+                        <strong>{{ $responsable->full_name }}</strong>
+                        <small>{{ $responsable->position }}</small>
+                    </div>
+                    <div>
+                        <span>Contacto</span>
+                        <strong>{{ $responsable->email ?? 'Sin correo' }}</strong>
+                        <small>{{ $responsable->phone ?? 'Sin teléfono' }}</small>
+                    </div>
+                    <div>
+                        <span>Practicantes asignados</span>
+                        <strong>{{ $asignaciones->get($responsable->id, 0) }}</strong>
+                    </div>
+                    <span class="coord-company-status {{ $responsable->status === 'ACTIVE' ? 'active' : 'inactive' }}">
+                        {{ ['ACTIVE' => 'Activo', 'INACTIVE' => 'Inactivo'][$responsable->status] ?? $responsable->status }}
+                    </span>
+                    <button type="button" class="coord-icon-action" data-bs-toggle="modal" data-bs-target="#responsibleModal"
+                        data-record-id="{{ $responsable->id }}" data-action="{{ route('coordinacion.empresas.responsables.update', [$empresa, $responsable]) }}"
+                        data-fields="{{ json_encode($responsable->only(['full_name', 'position', 'email', 'phone', 'status'])) }}"
+                        title="Editar responsable">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </article>
+            @empty
+                <div class="teacher-load-empty">
+                    <i class="bi bi-person-vcard"></i>
+                    <strong>No hay responsables registrados</strong>
+                    <span>Agrega el primer responsable de practicantes de esta empresa.</span>
+                </div>
+            @endforelse
+        </div>
 
     </section>
 
@@ -216,11 +228,11 @@
             <div>
 
                 <h2>
-                    Practicantes actuales
+                    Prácticas vinculadas
                 </h2>
 
                 <p>
-                    Estudiantes actualmente vinculados
+                    Estudiantes con prácticas vinculadas
                     a esta empresa.
                 </p>
 
@@ -229,7 +241,42 @@
         </div>
 
 
-        <div id="companyStudentsList"></div>
+        <div id="companyStudentsList">
+            @forelse ($empresa->practices as $practica)
+                <article class="coord-company-student">
+                    <div class="coord-company-student-avatar">{{ Str::initials($practica->student->user->name, true) }}</div>
+                    <div>
+                        <span>ESTUDIANTE</span>
+                        <strong><a href="{{ route('coordinacion.estudiante', $practica->student) }}">{{ $practica->student->user->name }}</a></strong>
+                        <small>{{ $practica->student->account_number }}</small>
+                    </div>
+                    <div>
+                        <span>Carrera</span>
+                        <strong>{{ $practica->student->career }}</strong>
+                    </div>
+                    <div>
+                        <span>Responsable</span>
+                        <strong>{{ $practica->companyResponsible?->full_name ?? 'Sin responsable asignado' }}</strong>
+                        <small>Docente de seguimiento: {{ $practica->teacher?->user?->name ?? 'Sin asignar' }}</small>
+                    </div>
+                    <div>
+                        <span>Etapa</span>
+                        <strong><a href="{{ route('coordinacion.practica', $practica) }}">{{ $practica->stage }}</a></strong>
+                        <small>{{ $practica->academic_period }} {{ $practica->academic_year }}</small>
+                    </div>
+                    <div>
+                        <span>Progreso</span>
+                        <strong>{{ $practica->progress }}%</strong>
+                        <div class="coord-company-progress"><span style="width: {{ $practica->progress }}%"></span></div>
+                    </div>
+                </article>
+            @empty
+                <div class="teacher-load-empty">
+                    <i class="bi bi-people"></i>
+                    <strong>No hay practicantes vinculados</strong>
+                </div>
+            @endforelse
+        </div>
 
     </section>
 
@@ -270,7 +317,16 @@
 
     <div class="modal-dialog modal-dialog-centered">
 
-        <div class="modal-content coord-company-modal">
+        <form class="modal-content coord-company-modal" method="POST"
+            action="{{ route('coordinacion.empresas.responsables.store', $empresa) }}"
+            data-record-modal
+            data-create-action="{{ route('coordinacion.empresas.responsables.store', $empresa) }}"
+            data-create-title="Agregar responsable" data-edit-title="Editar responsable"
+            data-edit-id="{{ request()->string('editar') }}"
+            data-validation-failed="{{ $errors->any() ? 1 : 0 }}"
+            data-old-input="{{ json_encode(session()->getOldInput()) }}">
+            @csrf
+            <input type="hidden" name="_method" value="PUT" disabled>
 
             <div class="modal-header">
 
@@ -299,10 +355,19 @@
 
 
             <div class="modal-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <input
                     type="hidden"
-                    id="responsibleId"
+                    id="responsibleId" name="_record"
                 >
 
 
@@ -316,7 +381,7 @@
 
                         <input
                             type="text"
-                            id="responsibleName"
+                            id="responsibleName" name="full_name" required
                             class="form-control"
                         >
 
@@ -331,7 +396,7 @@
 
                         <input
                             type="text"
-                            id="responsiblePosition"
+                            id="responsiblePosition" name="position" required
                             class="form-control"
                             placeholder="Ej. Jefe inmediato"
                         >
@@ -347,7 +412,7 @@
 
                         <input
                             type="email"
-                            id="responsibleEmail"
+                            id="responsibleEmail" name="email"
                             class="form-control"
                         >
 
@@ -362,7 +427,7 @@
 
                         <input
                             type="text"
-                            id="responsiblePhone"
+                            id="responsiblePhone" name="phone"
                             class="form-control"
                         >
 
@@ -376,15 +441,15 @@
                         </label>
 
                         <select
-                            id="responsibleStatus"
+                            id="responsibleStatus" name="status"
                             class="form-select"
                         >
 
-                            <option value="Activo">
+                            <option value="ACTIVE">
                                 Activo
                             </option>
 
-                            <option value="Inactivo">
+                            <option value="INACTIVE">
                                 Inactivo
                             </option>
 
@@ -409,9 +474,7 @@
 
 
                 <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="saveResponsible()"
+                    type="submit" class="btn btn-primary"
                 >
                     <i class="bi bi-check-lg"></i>
                     Guardar responsable
@@ -419,667 +482,12 @@
 
             </div>
 
-        </div>
-
+        </form>
     </div>
-
 </div>
 
 @endsection
 
-
-
 @push('scripts')
-
-<script src="{{ asset('js/companies-store.js') }}"></script>
-
-<script>
-
-const COMPANY_ID = {{ $empresaId }};
-
-let currentCompany = null;
-
-
-function getResponsibleName(id) {
-
-    if (!id) {
-        return 'Sin responsable asignado';
-    }
-
-
-    const responsible =
-        currentCompany.responsables.find(item =>
-            String(item.id) === String(id)
-        );
-
-
-    return responsible
-        ? responsible.nombre
-        : 'Sin responsable asignado';
-
-}
-
-
-function renderCompanyDetail() {
-
-    currentCompany =
-        CompanyStore.getById(
-            COMPANY_ID
-        );
-
-
-    if (!currentCompany) {
-
-        document
-            .getElementById('companyDetailContent')
-            .classList
-            .add('d-none');
-
-
-        document
-            .getElementById('companyNotFound')
-            .classList
-            .remove('d-none');
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        'companyDetailTitle'
-    ).textContent =
-        currentCompany.nombre_comercial ||
-        currentCompany.nombre_oficial;
-
-
-    document.getElementById(
-        'companyDetailLegalName'
-    ).textContent =
-        currentCompany.nombre_oficial;
-
-
-    document.getElementById(
-        'companyDetailCommercialName'
-    ).textContent =
-        currentCompany.nombre_comercial
-            ? `Nombre comercial: ${currentCompany.nombre_comercial}`
-            : 'Sin nombre comercial';
-
-
-    document.getElementById(
-        'companyDetailSector'
-    ).textContent =
-        currentCompany.sector || '—';
-
-
-    const statusElement =
-        document.getElementById(
-            'companyDetailStatus'
-        );
-
-
-    statusElement.textContent =
-        currentCompany.estado;
-
-
-    statusElement.className =
-        currentCompany.estado === 'Activa'
-            ? 'text-success'
-            : 'text-secondary';
-
-
-    const location =
-        [
-            currentCompany.municipio,
-            currentCompany.departamento
-        ]
-        .filter(Boolean)
-        .join(', ');
-
-
-    document.getElementById(
-        'companyDetailLocation'
-    ).textContent =
-        location || '—';
-
-
-    document.getElementById(
-        'companyDetailRtn'
-    ).textContent =
-        currentCompany.rtn || 'No registrado';
-
-
-    document.getElementById(
-        'companyDetailPhone'
-    ).textContent =
-        currentCompany.telefono || 'No registrado';
-
-
-    document.getElementById(
-        'companyDetailEmail'
-    ).textContent =
-        currentCompany.correo || 'No registrado';
-
-
-    document.getElementById(
-        'companyDetailAddress'
-    ).textContent =
-        currentCompany.direccion || 'No registrada';
-
-
-    renderResponsibles();
-
-    renderStudents();
-
-}
-
-
-function renderResponsibles() {
-
-    const container =
-        document.getElementById(
-            'responsiblesList'
-        );
-
-
-    const responsibles =
-        currentCompany.responsables || [];
-
-
-    if (responsibles.length === 0) {
-
-        container.innerHTML = `
-
-            <div class="teacher-load-empty">
-
-                <i class="bi bi-person-vcard"></i>
-
-                <strong>
-                    No hay responsables registrados
-                </strong>
-
-                <span>
-                    Agrega el primer responsable
-                    de practicantes de esta empresa.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        responsibles.map(responsible => {
-
-            const assigned =
-                currentCompany.practicantes
-                    .filter(student =>
-                        String(student.responsable_id) ===
-                        String(responsible.id)
-                    )
-                    .length;
-
-
-            const statusClass =
-                responsible.estado === 'Activo'
-                    ? 'active'
-                    : 'inactive';
-
-
-            return `
-
-                <article class="coord-responsible-row">
-
-                    <div class="coord-responsible-avatar">
-                        <i class="bi bi-person"></i>
-                    </div>
-
-
-                    <div>
-
-                        <span>RESPONSABLE</span>
-
-                        <strong>
-                            ${responsible.nombre}
-                        </strong>
-
-                        <small>
-                            ${responsible.cargo}
-                        </small>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>Contacto</span>
-
-                        <strong>
-                            ${responsible.correo || 'Sin correo'}
-                        </strong>
-
-                        <small>
-                            ${responsible.telefono || 'Sin teléfono'}
-                        </small>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>
-                            Practicantes asignados
-                        </span>
-
-                        <strong>
-                            ${assigned}
-                        </strong>
-
-                    </div>
-
-
-                    <span class="coord-company-status ${statusClass}">
-                        ${responsible.estado}
-                    </span>
-
-
-                    <button
-                        type="button"
-                        class="coord-icon-action"
-                        onclick="editResponsible(${responsible.id})"
-                        title="Editar responsable"
-                    >
-                        <i class="bi bi-pencil"></i>
-                    </button>
-
-                </article>
-
-            `;
-
-        }).join('');
-
-}
-
-
-function renderStudents() {
-
-    const container =
-        document.getElementById(
-            'companyStudentsList'
-        );
-
-
-    const students =
-        currentCompany.practicantes || [];
-
-
-    if (students.length === 0) {
-
-        container.innerHTML = `
-
-            <div class="teacher-load-empty">
-
-                <i class="bi bi-people"></i>
-
-                <strong>
-                    No hay practicantes vinculados
-                </strong>
-
-                <span>
-                    Los estudiantes aparecerán aquí
-                    cuando su proceso de práctica sea
-                    asociado a esta empresa.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        students.map(student => {
-
-            const initials =
-                student.nombre
-                    .split(' ')
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map(word =>
-                        word.charAt(0).toUpperCase()
-                    )
-                    .join('');
-
-
-            return `
-
-                <article class="coord-company-student">
-
-                    <div class="coord-company-student-avatar">
-                        ${initials}
-                    </div>
-
-
-                    <div>
-
-                        <span>ESTUDIANTE</span>
-
-                        <strong>
-                            ${student.nombre}
-                        </strong>
-
-                        <small>
-                            ${student.cuenta}
-                        </small>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>Carrera</span>
-
-                        <strong>
-                            ${student.carrera}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>Responsable</span>
-
-                        <strong>
-                            ${getResponsibleName(
-                                student.responsable_id
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>Etapa</span>
-
-                        <strong>
-                            ${student.etapa}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <span>Progreso</span>
-
-                        <strong>
-                            ${student.progreso}%
-                        </strong>
-
-                        <div class="coord-company-progress">
-
-                            <span
-                                style="width:${student.progreso}%"
-                            ></span>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-            `;
-
-        }).join('');
-
-}
-
-
-function prepareNewResponsible() {
-
-    document.getElementById(
-        'responsibleId'
-    ).value = '';
-
-
-    document.getElementById(
-        'responsibleModalTitle'
-    ).textContent =
-        'Agregar responsable';
-
-
-    document.getElementById(
-        'responsibleName'
-    ).value = '';
-
-
-    document.getElementById(
-        'responsiblePosition'
-    ).value = '';
-
-
-    document.getElementById(
-        'responsibleEmail'
-    ).value = '';
-
-
-    document.getElementById(
-        'responsiblePhone'
-    ).value = '';
-
-
-    document.getElementById(
-        'responsibleStatus'
-    ).value =
-        'Activo';
-
-}
-
-
-function editResponsible(id) {
-
-    const responsible =
-        currentCompany.responsables.find(item =>
-            String(item.id) === String(id)
-        );
-
-
-    if (!responsible) {
-        return;
-    }
-
-
-    document.getElementById(
-        'responsibleId'
-    ).value =
-        responsible.id;
-
-
-    document.getElementById(
-        'responsibleName'
-    ).value =
-        responsible.nombre;
-
-
-    document.getElementById(
-        'responsiblePosition'
-    ).value =
-        responsible.cargo;
-
-
-    document.getElementById(
-        'responsibleEmail'
-    ).value =
-        responsible.correo || '';
-
-
-    document.getElementById(
-        'responsiblePhone'
-    ).value =
-        responsible.telefono || '';
-
-
-    document.getElementById(
-        'responsibleStatus'
-    ).value =
-        responsible.estado;
-
-
-    document.getElementById(
-        'responsibleModalTitle'
-    ).textContent =
-        'Editar responsable';
-
-
-    new bootstrap.Modal(
-        document.getElementById(
-            'responsibleModal'
-        )
-    ).show();
-
-}
-
-
-function saveResponsible() {
-
-    const id =
-        document.getElementById(
-            'responsibleId'
-        ).value;
-
-
-    const name =
-        document
-            .getElementById('responsibleName')
-            .value
-            .trim();
-
-
-    const position =
-        document
-            .getElementById('responsiblePosition')
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById('responsibleEmail')
-            .value
-            .trim();
-
-
-    const phone =
-        document
-            .getElementById('responsiblePhone')
-            .value
-            .trim();
-
-
-    const status =
-        document.getElementById(
-            'responsibleStatus'
-        ).value;
-
-
-    if (!name || !position) {
-
-        alert(
-            'El nombre y el cargo del responsable son obligatorios.'
-        );
-
-        return;
-
-    }
-
-
-    if (id) {
-
-        const index =
-            currentCompany.responsables
-                .findIndex(item =>
-                    String(item.id) === String(id)
-                );
-
-
-        if (index === -1) {
-            return;
-        }
-
-
-        currentCompany.responsables[index] = {
-
-            ...currentCompany.responsables[index],
-
-            nombre: name,
-            cargo: position,
-            correo: email,
-            telefono: phone,
-            estado: status,
-
-            updated_at:
-                new Date().toISOString()
-
-        };
-
-    } else {
-
-        currentCompany.responsables.push({
-
-            id: CompanyStore.createId(),
-
-            nombre: name,
-            cargo: position,
-            correo: email,
-            telefono: phone,
-            estado: status,
-
-            created_at:
-                new Date().toISOString(),
-
-            updated_at:
-                new Date().toISOString()
-
-        });
-
-    }
-
-
-    currentCompany.updated_at =
-        new Date().toISOString();
-
-
-    CompanyStore.saveCompany(
-        currentCompany
-    );
-
-
-    bootstrap.Modal
-        .getInstance(
-            document.getElementById(
-                'responsibleModal'
-            )
-        )
-        .hide();
-
-
-    renderCompanyDetail();
-
-}
-
-
-renderCompanyDetail();
-
-</script>
-
+<script src="{{ asset('js/coordination-record-modal.js') }}"></script>
 @endpush

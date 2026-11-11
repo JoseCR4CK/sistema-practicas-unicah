@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle del docente | UNICAH')
+@section('title', 'Detalle del docente de seguimiento | UNICAH')
 
 @section('content')
 
@@ -13,7 +13,7 @@
         </span>
 
         <h1>
-            {{ $docente['nombre'] }}
+            {{ $docente->user->name }}
         </h1>
 
         <p>
@@ -39,20 +39,24 @@
 <section class="coord-teacher-detail-profile mb-4">
 
     <div class="coord-teacher-detail-avatar">
-        {{ $docente['iniciales'] }}
+        {{ Str::initials($docente->user->name, true) }}
     </div>
 
     <div class="coord-teacher-detail-info">
 
-        <span>DOCENTE</span>
+        <span>DOCENTE DE SEGUIMIENTO</span>
 
         <strong>
-            {{ $docente['nombre'] }}
+            {{ $docente->user->name }}
         </strong>
 
         <small>
-            {{ $docente['facultad'] }}
+            {{ $docente->faculty ?? 'Sin facultad registrada' }}
         </small>
+        <small>{{ $docente->employee_code ?? 'Sin código registrado' }} · {{ $docente->user->email }}</small>
+        @if ($docente->phone)
+            <small>{{ $docente->phone }}</small>
+        @endif
 
     </div>
 
@@ -61,19 +65,19 @@
 
         <div>
             <span>Practicantes</span>
-            <strong>{{ $docente['practicantes'] }}</strong>
+            <strong>{{ $practicantes }}</strong>
         </div>
 
         <div>
-            <span>Visitas próximas</span>
-            <strong>{{ $docente['visitas'] }}</strong>
+            <span>Prácticas activas</span>
+            <strong>{{ $practicasActivas }}</strong>
         </div>
 
         <div>
             <span>Estado</span>
 
-            <strong class="{{ $docente['estado'] === 'Activo' ? 'text-success' : 'text-warning' }}">
-                {{ $docente['estado'] }}
+            <strong class="{{ $docente->user->isActive() ? 'text-success' : 'text-warning' }}">
+                {{ ['ACTIVE' => 'Activo', 'INACTIVE' => 'Inactivo'][$docente->user->status] ?? $docente->user->status }}
             </strong>
         </div>
 
@@ -81,6 +85,36 @@
 
 </section>
 
+
+<section class="content-card mb-4">
+    <div class="card-header">
+        <div>
+            <h2>Practicantes asignados</h2>
+            <p>Prácticas asociadas a este docente de seguimiento.</p>
+        </div>
+    </div>
+
+    <div class="table-container table-responsive">
+        <table class="data-table table align-middle">
+            <thead>
+                <tr><th>Estudiante</th><th>Empresa</th><th>Período</th><th>Etapa</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                @forelse ($docente->practices as $practica)
+                    <tr>
+                        <td><a href="{{ route('coordinacion.estudiante', $practica->student) }}">{{ $practica->student->user->name }}</a></td>
+                        <td>{{ $practica->company?->official_name ?? 'Sin empresa asignada' }}</td>
+                        <td>{{ $practica->academic_period }} {{ $practica->academic_year }}</td>
+                        <td><a href="{{ route('coordinacion.practica', $practica) }}">{{ $practica->stage }}</a></td>
+                        <td>{{ $practica->statusLabel() }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5">Este docente de seguimiento todavía no tiene practicantes asignados.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
 
 {{-- ENCABEZADO CARGA --}}
 
@@ -99,8 +133,7 @@
             </h2>
 
             <p>
-                Coordinación puede consultar la carga académica
-                y corregir registros únicamente cuando exista un error.
+                Carga académica del prototipo. Las correcciones de esta sección se guardan en este navegador.
             </p>
 
         </div>
@@ -562,9 +595,9 @@
 
 <script>
 
-const DOCENTE_ID = {{ $docente['id'] }};
+const DOCENTE_ID = {{ $docente->id }};
 
-const DOCENTE_NAME = @json($docente['nombre']);
+const DOCENTE_NAME = @json($docente->user->name);
 
 const LOAD_STORAGE_KEY =
     `unicah_docente_${DOCENTE_ID}_carga_academica`;
