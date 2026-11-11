@@ -162,7 +162,7 @@
                     class="nav-badge"
                     id="sidebarPendingDocuments"
                 >
-                    0
+                    {{ $attentionDocuments }}
                 </span>
             </a>
 
@@ -429,40 +429,7 @@
 
 
 
-<script src="{{ asset('js/documents-store.js') }}"></script>
 
-<script>
-
-const documentsBadge =
-    document.getElementById(
-        'sidebarPendingDocuments'
-    );
-
-if (
-    documentsBadge &&
-    window.DocumentStore
-) {
-
-    const documents =
-        DocumentStore.getAll();
-
-    const attention =
-        documents.filter(document =>
-            document.estado === 'Pendiente' ||
-            document.estado === 'Corrección requerida'
-        ).length;
-
-    documentsBadge.textContent =
-        attention;
-
-    documentsBadge.style.display =
-        attention > 0
-            ? 'inline-flex'
-            : 'none';
-
-}
-
-</script>
 
 </body>
 

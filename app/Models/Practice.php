@@ -13,6 +13,11 @@ class Practice extends Model
 
     public const ACTIVE = 'ACTIVE';
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(AcademicDocument::class);
+    }
+
     public function applications(): HasMany
     {
         return $this->hasMany(PracticeRequest::class);

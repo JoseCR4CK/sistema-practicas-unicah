@@ -2,10 +2,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AcademicDocumentController;
 use App\Http\Controllers\Coordination\CompanyController;
 use App\Http\Controllers\Coordination\PracticeController;
 use App\Http\Controllers\Coordination\StudentController;
 use App\Http\Controllers\Coordination\TeacherController;
+use App\Http\Controllers\Coordination\PracticeRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,35 +70,17 @@ Route::post('/coordinacion/empresas/{company}/responsables', [CompanyController:
 Route::put('/coordinacion/empresas/{company}/responsables/{responsible}', [CompanyController::class, 'updateResponsible'])
     ->whereNumber(['company', 'responsible'])->scopeBindings()->name('coordinacion.empresas.responsables.update');
 
-Route::get('/coordinacion/solicitudes', function () {
-    return view('coordinacion.solicitudes');
-})->name('coordinacion.solicitudes');
-
-
-Route::get('/coordinacion/solicitudes/{id}', function ($id) {
-
-    return view('coordinacion.solicitud-detalle', [
-        'solicitudId' => (int) $id
-    ]);
-
-})->name('coordinacion.solicitud');
+Route::get('/coordinacion/solicitudes', [PracticeRequestController::class, 'index'])->name('coordinacion.solicitudes');
+Route::get('/coordinacion/solicitudes/{application}', [PracticeRequestController::class, 'show'])->whereNumber('application')->name('coordinacion.solicitud');
+Route::post('/coordinacion/solicitudes/{application}/revision', [PracticeRequestController::class, 'review'])->whereNumber('application')->name('coordinacion.solicitud.review');
 
 Route::get('/coordinacion/practicas', [PracticeController::class, 'index'])->name('coordinacion.practicas');
 Route::get('/coordinacion/practicas/{practice}', [PracticeController::class, 'show'])
     ->whereNumber('practice')->name('coordinacion.practica');
 
-Route::get('/coordinacion/documentos', function () {
-    return view('coordinacion.documentos');
-})->name('coordinacion.documentos');
-
-
-Route::get('/coordinacion/documentos/{id}', function ($id) {
-
-    return view('coordinacion.documento-detalle', [
-        'documentoId' => (int) $id
-    ]);
-
-})->name('coordinacion.documento');
+Route::get('/coordinacion/documentos', [AcademicDocumentController::class, 'index'])->name('coordinacion.documentos');
+Route::get('/coordinacion/documentos/{document}', [AcademicDocumentController::class, 'show'])->whereNumber('document')->name('coordinacion.documento');
+Route::post('/coordinacion/documentos/{document}/revision', [AcademicDocumentController::class, 'review'])->whereNumber('document')->name('coordinacion.documento.review');
 
 Route::get('/coordinacion/visitas', function () {
     return view('coordinacion.visitas');
@@ -193,9 +177,9 @@ Route::get('/estudiante/practica', function () {
     return view('estudiante.practica');
 })->name('estudiante.practica');
 
-Route::get('/estudiante/documentos', function () {
-    return view('estudiante.documentos');
-})->name('estudiante.documentos');
+Route::get('/estudiante/documentos', [AcademicDocumentController::class, 'index'])->name('estudiante.documentos');
+Route::post('/estudiante/documentos', [AcademicDocumentController::class, 'storeVersion'])->name('estudiante.documentos.store');
+Route::get('/estudiante/documentos/{document}', [AcademicDocumentController::class, 'show'])->whereNumber('document')->name('estudiante.documento');
 
 Route::get('/estudiante/monografia', function () {
     return view('estudiante.monografia');

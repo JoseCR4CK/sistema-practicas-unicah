@@ -21,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
             $view->with('pendingRequests', \App\Models\PracticeRequest::where('status', 'Pendiente')->count());
+            $view->with('attentionDocuments', \App\Models\AcademicDocument::whereHas('currentVersion', fn ($query) => $query
+                ->whereIn('status', [\App\Models\DocumentVersion::PENDING, \App\Models\DocumentVersion::CORRECTION]))->count());
         });
     }
 }

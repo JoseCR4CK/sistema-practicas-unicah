@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\AcademicDocument;
+use App\Models\DocumentVersion;
 use App\Models\PracticeRequest;
 use App\Models\Role;
 use App\Models\User;
@@ -62,5 +64,45 @@ class AcademicFlowsTest extends TestCase
         $this->assertNotNull($application->fresh()->deadline_restarted_at);
         $this->post($url, ['status' => 'Rechazada', 'observation' => 'Otra razón'])->assertStatus(409);
         $this->assertSame('Revisar información', $application->fresh()->observation);
+    }
+
+    public function test_document_review_versions_badge_and_student_ownership(): void
+    {
+        $document = AcademicDocument::with('currentVersion', 'practice.student.user')->firstOrFail();
+        $version = $document->currentVersion;
+        $owner = $document->practice->student->user;
+        $review = route('coordinacion.documento.review', $document);
+        $this->get(route('coordinacion.documentos'))->assertRedirect(route('login'));
+        foreach (['ESTUDIANTE', 'DOCENTE_SEGUIMIENTO', 'JEFE_INMEDIATO'] as $role) {
+            $this->actingAs($this->userFor($role))->post($review, ['version_id' => $version->id, 'status' => 'Aprobado'])->assertForbidden();
+        }
+        $this->actingAs($this->userFor('COORDINACION'));
+        $total = AcademicDocument::count();
+        $response = $this->get(route('coordinacion.documentos'))->assertOk();
+        $this->assertMatchesRegularExpression('/id="sidebarPendingDocuments"\s*>\s*'.$total.'\s*</', $response->getContent());
+        $this->get(route('coordinacion.documento', $document))->assertOk()->assertSee($owner->name);
+        $this->get(route('coordinacion.documento', 999999))->assertNotFound();
+        $this->post($review, ['version_id' => $version->id, 'status' => DocumentVersion::CORRECTION, 'observation' => 'Corregir metadatos'])->assertRedirect();
+        $this->assertSame('Corregir metadatos', $version->fresh()->observation);
+        $this->actingAs($owner);
+        $this->get(route('estudiante.documentos'))->assertOk()->assertSee('Requiere corrección');
+        $this->post(route('estudiante.documentos.store'), [
+            'practice_id' => $document->practice_id, 'type' => $document->type, 'submission_note' => 'Segunda versión',
+        ])->assertRedirect(route('estudiante.documento', $document));
+        $this->assertSame(2, $document->versions()->count());
+        $this->assertSame('Corregir metadatos', $version->fresh()->observation);
+        $newVersion = $document->fresh()->currentVersion;
+        $this->assertSame(2, $newVersion->version);
+        $other = AcademicDocument::whereHas('practice', fn ($query) => $query->where('student_id', '!=', $document->practice->student_id))->firstOrFail();
+        $this->get(route('estudiante.documento', $other))->assertForbidden();
+        $this->post(route('estudiante.documentos.store'), ['practice_id' => $other->practice_id, 'type' => $other->type])->assertNotFound();
+        $this->actingAs($this->userFor('COORDINACION'));
+        $this->post($review, ['version_id' => $version->id, 'status' => 'Aprobado'])->assertStatus(409);
+        $this->post($review, ['version_id' => $newVersion->id, 'status' => 'Aprobado'])->assertRedirect();
+        $this->assertSame('Aprobado', $newVersion->fresh()->status);
+        $response = $this->get(route('coordinacion.documentos'))->assertOk()->assertSee('Aprobado');
+        $this->assertMatchesRegularExpression('/id="sidebarPendingDocuments"\s*>\s*'.($total - 1).'\s*</', $response->getContent());
+        $this->get(route('coordinacion.documento', $document))->assertOk()->assertSee('Aprobado');
+        $this->assertSame('Requiere corrección', $version->fresh()->status);
     }
 }
