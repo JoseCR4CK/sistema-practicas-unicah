@@ -24,11 +24,14 @@ class AcademicFlowSeeder extends Seeder
                 ['status' => 'Pendiente', 'submitted_at' => now(), 'student_observation' => 'Solicitud de demostración para desarrollo.'],
             );
 
-            Visit::firstOrCreate(['practice_id' => $practice->id], ['status' => 'Pendiente']);
+            // Las visitas de ejemplo se generan únicamente para prácticas demo activas.
+            if ($practice->status === Practice::ACTIVE) {
+                Visit::firstOrCreate(['practice_id' => $practice->id], ['status' => 'Pendiente']);
+            }
             if ($practice->teacher_id) {
                 Followup::withTrashed()->firstOrCreate(
                     ['submission_key' => '00000000-0000-4000-8000-'.str_pad(dechex($practice->id), 12, '0', STR_PAD_LEFT)],
-                    ['practice_id' => $practice->id, 'teacher_id' => $practice->teacher_id, 'title' => 'Seguimiento de demostración', 'date' => today(), 'type' => 'Seguimiento', 'description' => 'Registro de desarrollo para demostrar el flujo académico.', 'status' => 'Pendiente'],
+                    ['practice_id' => $practice->id, 'teacher_id' => $practice->teacher_id, 'title' => 'Seguimiento académico', 'date' => today(), 'type' => 'Seguimiento', 'description' => 'Registro de acompañamiento del proceso de práctica profesional.', 'status' => 'Pendiente'],
                 );
             }
 

@@ -11,11 +11,14 @@ class StudentApplicationController extends Controller
 {
     public function index(Request $request)
     {
+        $student = $request->user()->student;
+
         return view('coordinacion.solicitudes', [
             'solicitudes' => PracticeRequest::whereHas('student', fn ($query) => $query->where('user_id', $request->user()->id))
                 ->with(['student.user', 'practice.company'])->latest('submitted_at')->get(),
             'studentPortal' => true,
-            'practicas' => $request->user()->student?->practices()->get() ?? collect(),
+            'practicas' => $student?->practices()->get() ?? collect(),
+            'preferredPracticeId' => $student?->preferredPractice()?->id,
         ]);
     }
 

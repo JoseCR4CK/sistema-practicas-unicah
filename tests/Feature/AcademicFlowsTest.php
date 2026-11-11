@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\AcademicDocument;
 use App\Models\DocumentVersion;
 use App\Models\PracticeRequest;
+use App\Models\Practice;
+use App\Models\Student;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Visit;
@@ -228,5 +230,86 @@ class AcademicFlowsTest extends TestCase
         $this->seed(\Database\Seeders\AcademicFlowSeeder::class);
         $this->assertSame($counts[0], Followup::withTrashed()->count());
         $this->assertSoftDeleted('followups', ['id' => $followup->id]);
+    }
+
+    public function test_andrea_sees_the_same_preferred_practice_without_global_request_filters(): void
+    {
+        $andrea = Student::where('account_number', '0801-2022-00458')->firstOrFail();
+        $practice = $andrea->preferredPractice();
+        $andrea->practices()->create([
+            'academic_period' => 'I Período', 'academic_year' => 2027,
+            'stage' => 'Finalización', 'status' => 'COMPLETED', 'progress' => 100,
+        ]);
+        $this->actingAs($andrea->user);
+        $requests = $this->get(route('estudiante.solicitudes'))->assertOk()
+            ->assertViewHas('preferredPracticeId', $practice->id)
+            ->assertDontSee('Sin práctica registrada')
+            ->assertDontSee('id="flowSearch"', false)
+            ->assertDontSee('id="flowCareer"', false)
+            ->assertSee('Consulta y gestiona las solicitudes relacionadas con tu proceso');
+        $this->assertMatchesRegularExpression('/<option value="'.$practice->id.'"\s+selected>/', $requests->getContent());
+        $documents = $this->get(route('estudiante.documentos'))->assertOk()
+            ->assertViewHas('preferredPracticeId', $practice->id)
+            ->assertDontSee('Los archivos adjuntos se incorporarán en una etapa posterior.');
+        $this->assertMatchesRegularExpression('/<option value="'.$practice->id.'"\s+selected>/', $documents->getContent());
+        $this->get(route('estudiante.visita'))->assertOk()
+            ->assertViewHas('studentPractice', fn ($selected) => $selected->is($practice));
+        $this->actingAs($this->userFor('COORDINACION'))->get(route('coordinacion.solicitudes'))
+            ->assertOk()->assertSee('id="flowSearch"', false)->assertSee('id="flowCareer"', false);
+    }
+
+    public function test_student_visit_eligibility_without_a_visit_does_not_create_records(): void
+    {
+        $andrea = Student::where('account_number', '0801-2022-00458')->firstOrFail();
+        $practice = $andrea->preferredPractice();
+        $practice->visits()->firstOrFail()->delete();
+        $count = Visit::count();
+        $this->actingAs($andrea->user);
+        foreach (['2026-10-14' => false, '2026-10-15' => true, '2026-10-16' => true] as $date => $eligible) {
+            $this->travelTo(Carbon::parse($date));
+            $response = $this->get(route('estudiante.visita'))->assertOk();
+            if ($eligible) {
+                $response->assertSee('Tu práctica ya se encuentra habilitada para la visita de seguimiento. Aún no hay una visita registrada.');
+            } else {
+                $response->assertSee('Tu práctica aún no se encuentra habilitada para la visita de seguimiento.');
+            }
+            $this->assertSame($count, Visit::count());
+        }
+        $this->travelBack();
+    }
+
+    public function test_student_cannot_open_another_students_visit_and_visit_identity_uses_shared_styles(): void
+    {
+        $visit = Visit::with('practice.student.user', 'practice.teacher.user')->firstOrFail();
+        $otherStudent = Student::whereKeyNot($visit->practice->student_id)->firstOrFail();
+        $this->actingAs($otherStudent->user)->get(route('estudiante.visita.show', $visit))->assertForbidden();
+        $this->actingAs($visit->practice->student->user)->get(route('estudiante.visita.show', $visit))->assertOk();
+        foreach ([
+            [$this->userFor('COORDINACION'), 'coordinacion.visitas'],
+            [$visit->practice->teacher->user, 'docente.visitas'],
+        ] as [$user, $route]) {
+            $response = $this->actingAs($user)->get(route($route))->assertOk();
+            $this->assertMatchesRegularExpression(
+                '/class="coord-visit-student">\s*<strong>'.preg_quote(e($visit->practice->student->user->name), '/').'<\/strong>\s*<small>'.preg_quote($visit->practice->student->account_number, '/').'<\/small>/',
+                $response->getContent(),
+            );
+        }
+    }
+
+    public function test_demo_visits_are_only_created_for_active_practices_and_followup_counter_is_explicit(): void
+    {
+        $sofia = Student::where('account_number', '0801-2020-00118')->firstOrFail();
+        $practice = $sofia->preferredPractice();
+        $this->assertSame('COMPLETED', $practice->status);
+        $this->assertSame('Finalización', $practice->stage);
+        $this->assertSame(100, $practice->progress);
+        $this->assertFalse($practice->visits()->exists());
+        $teacher = $practice->teacher->user;
+        $this->actingAs($teacher)->get(route('docente.seguimientos'))->assertOk()
+            ->assertSee('Con seguimiento')
+            ->assertSee('Seguimiento académico')
+            ->assertSee('Registro de acompañamiento del proceso de práctica profesional.')
+            ->assertDontSee('Seguimiento de demostración')
+            ->assertDontSee('Registro de desarrollo para demostrar el flujo académico.');
     }
 }

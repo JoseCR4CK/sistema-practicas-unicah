@@ -26,6 +26,7 @@ class AcademicDocumentController extends Controller
             'practicas' => $student
                 ? Practice::whereHas('student', fn ($query) => $query->where('user_id', $request->user()->id))->get()
                 : collect(),
+            'preferredPracticeId' => $student ? $request->user()->student?->preferredPractice()?->id : null,
         ]);
     }
 

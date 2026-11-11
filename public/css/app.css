@@ -15899,6 +15899,11 @@ body {
     border-bottom: 0;
 }
 
+.coord-visit-student {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .coord-visit-student span,
 .coord-visit-student small {
     display: block;

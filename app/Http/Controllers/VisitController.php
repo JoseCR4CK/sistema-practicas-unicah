@@ -26,10 +26,23 @@ class VisitController extends Controller
             'ESTUDIANTE' => 'estudiante',
             default => 'coordinacion',
         };
+        $studentPractice = $role === 'ESTUDIANTE' ? $request->user()->student?->preferredPractice() : null;
+        $studentMessage = null;
+        if ($role === 'ESTUDIANTE' && (!$studentPractice || !$studentPractice->visits()->exists())) {
+            $studentMessage = match (true) {
+                !$studentPractice => 'Aún no tienes una práctica registrada.',
+                $studentPractice->reachedVisitDay() => 'Tu práctica ya se encuentra habilitada para la visita de seguimiento. Aún no hay una visita registrada.',
+                $studentPractice->status !== Practice::ACTIVE => 'Tu práctica no tiene una visita registrada.',
+                $studentPractice->start_date === null => 'La fecha real de inicio de tu práctica aún no está registrada.',
+                default => 'Tu práctica aún no se encuentra habilitada para la visita de seguimiento. Puede realizarse a partir del día 45.',
+            };
+        }
 
         return view('academic.visits', [
             'visitas' => $query->latest('id')->get(),
             'portal' => $portal,
+            'studentPractice' => $studentPractice,
+            'studentMessage' => $studentMessage,
             'practicas' => $role === 'DOCENTE_SEGUIMIENTO'
                 ? Practice::whereHas('teacher', fn ($query) => $query->where('user_id', $request->user()->id))->with('student.user')->get()
                 : collect(),

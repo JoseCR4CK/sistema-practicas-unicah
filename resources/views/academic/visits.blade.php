@@ -11,12 +11,21 @@
 @if ($portal === 'docente')
 <section class="content-card mb-4"><form method="POST" action="{{ route('docente.visitas.store') }}" class="p-3 d-flex gap-2">@csrf<input type="hidden" name="submission_key" value="{{ Str::uuid() }}"><select name="practice_id" class="form-select" required>@foreach ($practicas as $practica)<option value="{{ $practica->id }}">{{ $practica->student->user->name }} · {{ $practica->academic_period }} {{ $practica->academic_year }}</option>@endforeach</select><button class="btn btn-primary" @disabled($practicas->isEmpty())>Registrar visita</button></form></section>
 @endif
+@if ($portal === 'estudiante' && $studentMessage)
+    <div class="coord-visit-message" role="status">
+        <i class="bi bi-info-circle"></i>
+        <div>{{ $studentMessage }}</div>
+    </div>
+@endif
 <section class="content-card">
     <div class="coord-visit-toolbar"><div class="coord-company-search"><i class="bi bi-search"></i><input type="search" id="flowSearch" placeholder="Buscar estudiante, empresa o docente..."></div><select id="flowStatus" class="form-select"><option value="">Todos los estados</option>@foreach (['Pendiente', 'Habilitada', 'Programada', 'Realizada'] as $estado)<option>{{ $estado }}</option>@endforeach</select></div>
     @forelse ($visitas as $visita)
         <article class="coord-visit-row" data-flow-row data-status="{{ $visita->effectiveStatus() }}">
             <div class="coord-request-avatar">{{ Str::initials($visita->practice->student->user->name, true) }}</div>
-            <div><strong>{{ $visita->practice->student->user->name }}</strong><small>{{ $visita->practice->student->account_number }}</small></div>
+            <div class="coord-visit-student">
+                <strong>{{ $visita->practice->student->user->name }}</strong>
+                <small>{{ $visita->practice->student->account_number }}</small>
+            </div>
             <div><span class="coord-request-label">Empresa</span><strong>{{ $visita->practice->company?->official_name ?? 'Sin empresa asignada' }}</strong></div>
             <div><span class="coord-request-label">Docente de seguimiento</span><strong>{{ $visita->practice->teacher?->user?->name ?? 'Sin docente asignado' }}</strong></div>
             <div><span class="coord-request-label">Día de práctica</span><strong>{{ $visita->practice->currentDay() ?? '—' }}</strong></div>
@@ -24,7 +33,9 @@
             <a class="coord-teacher-view" href="{{ route($portal === 'estudiante' ? 'estudiante.visita.show' : $portal.'.visita', $visita) }}"><i class="bi bi-eye"></i> Ver visita</a>
         </article>
     @empty
-        <div class="teacher-load-empty">No hay visitas registradas.</div>
+        @if ($portal !== 'estudiante')
+            <div class="teacher-load-empty">No hay visitas registradas.</div>
+        @endif
     @endforelse
 </section>
 @endsection

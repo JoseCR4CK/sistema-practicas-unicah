@@ -5,7 +5,7 @@
 @if (session('status'))<div class="alert alert-success">{{ session('status') }}</div>@endif
 @if ($errors->any())<div class="alert alert-danger">@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 <section class="row g-3 mb-4">
-    @foreach (['Total' => $seguimientos->count(), 'Realizados' => $seguimientos->where('status', 'Realizado')->count(), 'Pendientes' => $seguimientos->where('status', 'Pendiente')->count(), 'Practicantes' => $seguimientos->pluck('practice.student_id')->unique()->count()] as $etiqueta => $cantidad)
+    @foreach (['Total' => $seguimientos->count(), 'Realizados' => $seguimientos->where('status', 'Realizado')->count(), 'Pendientes' => $seguimientos->where('status', 'Pendiente')->count(), 'Con seguimiento' => $seguimientos->pluck('practice.student_id')->unique()->count()] as $etiqueta => $cantidad)
         <div class="col-12 col-md-3"><div class="teacher-load-stat"><div class="teacher-load-stat-icon"><i class="bi bi-clipboard-check"></i></div><div><span>{{ $etiqueta }}</span><strong>{{ $cantidad }}</strong></div></div></div>
     @endforeach
 </section>
