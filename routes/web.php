@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MonographController;
 use App\Http\Controllers\StudentFlowController;
 use App\Http\Controllers\FollowupController;
 use App\Http\Controllers\StudentApplicationController;
@@ -89,6 +90,12 @@ Route::post('/coordinacion/documentos/{document}/revision', [AcademicDocumentCon
 
 Route::get('/coordinacion/seguimientos', [FollowupController::class, 'index'])->name('coordinacion.seguimientos');
 Route::get('/coordinacion/seguimientos/{followup}', [FollowupController::class, 'show'])->whereNumber('followup')->name('coordinacion.seguimiento');
+
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/coordinacion/monografias', [MonographController::class, 'index'])->name('coordinacion.monografias');
+    Route::get('/coordinacion/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('coordinacion.monografia.show');
+    Route::post('/coordinacion/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('coordinacion.monografia.review');
+});
 
 Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('coordinacion.visitas');
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
@@ -179,9 +186,11 @@ Route::get('/estudiante/documentos', [AcademicDocumentController::class, 'index'
 Route::post('/estudiante/documentos', [AcademicDocumentController::class, 'storeVersion'])->name('estudiante.documentos.store');
 Route::get('/estudiante/documentos/{document}', [AcademicDocumentController::class, 'show'])->whereNumber('document')->name('estudiante.documento');
 
-Route::get('/estudiante/monografia', function () {
-    return view('estudiante.monografia');
-})->name('estudiante.monografia');
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/estudiante/monografia', [MonographController::class, 'index'])->name('estudiante.monografia');
+    Route::post('/estudiante/monografia', [MonographController::class, 'submit'])->name('estudiante.monografia.submit');
+    Route::get('/estudiante/monografia/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('estudiante.monografia.show');
+});
 
 Route::get('/estudiante/defensa', function () {
     return view('estudiante.defensa');
@@ -341,6 +350,12 @@ Route::put('/docente/seguimientos/{followup}', [FollowupController::class, 'upda
 Route::patch('/docente/seguimientos/{followup}/estado', [FollowupController::class, 'changeStatus'])->whereNumber('followup')->name('docente.seguimiento.status');
 Route::delete('/docente/seguimientos/{followup}', [FollowupController::class, 'destroy'])->whereNumber('followup')->name('docente.seguimiento.destroy');
 
+
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/docente/monografias', [MonographController::class, 'index'])->name('docente.monografias');
+    Route::get('/docente/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('docente.monografia.show');
+    Route::post('/docente/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('docente.monografia.review');
+});
 
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');
 

@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             DemoDataSeeder::class,
             AcademicFlowSeeder::class,
+            AcademicClosingSeeder::class,
         ]);
     }
 }

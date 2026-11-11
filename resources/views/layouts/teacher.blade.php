@@ -142,6 +142,8 @@
                 ACADÉMICO
             </div>
 
+            <a href="{{ route('docente.monografias') }}" class="nav-item {{ request()->routeIs('docente.monografias', 'docente.monografia.*') ? 'active' : '' }}"><i class="bi bi-journal-text"></i><span>Monografías</span></a>
+
             <a
                 href="{{ route('docente.carga-academica') }}"
                 class="nav-item {{ request()->routeIs('docente.carga-academica') ? 'active' : '' }}"

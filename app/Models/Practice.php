@@ -6,12 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Practice extends Model
 {
     use HasFactory;
 
     public const ACTIVE = 'ACTIVE';
+
+    public function monograph(): HasOne
+    {
+        return $this->hasOne(Monograph::class);
+    }
+
+    public function monographDeadline(): ?\Illuminate\Support\Carbon
+    {
+        return $this->end_date?->copy()->subDays(7);
+    }
 
     public function followups(): HasMany
     {

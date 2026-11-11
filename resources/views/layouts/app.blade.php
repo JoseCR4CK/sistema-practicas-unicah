@@ -191,7 +191,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'monografias') }}"
+                href="{{ route('coordinacion.monografias') }}"
                 class="nav-item"
             >
                 <i class="bi bi-journal-text"></i>
