@@ -168,7 +168,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'ternas') }}"
+                href="{{ route('coordinacion.ternas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-people-fill"></i>

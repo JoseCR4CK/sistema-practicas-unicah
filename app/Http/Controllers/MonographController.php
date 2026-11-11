@@ -7,6 +7,7 @@ use App\Models\Practice;
 use App\Services\MonographWorkflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class MonographController extends Controller
@@ -20,8 +21,12 @@ class MonographController extends Controller
             $query->whereHas('practice.student', fn ($query) => $query->where('user_id', $request->user()->id));
             $practices->whereHas('student', fn ($query) => $query->where('user_id', $request->user()->id));
         } elseif ($role === 'DOCENTE_SEGUIMIENTO') {
-            $query->whereHas('practice.teacher', fn ($query) => $query->where('user_id', $request->user()->id));
-            $practices->whereHas('teacher', fn ($query) => $query->where('user_id', $request->user()->id));
+            $query->where(function ($query) use ($request) {
+                $query->whereHas('practice.teacher', fn ($query) => $query->where('user_id', $request->user()->id));
+                if (Schema::hasTable('academic_committees')) {
+                    $query->orWhereHas('practice.committee.members', fn ($query) => $query->where('user_id', $request->user()->id));
+                }
+            });
         }
 
         return view('academic.monographs.index', [
@@ -36,6 +41,7 @@ class MonographController extends Controller
 
         return view('academic.monographs.show', [
             'monografia' => $monograph->load(['practice.student.user', 'currentVersion', 'versions.submitter', 'reviews.reviewer', 'reviews.recorder']),
+            'committeeCoordinatorId' => Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator()?->id : null,
         ]);
     }
 
@@ -63,7 +69,8 @@ class MonographController extends Controller
             'observation' => ['nullable', 'required_if:status,Requiere corrección', 'string', 'max:5000'],
         ]);
         $workflow->review($monograph, $request->user(), $fields);
-        $portal = $request->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'coordinacion';
+        $portal = in_array($request->user()->role->name, ['COORDINACION', 'ROOT'], true)
+            ? 'coordinacion' : ($request->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'academico');
 
         return redirect()->route($portal.'.monografia.show', $monograph)->with('status', 'Revisión registrada.');
     }

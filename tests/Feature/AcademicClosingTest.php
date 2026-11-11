@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Monograph;
+use App\Models\AcademicCommittee;
 use App\Models\MonographReview;
 use App\Models\Practice;
 use App\Models\Role;
@@ -102,6 +103,75 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('Práctica', $practice->fresh()->stage);
         $practice->update(['end_date' => null]);
         $this->assertNull($practice->fresh()->monographDeadline());
+        $this->travelBack();
+    }
+
+    public function test_committee_requires_three_distinct_members_and_at_most_one_coordinator(): void
+    {
+        $practice = Practice::firstOrFail();
+        $members = [$practice->teacher, $this->otherTeacher(), $this->otherTeacher()];
+        $fields = [
+            'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Confirmada',
+            'members' => collect($members)->map(fn ($teacher, $index) => [
+                'user_id' => $teacher->user_id, 'function' => $index === 0 ? 'Coordinador' : 'Miembro',
+            ])->all(),
+        ];
+        $this->actingAs($this->userFor('COORDINACION'));
+        $this->post(route('coordinacion.ternas.store'), array_replace($fields, ['members' => array_slice($fields['members'], 0, 2)]))
+            ->assertSessionHasErrors('members');
+        $duplicate = $fields;
+        $duplicate['members'][2]['user_id'] = $duplicate['members'][1]['user_id'];
+        $this->post(route('coordinacion.ternas.store'), $duplicate)->assertSessionHasErrors('members.1.user_id');
+        $multipleCoordinators = $fields;
+        $multipleCoordinators['members'][1]['function'] = 'Coordinador';
+        $this->post(route('coordinacion.ternas.store'), $multipleCoordinators)->assertSessionHasErrors('members');
+        $this->post(route('coordinacion.ternas.store'), $fields)->assertRedirect();
+        $committee = AcademicCommittee::where('practice_id', $practice->id)->firstOrFail();
+        $this->assertSame(3, $committee->members()->count());
+        $this->assertSame('Confirmada', $committee->status);
+        $this->assertSame($members[0]->user_id, $committee->coordinator()->id);
+        $this->assertDatabaseMissing('roles', ['name' => 'COORDINADOR_TERNA']);
+        $this->actingAs($practice->student->user)->get(route('estudiante.terna.show', $committee))->assertOk();
+        $this->put(route('coordinacion.terna.update', $committee), $fields)->assertForbidden();
+        $otherStudent = Student::whereKeyNot($practice->student_id)->firstOrFail();
+        $this->actingAs($otherStudent->user)->get(route('estudiante.terna.show', $committee))->assertForbidden();
+        $this->actingAs($members[1]->user)->get(route('docente.terna.show', $committee))->assertOk();
+        $this->get(route('academico.terna.show', $committee))->assertOk();
+        $this->actingAs($this->otherTeacher()->user)->get(route('docente.terna.show', $committee))->assertForbidden();
+        $this->actingAs($this->userFor('COORDINACION'))->put(route('coordinacion.terna.update', $committee), $fields)->assertStatus(409);
+    }
+
+    public function test_coordinator_is_contextual_and_only_the_correct_review_clock_restarts(): void
+    {
+        $practice = Student::where('account_number', '0801-2022-00458')->firstOrFail()->preferredPractice();
+        $coordinator = $this->otherTeacher();
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.ternas.store'), [
+            'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Asignada',
+            'members' => [['user_id' => $coordinator->user_id, 'function' => 'Coordinador']],
+        ])->assertRedirect();
+        $monograph = $this->submit($practice);
+        foreach (['tecnica', 'estilo'] as $stage) {
+            $review = $monograph->fresh()->currentReviews()->get($stage);
+            $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.monografia.review', $monograph), [
+                'review_id' => $review->id, 'status' => 'Aprobada',
+            ])->assertRedirect();
+        }
+        $reviews = $monograph->fresh()->currentReviews();
+        $originalClock = $reviews->get('estilo')->due_at->toDateTimeString();
+        $finalReview = $reviews->get('coordinador');
+        $this->actingAs($coordinator->user)->post(route('docente.monografia.review', $monograph), [
+            'review_id' => $finalReview->id, 'status' => 'Requiere corrección', 'observation' => 'Completar conclusiones',
+        ])->assertRedirect();
+        $this->travelTo(now()->addDays(2));
+        $monograph = $this->submit($practice);
+        $latest = $monograph->currentReviews()->get('coordinador');
+        $this->assertSame(now()->addDay()->toDateTimeString(), $latest->due_at->toDateTimeString());
+        $this->assertSame($originalClock, $monograph->currentReviews()->get('estilo')->due_at->toDateTimeString());
+        $this->actingAs($coordinator->user)->post(route('docente.monografia.review', $monograph), [
+            'review_id' => $latest->id, 'status' => 'Aprobada',
+        ])->assertRedirect();
+        $this->assertSame('Aprobada', $monograph->fresh()->statusLabel());
+        $this->assertSame(2, $monograph->versions()->count());
         $this->travelBack();
     }
 }

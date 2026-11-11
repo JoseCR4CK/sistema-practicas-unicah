@@ -8,6 +8,7 @@ use App\Models\MonographVersion;
 use App\Models\Practice;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class MonographWorkflow
@@ -52,10 +53,19 @@ class MonographWorkflow
             'stage' => $stage,
             'attempt' => $attempt,
             'status' => $start ? 'En revisión' : 'Pendiente',
-            'reviewer_id' => $stage === 'tecnica' ? $monograph->practice->teacher?->user_id : null,
+            'reviewer_id' => $this->reviewerId($monograph, $stage),
             'started_at' => $start ? now() : null,
             'due_at' => $start ? now()->addDays(Monograph::REVIEW_DAYS[$stage]) : null,
         ]);
+    }
+
+    private function reviewerId(Monograph $monograph, string $stage): ?int
+    {
+        return match ($stage) {
+            'tecnica' => $monograph->practice->teacher?->user_id,
+            'coordinador' => Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator()?->id : null,
+            default => null,
+        };
     }
 
     public function review(Monograph $monograph, User $actor, array $fields): void
@@ -69,7 +79,12 @@ class MonographWorkflow
             $manager = in_array($actor->role?->name, ['COORDINACION', 'ROOT'], true);
             $technicalReviewer = $review->stage === 'tecnica' && $actor->hasRole('DOCENTE_SEGUIMIENTO')
                 && $locked->practice->teacher?->user_id === $actor->id && $review->reviewer_id === $actor->id;
-            abort_unless($manager || $technicalReviewer, 403);
+            $coordinatorId = $this->reviewerId($locked, 'coordinador');
+            $coordinatorReviewer = $review->stage === 'coordinador' && !$actor->hasRole('ESTUDIANTE') && $coordinatorId === $actor->id;
+            abort_unless($manager || $technicalReviewer || $coordinatorReviewer, 403);
+            if ($review->stage === 'coordinador' && $review->reviewer_id !== $coordinatorId) {
+                $review->reviewer_id = $coordinatorId;
+            }
             if ($review->stage !== 'estilo' && !$review->reviewer_id) {
                 throw ValidationException::withMessages(['review_id' => 'Falta identificar al responsable de esta revisión.']);
             }
@@ -90,6 +105,7 @@ class MonographWorkflow
                     $next->update([
                         'monograph_version_id' => $locked->currentVersion->id,
                         'status' => 'En revisión',
+                        'reviewer_id' => $this->reviewerId($locked, $nextStage),
                         'started_at' => now(),
                         'due_at' => now()->addDays(Monograph::REVIEW_DAYS[$nextStage]),
                     ]);

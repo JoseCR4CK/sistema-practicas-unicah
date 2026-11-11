@@ -1,13 +1,13 @@
-@extends(auth()->user()->hasRole('ESTUDIANTE') ? 'layouts.student' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'layouts.teacher' : 'layouts.app'))
+@extends(auth()->user()->hasRole('ESTUDIANTE') ? 'layouts.student' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'layouts.teacher' : (auth()->user()->hasRole('JEFE_INMEDIATO') ? 'layouts.company' : 'layouts.app')))
 @section('title', 'Monografía | UNICAH')
 @section('content')
 @php
-    $portal = auth()->user()->hasRole('ESTUDIANTE') ? 'estudiante' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'coordinacion');
+    $portal = in_array(auth()->user()->role->name, ['COORDINACION', 'ROOT'], true) ? 'coordinacion' : (auth()->user()->hasRole('ESTUDIANTE') ? 'estudiante' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'academico'));
     $manager = in_array(auth()->user()->role->name, ['COORDINACION', 'ROOT'], true);
 @endphp
 <div class="page-header">
     <div><h1>Monografía</h1><p>{{ $monografia->practice->student->user->name }} · {{ $monografia->practice->academic_period }} {{ $monografia->practice->academic_year }}</p></div>
-    <a class="btn btn-light coord-back-button" href="{{ route($portal === 'estudiante' ? 'estudiante.monografia' : $portal.'.monografias') }}">Volver</a>
+    <a class="btn btn-light coord-back-button" href="{{ route($portal === 'academico' ? 'academico.ternas' : ($portal === 'estudiante' ? 'estudiante.monografia' : $portal.'.monografias')) }}">Volver</a>
 </div>
 @include('academic.closing-feedback')
 <section class="monograph-overview">
@@ -36,7 +36,7 @@
                     </div>
                     <p>Responsable: {{ $revision->reviewer?->name ?? 'Pendiente de identificar' }}</p>
                     <p>{{ $revision->observation }}</p>
-                    @if ($revision->status === 'En revisión' && ($manager || ($portal === 'docente' && $revision->stage === 'tecnica' && $revision->reviewer_id === auth()->id())))
+                    @if ($revision->status === 'En revisión' && ($manager || ($portal === 'docente' && $revision->stage === 'tecnica' && $revision->reviewer_id === auth()->id()) || ($portal !== 'estudiante' && $revision->stage === 'coordinador' && $committeeCoordinatorId === auth()->id())))
                         <form method="POST" action="{{ route($portal.'.monografia.review', $monografia) }}">
                             @csrf<input type="hidden" name="review_id" value="{{ $revision->id }}">
                             <label for="result{{ $revision->id }}" class="form-label">Resultado</label>

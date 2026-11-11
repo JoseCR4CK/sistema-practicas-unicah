@@ -19,6 +19,11 @@ class Practice extends Model
         return $this->hasOne(Monograph::class);
     }
 
+    public function committee(): HasOne
+    {
+        return $this->hasOne(AcademicCommittee::class);
+    }
+
     public function monographDeadline(): ?\Illuminate\Support\Carbon
     {
         return $this->end_date?->copy()->subDays(7);

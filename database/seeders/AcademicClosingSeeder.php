@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Monograph;
+use App\Models\AcademicCommittee;
 use App\Models\Practice;
 use App\Services\MonographWorkflow;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,9 @@ class AcademicClosingSeeder extends Seeder
         $practices = Practice::where('status', Practice::ACTIVE)->where('stage', 'Monografía')
             ->whereDate('start_date', '<=', today())->whereNotNull('end_date')->with('student.user')->get();
         foreach ($practices as $practice) {
+            if (Schema::hasTable('academic_committees')) {
+                AcademicCommittee::firstOrCreate(['practice_id' => $practice->id]);
+            }
             if (Monograph::where('practice_id', $practice->id)->exists()) {
                 continue;
             }

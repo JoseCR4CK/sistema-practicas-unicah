@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\MonographController;
 use App\Http\Controllers\StudentFlowController;
 use App\Http\Controllers\FollowupController;
@@ -97,6 +98,13 @@ Route::middleware('closing.schema:monographs')->group(function () {
     Route::post('/coordinacion/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('coordinacion.monografia.review');
 });
 
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/coordinacion/ternas', [CommitteeController::class, 'index'])->name('coordinacion.ternas');
+    Route::post('/coordinacion/ternas', [CommitteeController::class, 'store'])->name('coordinacion.ternas.store');
+    Route::get('/coordinacion/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('coordinacion.terna.show');
+    Route::put('/coordinacion/ternas/{committee}', [CommitteeController::class, 'update'])->whereNumber('committee')->name('coordinacion.terna.update');
+});
+
 Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('coordinacion.visitas');
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
 
@@ -190,6 +198,11 @@ Route::middleware('closing.schema:monographs')->group(function () {
     Route::get('/estudiante/monografia', [MonographController::class, 'index'])->name('estudiante.monografia');
     Route::post('/estudiante/monografia', [MonographController::class, 'submit'])->name('estudiante.monografia.submit');
     Route::get('/estudiante/monografia/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('estudiante.monografia.show');
+});
+
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/estudiante/terna', [CommitteeController::class, 'index'])->name('estudiante.terna');
+    Route::get('/estudiante/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('estudiante.terna.show');
 });
 
 Route::get('/estudiante/defensa', function () {
@@ -357,10 +370,24 @@ Route::middleware('closing.schema:monographs')->group(function () {
     Route::post('/docente/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('docente.monografia.review');
 });
 
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/docente/ternas', [CommitteeController::class, 'index'])->name('docente.ternas');
+    Route::get('/docente/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('docente.terna.show');
+});
+
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');
 
 Route::get('/docente/carga-academica', function () {
     return view('docente.carga-academica');
 })->name('docente.carga-academica');
 
+});
+
+Route::middleware(['auth', 'closing.schema:committees'])->group(function () {
+    Route::get('/academico/ternas', [CommitteeController::class, 'index'])->name('academico.ternas');
+    Route::get('/academico/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('academico.terna.show');
+});
+Route::middleware(['auth', 'closing.schema:monographs'])->group(function () {
+    Route::get('/academico/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('academico.monografia.show');
+    Route::post('/academico/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('academico.monografia.review');
 });

@@ -192,6 +192,8 @@
                 <span>Monografía</span>
             </a>
 
+            <a href="{{ route('estudiante.terna') }}" class="nav-item {{ request()->routeIs('estudiante.terna', 'estudiante.terna.show') ? 'active' : '' }}"><i class="bi bi-people"></i><span>Terna</span></a>
+
             <a
                 href="{{ route('estudiante.defensa') }}"
                 class="nav-item {{ request()->routeIs('estudiante.defensa') ? 'active' : '' }}"
