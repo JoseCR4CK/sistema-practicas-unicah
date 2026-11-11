@@ -103,7 +103,7 @@
                 </span>
 
                 <span class="nav-badge" id="sidebarPendingRequests">
-                    0
+                    {{ $pendingRequests }}
                 </span>
             </a>
 
@@ -427,50 +427,7 @@
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
 
-    const badge =
-        document.getElementById('sidebarPendingRequests');
-
-    if (!badge) {
-        return;
-    }
-
-    const stored =
-        localStorage.getItem('unicah_coord_solicitudes_v1');
-
-    if (!stored) {
-        badge.textContent = '0';
-        return;
-    }
-
-    try {
-
-        const requests =
-            JSON.parse(stored) || [];
-
-        const pending =
-            requests.filter(request =>
-                request.estado === 'Pendiente'
-            ).length;
-
-        badge.textContent =
-            pending;
-
-        badge.style.display =
-            pending > 0
-                ? ''
-                : 'none';
-
-    } catch (error) {
-
-        badge.textContent = '0';
-
-    }
-
-});
-</script>
 
 <script src="{{ asset('js/documents-store.js') }}"></script>
 
