@@ -568,6 +568,14 @@
 
                 }
 
+                if ($clave === 'Visita') {
+                    $estadoTexto = $estadoVisita;
+                    $completada = $estadoVisita === 'Realizada';
+                    $actual = in_array($estadoVisita, ['Habilitada', 'Programada'], true);
+                } elseif ($clave === 'Monografía') {
+                    $completada = $estadoMonografia === 'Aprobada';
+                    $actual = in_array($estadoMonografia, ['En revisión', 'Requiere corrección'], true);
+                }
             @endphp
 
 
@@ -849,25 +857,16 @@
 
                 <!-- MONOGRAFÍA -->
 
-                @if(
-                    in_array(
-                        $practicante['etapa'],
-                        [
-                            'Monografía',
-                            'Defensa',
-                            'Finalización'
-                        ]
-                    )
-                )
+                @if($monografia)
 
                     <div
                         class="teacher-tracking-item
-                        {{ $practicante['etapa'] === 'Monografía' ? 'active' : 'completed' }}"
+                        {{ $estadoMonografia === 'Aprobada' ? 'completed' : 'active' }}"
                     >
 
                         <div class="tracking-status-icon">
 
-                            @if($practicante['etapa'] === 'Monografía')
+                            @if($estadoMonografia !== 'Aprobada')
 
                                 <i class="bi bi-journal-text"></i>
 
@@ -891,6 +890,8 @@
                                 Estado de monografía: {{ $estadoMonografia }}
 
                             </span>
+
+                            <a href="{{ route('docente.monografia.show', $monografia) }}" class="coord-teacher-view">Consultar monografía y revisión técnica</a>
 
                         </div>
 

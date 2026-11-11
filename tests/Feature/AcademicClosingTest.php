@@ -155,7 +155,8 @@ class AcademicClosingTest extends TestCase
         $monograph = $this->submit($practice);
         foreach (['tecnica', 'estilo'] as $stage) {
             $review = $monograph->fresh()->currentReviews()->get($stage);
-            $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.monografia.review', $monograph), [
+            $actor = $stage === 'tecnica' ? $practice->teacher->user : $this->userFor('COORDINACION');
+            $this->actingAs($actor)->post(route($stage === 'tecnica' ? 'docente.monografia.review' : 'coordinacion.monografia.review', $monograph), [
                 'review_id' => $review->id, 'status' => 'Aprobada',
             ])->assertRedirect();
         }
@@ -176,6 +177,66 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('Aprobada', $monograph->fresh()->statusLabel());
         $this->assertSame(2, $monograph->versions()->count());
         $this->travelBack();
+    }
+
+    public function test_technical_result_requires_explicit_selection_and_only_the_responsible_teacher(): void
+    {
+        $monograph = Monograph::firstOrFail();
+        $practice = $monograph->practice;
+        $technical = $monograph->currentReviews()->get('tecnica');
+        $fields = ['review_id' => $technical->id, 'status' => 'Aprobada'];
+        $this->actingAs($this->userFor('COORDINACION'))
+            ->get(route('coordinacion.monografia.show', $monograph))->assertOk()->assertDontSee('Registrar revisión');
+        $this->post(route('coordinacion.monografia.review', $monograph), $fields)->assertForbidden();
+        $this->actingAs($this->otherTeacher()->user)
+            ->post(route('docente.monografia.review', $monograph), $fields)->assertForbidden();
+        $this->actingAs($practice->teacher->user);
+        $this->get(route('docente.practicante', $practice->student_id))->assertOk()
+            ->assertSee(route('docente.monografia.show', $monograph));
+        $html = $this->get(route('docente.monografia.show', $monograph))->assertOk()
+            ->assertSee('Seleccione un resultado')->assertSee('Registrar revisión')->getContent();
+        $this->assertMatchesRegularExpression('/<select[^>]*name="status"[^>]*required>\s*<option value="" selected disabled>Seleccione un resultado<\/option>/', $html);
+        $this->assertDoesNotMatchRegularExpression('/<option[^>]*value="Aprobada"[^>]*selected/', $html);
+        $this->post(route('docente.monografia.review', $monograph), ['review_id' => $technical->id, 'status' => ''])
+            ->assertSessionHasErrors('status');
+        $this->assertSame('En revisión', $technical->fresh()->status);
+        $this->post(route('docente.monografia.review', $monograph), $fields)->assertRedirect();
+        $this->assertSame($practice->teacher->user_id, $technical->fresh()->recorded_by);
+        $style = $monograph->fresh()->currentReviews()->get('estilo');
+        $this->post(route('docente.monografia.review', $monograph), ['review_id' => $style->id, 'status' => 'Aprobada'])->assertForbidden();
+    }
+
+    public function test_existing_monograph_accepts_only_correction_versions_and_keeps_real_process_states(): void
+    {
+        $monograph = Monograph::firstOrFail();
+        $practice = $monograph->practice;
+        $first = $monograph->currentVersion;
+        $technical = $monograph->currentReviews()->get('tecnica');
+        $this->actingAs($practice->student->user);
+        $this->get(route('estudiante.monografia'))->assertOk()->assertDontSee('id="monographPractice"', false);
+        $this->post(route('estudiante.monografia.submit'), [
+            'practice_id' => $practice->id, 'title' => 'Otra entrega', 'submission_key' => (string) Str::uuid(),
+        ])->assertStatus(409);
+        $this->assertSame(1, Monograph::where('practice_id', $practice->id)->count());
+        $this->assertSame(1, $monograph->versions()->count());
+        $practice->visits()->delete();
+        $practice->update(['stage' => 'Monografía']);
+        $this->actingAs($practice->teacher->user);
+        $html = $this->get(route('docente.practicante', $practice->student_id))->assertOk()->getContent();
+        preg_match_all('/class="teacher-process-step([^\"]*)"[^>]*>(.*?)<\/strong>\s*<span>(.*?)<\/span>/s', $html, $steps, PREG_SET_ORDER);
+        $visitStep = collect($steps)->first(fn ($step) => str_contains($step[2], '>Visita<') || preg_match('/<strong>\s*Visita\s*$/', $step[2]));
+        $this->assertNotNull($visitStep);
+        $this->assertStringNotContainsString('completed', $visitStep[1]);
+        $this->assertStringContainsString('Sin visita registrada', $visitStep[3]);
+        $this->post(route('docente.monografia.review', $monograph), [
+            'review_id' => $technical->id, 'status' => 'Requiere corrección', 'observation' => 'Precisar resultados',
+        ])->assertRedirect();
+        $this->actingAs($practice->student->user)->get(route('estudiante.monografia.show', $monograph))->assertOk()->assertSee('Registrar nueva versión');
+        $this->submit($practice);
+        $this->assertSame(1, Monograph::where('practice_id', $practice->id)->count());
+        $this->assertSame(2, $monograph->versions()->count());
+        $this->assertSame('Requiere corrección', $first->fresh()->status);
+        $this->assertSame('Informe de práctica profesional', $first->fresh()->title);
     }
 
     private function confirmedCommittee(): AcademicCommittee

@@ -28,7 +28,7 @@
         </table>
     </div>
 </section>
-@if ($portal === 'estudiante')
+@if ($portal === 'estudiante' && $practicas->isNotEmpty())
     <section class="content-card">
         <div class="card-header"><div><h2>Registrar monografía</h2><p>Registra el título y las observaciones de la versión.</p></div></div>
         <form method="POST" action="{{ route('estudiante.monografia.submit') }}" class="p-3">
@@ -41,7 +41,7 @@
                 @endforeach
             </select>
             @include('academic.monographs.version-fields', ['version' => null])
-            <button class="btn btn-primary" @disabled($practicas->isEmpty())>Registrar versión</button>
+            <button class="btn btn-primary">Registrar monografía</button>
         </form>
     </section>
 @endif

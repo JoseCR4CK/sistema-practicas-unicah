@@ -80,7 +80,9 @@ class MonographWorkflow
                 && $locked->practice->teacher?->user_id === $actor->id && $review->reviewer_id === $actor->id;
             $coordinatorId = $this->reviewerId($locked, 'coordinador');
             $coordinatorReviewer = $review->stage === 'coordinador' && !$actor->hasRole('ESTUDIANTE') && $coordinatorId === $actor->id;
-            abort_unless($manager || $technicalReviewer || $coordinatorReviewer, 403);
+            abort_unless($review->stage === 'tecnica'
+                ? $technicalReviewer
+                : ($manager || $coordinatorReviewer), 403);
             if ($review->stage === 'coordinador' && $review->reviewer_id !== $coordinatorId) {
                 $review->reviewer_id = $coordinatorId;
             }

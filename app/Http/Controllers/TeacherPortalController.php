@@ -78,6 +78,7 @@ class TeacherPortalController extends Controller
         $closing = app(AcademicClosingSummary::class)->forPractice($practice);
 
         return view('docente.seguimiento', [
+            'monografia' => $closing['monograph'],
             'practicante' => [
                 'nombre' => $practice->student->user->name,
                 'cuenta' => $practice->student->account_number,

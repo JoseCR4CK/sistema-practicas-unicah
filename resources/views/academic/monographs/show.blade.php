@@ -36,11 +36,11 @@
                     </div>
                     <p>Responsable: {{ $revision->stage === 'coordinador' && $revision->status === 'En revisión' ? ($committeeCoordinatorName ?? 'Pendiente de identificar') : ($revision->reviewer?->name ?? 'Pendiente de identificar') }}</p>
                     <p>{{ $revision->observation }}</p>
-                    @if ($revision->status === 'En revisión' && ($manager || ($portal === 'docente' && $revision->stage === 'tecnica' && $revision->reviewer_id === auth()->id()) || ($portal !== 'estudiante' && $revision->stage === 'coordinador' && $committeeCoordinatorId === auth()->id())))
+                    @if ($revision->status === 'En revisión' && ($revision->stage === 'tecnica' ? ($portal === 'docente' && $revision->reviewer_id === auth()->id() && $monografia->practice->teacher?->user_id === auth()->id()) : ($manager || ($portal !== 'estudiante' && $revision->stage === 'coordinador' && $committeeCoordinatorId === auth()->id()))))
                         <form method="POST" action="{{ route($portal.'.monografia.review', $monografia) }}">
                             @csrf<input type="hidden" name="review_id" value="{{ $revision->id }}">
                             <label for="result{{ $revision->id }}" class="form-label">Resultado</label>
-                            <select id="result{{ $revision->id }}" name="status" class="form-select mb-2"><option>Aprobada</option><option>Requiere corrección</option></select>
+                            <select id="result{{ $revision->id }}" name="status" class="form-select mb-2" required><option value="" selected disabled>Seleccione un resultado</option><option value="Aprobada">Aprobada</option><option value="Requiere corrección">Requiere corrección</option></select>
                             <label for="note{{ $revision->id }}" class="form-label">Observación</label>
                             <textarea id="note{{ $revision->id }}" name="observation" class="form-control mb-2" maxlength="5000"></textarea>
                             <button class="btn btn-primary">Registrar revisión</button>

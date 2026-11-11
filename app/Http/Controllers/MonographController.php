@@ -19,7 +19,8 @@ class MonographController extends Controller
         $practices = Practice::with('student.user');
         if ($role === 'ESTUDIANTE') {
             $query->whereHas('practice.student', fn ($query) => $query->where('user_id', $request->user()->id));
-            $practices->whereHas('student', fn ($query) => $query->where('user_id', $request->user()->id));
+            $practices->whereHas('student', fn ($query) => $query->where('user_id', $request->user()->id))
+                ->whereDoesntHave('monograph');
         } elseif ($role === 'DOCENTE_SEGUIMIENTO') {
             $query->where(function ($query) use ($request) {
                 $query->whereHas('practice.teacher', fn ($query) => $query->where('user_id', $request->user()->id));
