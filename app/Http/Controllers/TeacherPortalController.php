@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Practice;
 use Illuminate\Http\Request;
+use App\Services\AcademicClosingSummary;
 
 class TeacherPortalController extends Controller
 {
@@ -74,6 +75,7 @@ class TeacherPortalController extends Controller
             ->whereHas('teacher', fn ($query) => $query->where('user_id', $request->user()->id))
             ->with(['student.user', 'company', 'visits'])->orderByRaw('CASE WHEN status = ? THEN 0 ELSE 1 END', [Practice::ACTIVE])
             ->latest('id')->firstOrFail();
+        $closing = app(AcademicClosingSummary::class)->forPractice($practice);
 
         return view('docente.seguimiento', [
             'practicante' => [
@@ -87,8 +89,8 @@ class TeacherPortalController extends Controller
                 'finalizacion' => $practice->end_date?->format('d/m/Y') ?? 'Pendiente',
                 'dia' => $practice->currentDay(),
                 'visita_estado' => $practice->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada',
-                'monografia_estado' => 'Pendiente de integración',
-                'defensa_estado' => 'Pendiente de integración',
+                'monografia_estado' => $closing['monograph_state'],
+                'defensa_estado' => $closing['defense_state'],
             ],
         ]);
     }

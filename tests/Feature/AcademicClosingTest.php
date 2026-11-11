@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Monograph;
 use App\Models\AcademicCommittee;
-use App\Models\MonographReview;
+use App\Models\Defense;
 use App\Models\Practice;
 use App\Models\Role;
 use App\Models\Student;
@@ -137,6 +137,9 @@ class AcademicClosingTest extends TestCase
         $this->actingAs($otherStudent->user)->get(route('estudiante.terna.show', $committee))->assertForbidden();
         $this->actingAs($members[1]->user)->get(route('docente.terna.show', $committee))->assertOk();
         $this->get(route('academico.terna.show', $committee))->assertOk();
+        $members[1]->user->update(['status' => 'INACTIVE']);
+        $this->get(route('academico.terna.show', $committee))->assertForbidden();
+        $members[1]->user->update(['status' => 'ACTIVE']);
         $this->actingAs($this->otherTeacher()->user)->get(route('docente.terna.show', $committee))->assertForbidden();
         $this->actingAs($this->userFor('COORDINACION'))->put(route('coordinacion.terna.update', $committee), $fields)->assertStatus(409);
     }
@@ -173,5 +176,161 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('Aprobada', $monograph->fresh()->statusLabel());
         $this->assertSame(2, $monograph->versions()->count());
         $this->travelBack();
+    }
+
+    private function confirmedCommittee(): AcademicCommittee
+    {
+        $practice = Student::where('account_number', '0801-2022-00458')->firstOrFail()->preferredPractice();
+        $members = [$practice->teacher, $this->otherTeacher(), $this->otherTeacher()];
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.ternas.store'), [
+            'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Confirmada',
+            'members' => collect($members)->map(fn ($teacher, $index) => [
+                'user_id' => $teacher->user_id, 'function' => $index === 0 ? 'Coordinador' : 'Miembro',
+            ])->all(),
+        ])->assertRedirect();
+
+        return AcademicCommittee::where('practice_id', $practice->id)->with(['members.user', 'practice.student.user'])->firstOrFail();
+    }
+
+    private function createDefense(AcademicCommittee $committee): Defense
+    {
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensas.store'), [
+            'academic_committee_id' => $committee->id, 'duration_minutes' => 60,
+        ])->assertRedirect();
+
+        return Defense::where('academic_committee_id', $committee->id)->firstOrFail();
+    }
+
+    public function test_defense_requires_every_participants_availability_and_never_closes_the_practice(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        foreach ([60, 90, 120] as $duration) {
+            $this->put(route('coordinacion.defensa.duration', $defense), ['duration_minutes' => $duration])->assertRedirect();
+            $this->assertSame($duration, $defense->fresh()->duration_minutes);
+        }
+        $this->put(route('coordinacion.defensa.duration', $defense), ['duration_minutes' => 45])->assertSessionHasErrors('duration_minutes');
+        $this->put(route('coordinacion.defensa.duration', $defense), ['duration_minutes' => 60])->assertRedirect();
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T12:00'])->assertRedirect();
+        $option = $defense->options()->firstOrFail();
+        $confirm = route('coordinacion.defensa.confirm', [$defense, $option]);
+        $this->post($confirm)->assertStatus(409);
+        $participants = $defense->fresh()->participants();
+        foreach ($participants as $participant) {
+            $this->actingAs($participant)->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertRedirect();
+        }
+        $this->assertSame(4, $option->availabilities()->where('available', true)->count());
+        $this->actingAs($committee->practice->student->user)->get(route('estudiante.defensa.show', $defense))->assertOk();
+        $this->post($confirm)->assertForbidden();
+        $otherStudent = Student::whereKeyNot($committee->practice->student_id)->firstOrFail();
+        $this->actingAs($otherStudent->user)->get(route('estudiante.defensa.show', $defense))->assertForbidden();
+        $this->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertForbidden();
+        $this->actingAs($this->otherTeacher()->user)->get(route('docente.defensa.show', $defense))->assertForbidden();
+        $this->actingAs($committee->members->first()->user)->get(route('docente.defensa.show', $defense))->assertOk();
+        $this->actingAs($this->userFor('COORDINACION'))->post($confirm)->assertRedirect();
+        $this->assertSame('Programada', $defense->fresh()->status);
+        $this->assertSame($option->id, $defense->fresh()->selected_option_id);
+        $this->assertSame('Práctica', $committee->practice->fresh()->stage);
+        $this->assertSame('ACTIVE', $committee->practice->fresh()->status);
+        $this->put(route('coordinacion.terna.update', $committee), [
+            'revision' => $committee->revision, 'status' => 'Confirmada',
+            'members' => $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function])->all(),
+        ])->assertStatus(409);
+        $this->travelTo(Carbon::parse('2026-12-01 14:00'));
+        $this->post(route('coordinacion.defensa.performed', $defense), ['observation' => 'Actividad realizada'])->assertRedirect();
+        $this->assertSame('Realizada', $defense->fresh()->status);
+        $this->assertSame('ACTIVE', $committee->practice->fresh()->status);
+        $this->travelBack();
+    }
+
+    public function test_only_known_class_hours_block_scheduling_and_the_last_academic_block_is_respected(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        $teacher = $committee->members->first()->user;
+        $this->actingAs($teacher)->post(route('academico.defensa.classes', $defense), [
+            'starts_at' => '2026-12-01T15:00', 'ends_at' => '2026-12-01T16:00', 'course_name' => 'Asignatura registrada',
+        ])->assertRedirect();
+        $this->assertDatabaseCount('defense_class_blocks', 1);
+        $this->actingAs($this->userFor('COORDINACION'));
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T15:30'])->assertSessionHasErrors('starts_at');
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T12:00'])->assertRedirect();
+        $option = $defense->options()->firstOrFail();
+        foreach ($defense->participants() as $participant) {
+            $this->actingAs($participant)->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertRedirect();
+        }
+        $this->actingAs($teacher)->post(route('academico.defensa.classes', $defense), [
+            'starts_at' => '2026-12-01T12:30', 'ends_at' => '2026-12-01T13:30',
+        ])->assertRedirect();
+        $this->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertSessionHasErrors('available');
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertSessionHasErrors('option');
+        $this->get(route('coordinacion.defensa.show', $defense))->assertOk()->assertSee('La opción coincide con horas de clase registradas.');
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T16:00'])->assertRedirect();
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T20:50'])->assertRedirect();
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T21:00'])->assertSessionHasErrors('starts_at');
+        $this->assertSame('En coordinación', $defense->fresh()->status);
+    }
+
+    public function test_changed_committee_invalidates_old_options_without_changing_existing_practice_states(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T09:00'])->assertRedirect();
+        $option = $defense->options()->firstOrFail();
+        $members = $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function])->all();
+        $replacement = $this->otherTeacher();
+        $members[2]['user_id'] = $replacement->user_id;
+        $this->put(route('coordinacion.terna.update', $committee), [
+            'revision' => $committee->revision, 'status' => 'Confirmada', 'members' => $members,
+        ])->assertRedirect();
+        $this->actingAs($replacement->user)->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertStatus(409);
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertStatus(409);
+        $this->assertSame('En coordinación', $defense->fresh()->status);
+        $this->assertSame('Práctica', $committee->practice->fresh()->stage);
+    }
+
+    public function test_closing_views_and_summary_use_persistent_records_and_missing_ids_return_404(): void
+    {
+        $committee = $this->confirmedCommittee();
+        $defense = $this->createDefense($committee);
+        $monograph = $this->submit($committee->practice);
+        $this->actingAs($this->userFor('COORDINACION'));
+        foreach (['coordinacion.monografias', 'coordinacion.ternas', 'coordinacion.defensas'] as $route) {
+            $this->get(route($route))->assertOk()->assertSee($committee->practice->student->user->name);
+        }
+        foreach (['coordinacion.monografia.show', 'coordinacion.terna.show', 'coordinacion.defensa.show'] as $route) {
+            $this->get(route($route, 999999))->assertNotFound();
+        }
+        $this->get(route('coordinacion.estudiante', $committee->practice->student_id))->assertOk()
+            ->assertSee(route('coordinacion.monografia.show', $monograph))
+            ->assertSee(route('coordinacion.terna.show', $committee))
+            ->assertSee(route('coordinacion.defensa.show', $defense));
+        $this->get(route('coordinacion.practica', $committee->practice))->assertOk()->assertSee('En revisión');
+        $this->actingAs($committee->practice->student->user);
+        $this->get(route('estudiante.monografia.show', $monograph))->assertOk()->assertSee('Informe académico');
+        $this->get(route('estudiante.terna.show', $committee))->assertOk()->assertSee('Confirmada');
+        $this->get(route('estudiante.defensa.show', $defense))->assertOk()->assertSee('Pendiente');
+        $this->get(route('estudiante.practica'))->assertOk()->assertSee('23/11/2026');
+        $this->actingAs($committee->practice->teacher->user)
+            ->get(route('docente.practicante', $committee->practice->student_id))
+            ->assertOk()->assertSee('En revisión');
+    }
+
+    public function test_closing_seed_is_idempotent_preserves_assignments_and_keeps_incoherent_processes_empty(): void
+    {
+        $monograph = Monograph::firstOrFail();
+        $committee = AcademicCommittee::where('practice_id', $monograph->practice_id)->firstOrFail();
+        $committee->members()->create(['user_id' => $monograph->practice->teacher->user_id, 'function' => 'Miembro']);
+        $committee->update(['status' => 'Asignada', 'revision' => 1]);
+        $monograph->currentVersion->update(['title' => 'Título actualizado']);
+        $this->seed(\Database\Seeders\AcademicClosingSeeder::class);
+        $this->assertSame(1, Monograph::count());
+        $this->assertSame('Título actualizado', $monograph->fresh()->currentVersion->title);
+        $this->assertSame(1, $committee->members()->count());
+        $this->assertSame('Asignada', $committee->fresh()->status);
+        $this->assertSame(0, Defense::count());
+        $this->assertDatabaseCount('teachers', 1);
+        $sofia = Student::where('account_number', '0801-2020-00118')->firstOrFail();
+        $this->assertFalse($sofia->preferredPractice()->monograph()->exists());
     }
 }

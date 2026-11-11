@@ -31,17 +31,19 @@ class MonographController extends Controller
 
         return view('academic.monographs.index', [
             'monografias' => $query->latest('id')->get(),
-            'practicas' => $practices->get(),
+            'practicas' => $role === 'ESTUDIANTE' ? $practices->get() : collect(),
         ]);
     }
 
     public function show(Monograph $monograph)
     {
         Gate::authorize('view', $monograph);
+        $coordinator = Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator() : null;
 
         return view('academic.monographs.show', [
             'monografia' => $monograph->load(['practice.student.user', 'currentVersion', 'versions.submitter', 'reviews.reviewer', 'reviews.recorder']),
-            'committeeCoordinatorId' => Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator()?->id : null,
+            'committeeCoordinatorId' => $coordinator?->id,
+            'committeeCoordinatorName' => $coordinator?->name,
         ]);
     }
 

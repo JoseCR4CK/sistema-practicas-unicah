@@ -34,7 +34,9 @@ class CommitteeController extends Controller
 
         return view('academic.committees.show', [
             'terna' => $committee->load(['practice.student.user', 'members.user']),
-            'personas' => User::where('status', 'ACTIVE')->orWhereIn('id', $committee->members->pluck('user_id'))->orderBy('name')->get(),
+            'personas' => Gate::allows('update', $committee)
+                ? User::where('status', 'ACTIVE')->orWhereIn('id', $committee->members->pluck('user_id'))->orderBy('name')->get()
+                : collect(),
         ]);
     }
 

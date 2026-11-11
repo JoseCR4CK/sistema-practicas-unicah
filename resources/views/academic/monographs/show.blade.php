@@ -34,7 +34,7 @@
                         <div><span>Inicio</span><strong>{{ $revision->started_at?->format('d/m/Y H:i') ?? 'Pendiente' }}</strong></div>
                         <div><span>Fecha límite</span><strong>{{ $revision->due_at?->format('d/m/Y H:i') ?? 'Pendiente' }}</strong></div>
                     </div>
-                    <p>Responsable: {{ $revision->reviewer?->name ?? 'Pendiente de identificar' }}</p>
+                    <p>Responsable: {{ $revision->stage === 'coordinador' && $revision->status === 'En revisión' ? ($committeeCoordinatorName ?? 'Pendiente de identificar') : ($revision->reviewer?->name ?? 'Pendiente de identificar') }}</p>
                     <p>{{ $revision->observation }}</p>
                     @if ($revision->status === 'En revisión' && ($manager || ($portal === 'docente' && $revision->stage === 'tecnica' && $revision->reviewer_id === auth()->id()) || ($portal !== 'estudiante' && $revision->stage === 'coordinador' && $committeeCoordinatorId === auth()->id())))
                         <form method="POST" action="{{ route($portal.'.monografia.review', $monografia) }}">

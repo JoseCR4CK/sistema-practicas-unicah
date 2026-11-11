@@ -517,26 +517,10 @@
                 */
 
                 elseif ($clave === 'Monografía') {
-
-                    if ($completada) {
-
-                        $estadoTexto =
-                            $estadoMonografia !== 'Pendiente'
-                                ? $estadoMonografia
-                                : 'Aprobada';
-
-                    }
-
-                    elseif ($actual) {
-
-                        $estadoTexto =
-                            $estadoMonografia !== 'Pendiente'
-                                ? $estadoMonografia
-                                : 'En revisión';
-
-                    }
-
+                    $estadoTexto = $estadoMonografia;
                 }
+
+
 
 
                 /*
@@ -546,24 +530,10 @@
                 */
 
                 elseif ($clave === 'Defensa') {
-
-                    if ($completada) {
-
-                        $estadoTexto =
-                            'Realizada';
-
-                    }
-
-                    elseif ($actual) {
-
-                        $estadoTexto =
-                            $estadoDefensa !== 'Pendiente'
-                                ? $estadoDefensa
-                                : 'Actual';
-
-                    }
-
+                    $estadoTexto = $estadoDefensa;
                 }
+
+
 
 
                 /*
@@ -918,17 +888,7 @@
 
                             <span>
 
-                                @if($practicante['etapa'] === 'Monografía')
-
-                                    La monografía se encuentra
-                                    actualmente en {{ strtolower($estadoMonografia) }}.
-
-                                @else
-
-                                    La etapa de monografía
-                                    ya fue completada.
-
-                                @endif
+                                Estado de monografía: {{ $estadoMonografia }}
 
                             </span>
 
@@ -937,15 +897,7 @@
 
                         <small>
 
-                            @if($practicante['etapa'] === 'Monografía')
-
-                                {{ $estadoMonografia }}
-
-                            @else
-
-                                Completada
-
-                            @endif
+                            {{ $estadoMonografia }}
 
                         </small>
 

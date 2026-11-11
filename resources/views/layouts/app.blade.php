@@ -203,7 +203,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'defensas') }}"
+                href="{{ route('coordinacion.defensas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-mortarboard"></i>

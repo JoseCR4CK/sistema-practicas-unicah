@@ -593,9 +593,7 @@
 
             </div>
 
-            <span>
-                Monografía
-            </span>
+            <span><a href="{{ route('estudiante.monografia') }}">Monografía</a></span><small>{{ $closing['monograph_state'] }}</small>
 
         </div>
 
@@ -608,9 +606,7 @@
 
             </div>
 
-            <span>
-                Defensa
-            </span>
+            <span><a href="{{ route('estudiante.defensa') }}">Defensa</a></span><small>{{ $closing['defense_state'] }}</small>
 
         </div>
 

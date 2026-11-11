@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class AcademicCommittee extends Model
 {
@@ -30,5 +31,10 @@ class AcademicCommittee extends Model
     public function coordinator()
     {
         return $this->members->firstWhere('function', 'Coordinador')?->user;
+    }
+
+    public function defense(): HasOne
+    {
+        return $this->hasOne(Defense::class);
     }
 }

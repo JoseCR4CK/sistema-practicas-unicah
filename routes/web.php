@@ -2,6 +2,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DefenseController;
 use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\MonographController;
 use App\Http\Controllers\StudentFlowController;
@@ -105,10 +106,23 @@ Route::middleware('closing.schema:committees')->group(function () {
     Route::put('/coordinacion/ternas/{committee}', [CommitteeController::class, 'update'])->whereNumber('committee')->name('coordinacion.terna.update');
 });
 
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/coordinacion/defensas', [DefenseController::class, 'index'])->name('coordinacion.defensas');
+    Route::post('/coordinacion/defensas', [DefenseController::class, 'store'])->name('coordinacion.defensas.store');
+    Route::get('/coordinacion/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('coordinacion.defensa.show');
+    Route::put('/coordinacion/defensas/{defense}/duracion', [DefenseController::class, 'duration'])->whereNumber('defense')->name('coordinacion.defensa.duration');
+    Route::post('/coordinacion/defensas/{defense}/opciones', [DefenseController::class, 'propose'])->whereNumber('defense')->name('coordinacion.defensa.options');
+    Route::post('/coordinacion/defensas/{defense}/opciones/{option}/confirmar', [DefenseController::class, 'confirm'])->whereNumber(['defense', 'option'])->scopeBindings()->name('coordinacion.defensa.confirm');
+    Route::post('/coordinacion/defensas/{defense}/realizada', [DefenseController::class, 'performed'])->whereNumber('defense')->name('coordinacion.defensa.performed');
+});
+
 Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('coordinacion.visitas');
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
 
 Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
+    if (in_array($modulo, ['ternas', 'monografias', 'defensas'], true)) {
+        return redirect()->route('coordinacion.'.$modulo);
+    }
 
     $modulos = [
 
@@ -132,25 +146,13 @@ Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
             'descripcion' => 'Revisión de documentos enviados por los estudiantes.'
         ],
 
-        'ternas' => [
-            'titulo' => 'Ternas',
-            'descripcion' => 'Asignación y seguimiento de ternas académicas.'
-        ],
 
         'visitas' => [
             'titulo' => 'Visitas',
             'descripcion' => 'Programación y seguimiento de visitas de práctica.'
         ],
 
-        'monografias' => [
-            'titulo' => 'Monografías',
-            'descripcion' => 'Seguimiento del proceso de revisión de monografías.'
-        ],
 
-        'defensas' => [
-            'titulo' => 'Defensas',
-            'descripcion' => 'Gestión y calendarización de defensas.'
-        ],
 
         'reportes' => [
             'titulo' => 'Reportes',
@@ -205,9 +207,10 @@ Route::middleware('closing.schema:committees')->group(function () {
     Route::get('/estudiante/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('estudiante.terna.show');
 });
 
-Route::get('/estudiante/defensa', function () {
-    return view('estudiante.defensa');
-})->name('estudiante.defensa');
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/estudiante/defensa', [DefenseController::class, 'index'])->name('estudiante.defensa');
+    Route::get('/estudiante/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('estudiante.defensa.show');
+});
 
 Route::get('/estudiante/visita', [VisitController::class, 'index'])->name('estudiante.visita');
 Route::get('/estudiante/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('estudiante.visita.show');
@@ -375,6 +378,11 @@ Route::middleware('closing.schema:committees')->group(function () {
     Route::get('/docente/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('docente.terna.show');
 });
 
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/docente/defensas', [DefenseController::class, 'index'])->name('docente.defensas');
+    Route::get('/docente/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('docente.defensa.show');
+});
+
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');
 
 Route::get('/docente/carga-academica', function () {
@@ -390,4 +398,11 @@ Route::middleware(['auth', 'closing.schema:committees'])->group(function () {
 Route::middleware(['auth', 'closing.schema:monographs'])->group(function () {
     Route::get('/academico/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('academico.monografia.show');
     Route::post('/academico/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('academico.monografia.review');
+});
+
+Route::middleware(['auth', 'closing.schema:defenses'])->group(function () {
+    Route::get('/academico/defensas', [DefenseController::class, 'index'])->name('academico.defensas');
+    Route::get('/academico/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('academico.defensa.show');
+    Route::post('/academico/defensas/{defense}/opciones/{option}/disponibilidad', [DefenseController::class, 'respond'])->whereNumber(['defense', 'option'])->scopeBindings()->name('academico.defensa.respond');
+    Route::post('/academico/defensas/{defense}/clases', [DefenseController::class, 'addClassBlock'])->whereNumber('defense')->name('academico.defensa.classes');
 });

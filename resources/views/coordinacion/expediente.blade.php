@@ -5,16 +5,6 @@
 @section('content')
 
 @php
-    // Estados de la demostración. Visitas, monografías y defensas se integrarán en otro bloque.
-    $demo = [
-        '0801-2022-00458' => ['Pendiente', 'Pendiente'],
-        '0801-2021-00231' => ['Pendiente', 'Pendiente'],
-        '0801-2022-00671' => ['En revisión', 'Pendiente'],
-        '0801-2022-00714' => ['Pendiente', 'Pendiente'],
-        '0801-2020-00118' => ['Aprobada', 'Realizada'],
-    ][$estudiante['cuenta']] ?? null;
-    [$monografiaDemo, $defensaDemo] = $demo ?? array_fill(0, 2, 'Sin información');
-
     $etapas = \App\Models\Practice::STAGES;
     $iconosEtapas = [
         'bi-check-lg',
@@ -32,8 +22,8 @@
         $estudiante['empresa_id'] !== null ? 'Asignada' : 'Sin asignar',
         'Completada',
         'Realizada',
-        'Aprobada',
-        'Realizada',
+        $closing['monograph_state'],
+        $closing['defense_state'],
         'Completada',
     ];
     $indiceActual = array_search($estudiante['etapa'], $etapas, true);
@@ -54,7 +44,7 @@
             if ($nombreEtapa === 'Práctica') {
                 $estadoActual = $estudiante['estado'];
             } elseif ($nombreEtapa === 'Monografía') {
-                $estadoActual = $monografiaDemo;
+                $estadoActual = $closing['monograph_state'];
             }
 
             $pasosTimeline[] = [
@@ -222,7 +212,7 @@
     </div>
 
 
-    <p class="small text-muted">Los estados de monografía y defensa continúan como parte del prototipo.</p>
+
 
     <div class="practice-timeline expediente-timeline">
 
@@ -380,13 +370,8 @@
 
         <div>
 
-            <span>
-                Entrega de monografía
-            </span>
-
-            <strong>
-                No disponible
-            </strong>
+            <span>Entrega de monografía</span>
+            <strong>{{ $closing['deadline']?->format('d/m/Y') ?? 'Fecha final de práctica pendiente' }}</strong>
 
             <p>
                 Fecha de entrega no disponible.
@@ -613,23 +598,15 @@
     <!-- TERNA -->
 
     <div class="tab-content" id="terna">
-
         <div class="empty-state">
-
             <i class="bi bi-people"></i>
-
-            <h3>
-                Terna pendiente
-            </h3>
-
-            <p>
-                La terna de defensa todavía no ha sido asignada.
-            </p>
-
+            <h3>{{ $closing['committee_state'] }}</h3>
+            @if ($closing['committee'])
+                @include('academic.committees.members', ['members' => $closing['committee']->members])
+                <a href="{{ route('coordinacion.terna.show', $closing['committee']) }}">Ver terna</a>
+            @endif
         </div>
-
     </div>
-
 
     <!-- VISITA -->
 
@@ -674,11 +651,14 @@
             <i class="bi bi-journal-text"></i>
 
             <h3>
-                Monografía {{ strtolower($monografiaDemo) }}
+                Monografía {{ strtolower($closing['monograph_state']) }}
             </h3>
 
             <p>
-                Estado: {{ $monografiaDemo }}
+                Estado: {{ $closing['monograph_state'] }}
+                @if ($closing['monograph'])
+                    <a href="{{ route('coordinacion.monografia.show', $closing['monograph']) }}">Ver monografía</a>
+                @endif
             </p>
 
         </div>
@@ -695,11 +675,14 @@
             <i class="bi bi-mortarboard"></i>
 
             <h3>
-                Defensa {{ strtolower($defensaDemo) }}
+                Defensa {{ strtolower($closing['defense_state']) }}
             </h3>
 
             <p>
-                Estado: {{ $defensaDemo }}
+                Estado: {{ $closing['defense_state'] }}
+                @if ($closing['defense'])
+                    <a href="{{ route('coordinacion.defensa.show', $closing['defense']) }}">Ver defensa</a>
+                @endif
             </p>
 
         </div>

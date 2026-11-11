@@ -358,7 +358,10 @@
 
                     <div>
                         <span>Estado</span>
-                        <strong>Pendiente de integración</strong>
+                        <strong>{{ $closing['monograph_state'] }}</strong>
+                        @if ($closing['monograph'])
+                            <a href="{{ route('coordinacion.monografia.show', $closing['monograph']) }}">Ver monografía</a>
+                        @endif
                     </div>
 
                 </div>

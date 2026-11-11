@@ -577,7 +577,7 @@
 
 
                 <span class="badge info">
-                    Pendiente
+                    {{ $closing['monograph_state'] }}
                 </span>
 
             </div>
@@ -606,14 +606,14 @@
                     </strong>
 
                     <span>
-                        Se habilitará después de aprobar la monografía
+                        Consulta el estado de la programación de tu defensa
                     </span>
 
                 </div>
 
 
                 <span class="badge info">
-                    Pendiente
+                    {{ $closing['defense_state'] }}
                 </span>
 
             </div>
@@ -730,41 +730,16 @@
 
 
         <div class="upcoming-event">
-
             <div class="event-date">
-
-                <strong>
-                    23
-                </strong>
-
-                <span>
-                    NOV
-                </span>
-
+                <strong>{{ $closing['deadline']?->format('d') ?? '—' }}</strong>
+                <span>{{ $closing['deadline']?->format('m/Y') ?? 'Pendiente' }}</span>
             </div>
-
-
             <div class="event-content">
-
-                <strong>
-                    Entrega de monografía
-                </strong>
-
-                <p>
-                    Fecha estimada de entrega antes
-                    de finalizar tu práctica.
-                </p>
-
+                <strong>Entrega de monografía</strong>
+                <p>{{ $closing['deadline']?->format('d/m/Y') ?? 'Fecha final de práctica pendiente' }}</p>
             </div>
-
-
-            <span class="event-status">
-                Pendiente
-            </span>
-
+            <span class="event-status">{{ $closing['monograph_state'] }}</span>
         </div>
-
-
 
         <div class="upcoming-event">
 

@@ -146,6 +146,8 @@
 
             <a href="{{ route('docente.ternas') }}" class="nav-item {{ request()->routeIs('docente.ternas', 'docente.terna.show') ? 'active' : '' }}"><i class="bi bi-people"></i><span>Ternas</span></a>
 
+            <a href="{{ route('docente.defensas') }}" class="nav-item {{ request()->routeIs('docente.defensas', 'docente.defensa.*') ? 'active' : '' }}"><i class="bi bi-mortarboard"></i><span>Defensas</span></a>
+
             <a
                 href="{{ route('docente.carga-academica') }}"
                 class="nav-item {{ request()->routeIs('docente.carga-academica') ? 'active' : '' }}"

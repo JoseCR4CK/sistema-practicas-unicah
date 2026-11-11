@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Coordination;
 use App\Http\Controllers\Controller;
 use App\Models\Practice;
 use Illuminate\View\View;
+use App\Services\AcademicClosingSummary;
 
 class PracticeController extends Controller
 {
@@ -29,6 +30,7 @@ class PracticeController extends Controller
             'practica' => $practice->load(self::RELATIONS),
             'etapas' => Practice::STAGES,
             'indiceEtapa' => array_search($practice->stage, Practice::STAGES, true),
+            'closing' => app(AcademicClosingSummary::class)->forPractice($practice),
         ]);
     }
 }

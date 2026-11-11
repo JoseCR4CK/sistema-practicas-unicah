@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentVersion;
 use App\Models\Practice;
 use Illuminate\Http\Request;
+use App\Services\AcademicClosingSummary;
 
 class StudentFlowController extends Controller
 {
@@ -34,6 +35,7 @@ class StudentFlowController extends Controller
             'applicationStatus' => $application?->status ?? 'Sin solicitud registrada',
             'documentSummary' => $documents->where('currentVersion.status', DocumentVersion::APPROVED)->count().' aprobados de '.$documents->count().' registrados',
             'visitStatus' => $practice?->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada',
+            'closing' => app(AcademicClosingSummary::class)->forPractice($practice),
         ]);
     }
 }
