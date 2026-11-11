@@ -179,6 +179,8 @@
             </a>
 
 
+            <a href="{{ route('coordinacion.seguimientos') }}" class="nav-item {{ request()->routeIs('coordinacion.seguimientos', 'coordinacion.seguimiento') ? 'active' : '' }}"><i class="bi bi-clipboard-check"></i><span>Seguimientos</span></a>
+
             <a
                 href="{{ route('coordinacion.visitas') }}"
                 class="nav-item {{ request()->routeIs('coordinacion.visitas', 'coordinacion.visita') ? 'active' : '' }}"

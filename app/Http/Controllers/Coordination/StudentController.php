@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Practice;
 use App\Models\Student;
+use App\Models\PracticeRequest;
+use App\Models\Visit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -32,10 +34,10 @@ class StudentController extends Controller
 
     public function dashboard(): View
     {
-        $demoAccounts = ['0801-2022-00458', '0801-2021-00231', '0801-2022-00671', '0801-2021-00394'];
-
         return view('coordinacion.dashboard', [
-            'expedientes' => Student::whereIn('account_number', $demoAccounts)->pluck('id', 'account_number'),
+            'solicitudesPendientes' => PracticeRequest::where('status', 'Pendiente')->with('student.user')->latest('submitted_at')->get(),
+            'visitasProgramadas' => Visit::where('status', 'Programada')->count(),
+            'visitasHabilitadas' => Visit::with('practice')->get()->filter(fn ($visit) => $visit->effectiveStatus() === 'Habilitada')->count(),
         ]);
     }
 

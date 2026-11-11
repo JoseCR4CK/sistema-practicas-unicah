@@ -9,6 +9,8 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\Teacher;
+use App\Models\Followup;
+use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\DB;
@@ -143,5 +145,88 @@ class AcademicFlowsTest extends TestCase
             $this->actingAs($this->userFor($role))->post(route('docente.visita.update', $visit), ['status' => 'Realizada', 'date' => '2026-10-16'])->assertForbidden();
         }
         $this->travelBack();
+    }
+
+    public function test_followups_persist_edits_and_status_and_reject_foreign_or_stale_changes(): void
+    {
+        $followup = Followup::with('practice', 'teacher.user')->firstOrFail();
+        $teacher = $followup->teacher->user;
+        $this->actingAs($teacher);
+        $fields = [
+            'practice_id' => $followup->practice_id, 'submission_key' => (string) Str::uuid(),
+            'date' => '2026-11-10', 'type' => 'Tipo flexible', 'title' => 'Seguimiento real',
+            'description' => 'Descripción persistente', 'status' => 'Pendiente', 'observation' => 'Observación de prueba',
+        ];
+        $response = $this->post(route('docente.seguimientos.store'), $fields)->assertRedirect();
+        $created = Followup::where('submission_key', $fields['submission_key'])->firstOrFail();
+        $this->post(route('docente.seguimientos.store'), $fields)->assertRedirect($response->headers->get('Location'));
+        $this->assertSame(1, Followup::where('submission_key', $fields['submission_key'])->count());
+        $this->get(route('docente.seguimiento', $created))->assertOk()->assertSee('Descripción persistente');
+        $edited = array_replace($fields, ['title' => 'Título editado', 'revision' => 0]);
+        $this->put(route('docente.seguimiento.update', $created), $edited)->assertRedirect();
+        $this->assertSame('Título editado', $created->fresh()->title);
+        $this->put(route('docente.seguimiento.update', $created), $edited)->assertStatus(409);
+        $this->patch(route('docente.seguimiento.status', $created), ['status' => 'Realizado', 'revision' => 1])->assertRedirect();
+        $this->assertSame('Realizado', $created->fresh()->status);
+        foreach (['docente.dashboard', 'docente.practicantes', 'docente.alertas', 'docente.seguimientos'] as $route) {
+            $this->get(route($route))->assertOk();
+        }
+        $this->actingAs($this->userFor('COORDINACION'));
+        $this->get(route('coordinacion.seguimiento', $created))->assertOk()->assertSee('Realizado')->assertSee('Observación de prueba');
+        $this->get(route('coordinacion.seguimiento', 999999))->assertNotFound();
+        $otherUser = User::factory()->create(['role_id' => $teacher->role_id, 'status' => 'ACTIVE']);
+        Teacher::create(['user_id' => $otherUser->id, 'employee_code' => 'OTHER-TEACHER']);
+        $this->actingAs($otherUser)->get(route('docente.seguimiento', $created))->assertForbidden();
+        $this->get(route('docente.seguimientos'))->assertOk()->assertDontSee('Título editado');
+        $this->put(route('docente.seguimiento.update', $created), $edited)->assertForbidden();
+        $this->post(route('docente.seguimientos.store'), array_replace($fields, ['submission_key' => (string) Str::uuid()]))->assertNotFound();
+        foreach (['ESTUDIANTE', 'JEFE_INMEDIATO', 'COORDINACION'] as $role) {
+            $this->actingAs($this->userFor($role))->patch(route('docente.seguimiento.status', $created), ['status' => 'Realizado', 'revision' => 2])->assertForbidden();
+        }
+        $this->actingAs($teacher)->delete(route('docente.seguimiento.destroy', $created), ['revision' => 2])->assertRedirect();
+        $this->assertSoftDeleted('followups', ['id' => $created->id]);
+    }
+
+    public function test_student_requests_are_scoped_and_can_be_resubmitted_after_rejection(): void
+    {
+        $application = PracticeRequest::firstOrFail();
+        $owner = $application->student->user;
+        $other = PracticeRequest::where('student_id', '!=', $application->student_id)->firstOrFail();
+        $this->actingAs($owner)->get(route('estudiante.solicitudes'))->assertOk()->assertSee($owner->name)->assertDontSee($other->student->user->name);
+        $this->get(route('estudiante.solicitud', $other))->assertForbidden();
+        $fields = ['practice_id' => $application->practice_id, 'student_observation' => 'Envío corregido'];
+        $this->post(route('estudiante.solicitudes.store'), $fields)->assertRedirect(route('estudiante.solicitud', $application));
+        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.solicitud.review', $application), ['status' => 'Rechazada', 'observation' => 'Revisar'])->assertRedirect();
+        $this->actingAs($owner)->post(route('estudiante.solicitudes.store'), $fields)->assertRedirect();
+        $this->assertSame(2, $application->student->applications()->count());
+        $this->assertSame('Rechazada', $application->fresh()->status);
+        $this->assertSame('Pendiente', $application->student->applications()->latest('id')->first()->status);
+        $this->get(route('estudiante.dashboard'))->assertOk()->assertSee('Pendiente');
+        $this->get(route('estudiante.practica'))->assertOk()->assertSee('Pendiente')->assertSee($application->practice->company->official_name);
+        $this->actingAs($this->userFor('COORDINACION'))->get(route('coordinacion.dashboard'))->assertOk()
+            ->assertSee(route('coordinacion.solicitud', $application->student->applications()->latest('id')->first()));
+    }
+
+    public function test_flow_demo_seed_preserves_edited_and_deleted_records(): void
+    {
+        $followup = Followup::firstOrFail();
+        $followup->update(['title' => 'Título cambiado por el docente', 'status' => 'Realizado']);
+        $application = PracticeRequest::firstOrFail();
+        $application->update(['status' => 'Aprobada']);
+        $visit = Visit::firstOrFail();
+        $visit->update(['status' => 'Programada', 'scheduled_date' => '2026-12-01']);
+        $version = AcademicDocument::firstOrFail()->currentVersion;
+        $version->update(['status' => 'Requiere corrección', 'observation' => 'Conservar observación']);
+        $counts = [Followup::withTrashed()->count(), Visit::count(), PracticeRequest::count(), AcademicDocument::count(), DocumentVersion::count()];
+        $this->seed(\Database\Seeders\AcademicFlowSeeder::class);
+        $this->assertSame($counts, [Followup::withTrashed()->count(), Visit::count(), PracticeRequest::count(), AcademicDocument::count(), DocumentVersion::count()]);
+        $this->assertSame('Título cambiado por el docente', $followup->fresh()->title);
+        $this->assertSame('Aprobada', $application->fresh()->status);
+        $this->assertSame('Programada', $visit->fresh()->status);
+        $this->assertSame('Conservar observación', $version->fresh()->observation);
+        $followup->delete();
+        $this->seed(\Database\Seeders\AcademicFlowSeeder::class);
+        $this->assertSame($counts[0], Followup::withTrashed()->count());
+        $this->assertSoftDeleted('followups', ['id' => $followup->id]);
     }
 }

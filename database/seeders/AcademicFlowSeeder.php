@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\AcademicDocument;
 use App\Models\DocumentVersion;
 use App\Models\Visit;
+use App\Models\Followup;
 use App\Models\Practice;
 use App\Models\PracticeRequest;
 use Illuminate\Database\Seeder;
@@ -24,6 +25,12 @@ class AcademicFlowSeeder extends Seeder
             );
 
             Visit::firstOrCreate(['practice_id' => $practice->id], ['status' => 'Pendiente']);
+            if ($practice->teacher_id) {
+                Followup::withTrashed()->firstOrCreate(
+                    ['submission_key' => '00000000-0000-4000-8000-'.str_pad(dechex($practice->id), 12, '0', STR_PAD_LEFT)],
+                    ['practice_id' => $practice->id, 'teacher_id' => $practice->teacher_id, 'title' => 'Seguimiento de demostración', 'date' => today(), 'type' => 'Seguimiento', 'description' => 'Registro de desarrollo para demostrar el flujo académico.', 'status' => 'Pendiente'],
+                );
+            }
 
             foreach (array_keys(AcademicDocument::TYPES) as $type) {
                 $document = AcademicDocument::firstOrCreate(['practice_id' => $practice->id, 'type' => $type]);

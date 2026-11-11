@@ -2,6 +2,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentFlowController;
+use App\Http\Controllers\FollowupController;
 use App\Http\Controllers\StudentApplicationController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\TeacherPortalController;
@@ -85,6 +87,9 @@ Route::get('/coordinacion/documentos', [AcademicDocumentController::class, 'inde
 Route::get('/coordinacion/documentos/{document}', [AcademicDocumentController::class, 'show'])->whereNumber('document')->name('coordinacion.documento');
 Route::post('/coordinacion/documentos/{document}/revision', [AcademicDocumentController::class, 'review'])->whereNumber('document')->name('coordinacion.documento.review');
 
+Route::get('/coordinacion/seguimientos', [FollowupController::class, 'index'])->name('coordinacion.seguimientos');
+Route::get('/coordinacion/seguimientos/{followup}', [FollowupController::class, 'show'])->whereNumber('followup')->name('coordinacion.seguimiento');
+
 Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('coordinacion.visitas');
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
 
@@ -166,13 +171,9 @@ Route::get('/estudiante/solicitudes', [StudentApplicationController::class, 'ind
 Route::post('/estudiante/solicitudes', [StudentApplicationController::class, 'store'])->name('estudiante.solicitudes.store');
 Route::get('/estudiante/solicitudes/{application}', [StudentApplicationController::class, 'show'])->whereNumber('application')->name('estudiante.solicitud');
 
-Route::get('/estudiante', function () {
-    return view('estudiante.dashboard');
-})->name('estudiante.dashboard');
+Route::get('/estudiante', [StudentFlowController::class, 'dashboard'])->name('estudiante.dashboard');
 
-Route::get('/estudiante/practica', function () {
-    return view('estudiante.practica');
-})->name('estudiante.practica');
+Route::get('/estudiante/practica', [StudentFlowController::class, 'practice'])->name('estudiante.practica');
 
 Route::get('/estudiante/documentos', [AcademicDocumentController::class, 'index'])->name('estudiante.documentos');
 Route::post('/estudiante/documentos', [AcademicDocumentController::class, 'storeVersion'])->name('estudiante.documentos.store');
@@ -333,11 +334,12 @@ Route::post('/docente/visitas', [VisitController::class, 'store'])->name('docent
 Route::get('/docente/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('docente.visita');
 Route::post('/docente/visitas/{visit}', [VisitController::class, 'update'])->whereNumber('visit')->name('docente.visita.update');
 
-Route::get('/docente/seguimientos', function () {
-
-    return view('docente.seguimientos');
-
-})->name('docente.seguimientos');
+Route::get('/docente/seguimientos', [FollowupController::class, 'index'])->name('docente.seguimientos');
+Route::post('/docente/seguimientos', [FollowupController::class, 'store'])->name('docente.seguimientos.store');
+Route::get('/docente/seguimientos/{followup}', [FollowupController::class, 'show'])->whereNumber('followup')->name('docente.seguimiento');
+Route::put('/docente/seguimientos/{followup}', [FollowupController::class, 'update'])->whereNumber('followup')->name('docente.seguimiento.update');
+Route::patch('/docente/seguimientos/{followup}/estado', [FollowupController::class, 'changeStatus'])->whereNumber('followup')->name('docente.seguimiento.status');
+Route::delete('/docente/seguimientos/{followup}', [FollowupController::class, 'destroy'])->whereNumber('followup')->name('docente.seguimiento.destroy');
 
 
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');

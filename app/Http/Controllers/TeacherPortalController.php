@@ -25,7 +25,7 @@ class TeacherPortalController extends Controller
     private function page(Request $request, string $view)
     {
         $practices = Practice::whereHas('teacher', fn ($query) => $query->where('user_id', $request->user()->id))
-            ->with(['student.user', 'company', 'visits'])->get();
+            ->with(['student.user', 'company', 'visits', 'followups.teacher.user'])->get();
         // Estas tres pantallas conservan sus plantillas HTML de JavaScript.
         // Escapamos los textos antes de interpolarlos en esas plantillas.
         $practiceData = $practices->map(fn ($practice) => [
@@ -52,7 +52,20 @@ class TeacherPortalController extends Controller
             'fecha_realizada' => $visit->completed_date?->format('Y-m-d'),
         ]))->values();
 
-        return view($view, ['practiceData' => $practiceData, 'visitData' => $visitData]);
+        $followupData = $practices->flatMap(fn ($practice) => $practice->followups->map(fn ($followup) => [
+            'id' => $followup->id,
+            'student_id' => $practice->student_id,
+            'estudiante' => e($practice->student->user->name),
+            'cuenta' => e($practice->student->account_number),
+            'docente' => e($followup->teacher->user->name),
+            'fecha' => $followup->date->format('Y-m-d'),
+            'tipo' => e($followup->type),
+            'titulo' => e($followup->title),
+            'observacion' => e($followup->observation ?? $followup->description),
+            'estado' => e($followup->status),
+        ]))->values();
+
+        return view($view, ['practiceData' => $practiceData, 'visitData' => $visitData, 'followupData' => $followupData]);
     }
 
     public function practitioner(Request $request, int $id)

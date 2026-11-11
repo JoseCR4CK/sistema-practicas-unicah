@@ -18,7 +18,7 @@
         </span>
 
         <h1>
-            Andrea Martínez
+            {{ auth()->user()->name }}
         </h1>
 
         <p>
@@ -441,7 +441,7 @@
                     </span>
 
                     <h3>
-                        Disponible mañana
+                        {{ $visitStatus }}
                     </h3>
 
                     <p>
@@ -500,7 +500,7 @@
         <div class="student-progress-number">
 
             <strong>
-                58%
+                {{ $process?->progress ?? 0 }}%
             </strong>
 
             <span>
@@ -514,7 +514,7 @@
 
     <div class="student-main-progress">
 
-        <div style="width: 58%;"></div>
+        <div style="width: {{ $process?->progress ?? 0 }}%;"></div>
 
     </div>
 
@@ -522,28 +522,24 @@
     <div class="student-process-timeline">
 
 
-        <div class="student-process-step completed">
+        <div class="student-process-step {{ $applicationStatus === 'Aprobada' ? 'completed' : '' }}">
 
             <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
             </div>
 
-            <span>
-                Solicitud
-            </span>
+            <span><a href="{{ route('estudiante.solicitudes') }}">Solicitud</a></span><small>{{ $applicationStatus }}</small>
 
         </div>
 
 
-        <div class="student-process-step completed">
+        <div class="student-process-step">
 
             <div class="student-process-circle">
                 <i class="bi bi-check-lg"></i>
             </div>
 
-            <span>
-                Documentos
-            </span>
+            <span><a href="{{ route('estudiante.documentos') }}">Documentos</a></span><small>{{ $documentSummary }}</small>
 
         </div>
 
@@ -584,9 +580,7 @@
 
             </div>
 
-            <span>
-                Visita
-            </span>
+            <span>Visita</span><small>{{ $visitStatus }}</small>
 
         </div>
 

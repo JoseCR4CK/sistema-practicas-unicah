@@ -21,7 +21,7 @@
 <section class="content-card mb-4"><div class="card-header"><div><h2>Observación actual</h2></div></div><div class="coord-doc-observation">{{ $documento->currentVersion?->observation ?? 'Sin observaciones de revisión' }}</div></section>
 <section class="content-card"><div class="card-header"><div><h2>Historial de versiones</h2><p>Conserva la trazabilidad de correcciones y documentos presentados.</p></div></div>
     @foreach ($documento->versions->sortByDesc('version') as $version)
-        <article class="coord-doc-version p-3"><strong>Versión {{ $version->version }} · {{ $version->status }}</strong><p>{{ $version->uploaded_at->format('d/m/Y H:i') }} · {{ $version->uploader->name }}</p><p>{{ $version->submission_note }}</p><p>{{ $version->observation }}</p>@if ($version->reviewer)<small>{{ $version->reviewer->name }} · {{ $version->reviewed_at->format('d/m/Y H:i') }}</small>@endif</article>
+        <article class="coord-doc-version-row p-3"><strong>Versión {{ $version->version }} · {{ $version->status }}</strong><p>{{ $version->uploaded_at->format('d/m/Y H:i') }} · {{ $version->uploader->name }}</p><p>{{ $version->submission_note }}</p><p>{{ $version->observation }}</p>@if ($version->reviewer)<small>{{ $version->reviewer->name }} · {{ $version->reviewed_at->format('d/m/Y H:i') }}</small>@endif</article>
     @endforeach
 </section>
 @if (!$studentPortal && $documento->currentVersion)

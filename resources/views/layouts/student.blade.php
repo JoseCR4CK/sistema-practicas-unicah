@@ -208,13 +208,13 @@
             <div class="sidebar-user">
 
                 <div class="user-avatar">
-                    AM
+                    {{ Str::initials(auth()->user()->name, true) }}
                 </div>
 
                 <div>
 
                     <strong>
-                        Andrea Martínez
+                        {{ auth()->user()->name }}
                     </strong>
 
                     <span>
@@ -302,14 +302,14 @@
                 <div class="topbar-user">
 
                     <div class="user-avatar small">
-                        AM
+                    {{ Str::initials(auth()->user()->name, true) }}
                     </div>
 
 
                     <div class="topbar-user-info">
 
                         <strong>
-                            Andrea Martínez
+                            {{ auth()->user()->name }}
                         </strong>
 
                         <span>

@@ -170,7 +170,6 @@ const teacherVisits = {{ Illuminate\Support\Js::from($visitData) }};
 
 <script>
 
-const CURRENT_TEACHER_NAME = {{ Illuminate\Support\Js::from(e(auth()->user()->name)) }};
 
 
 /*
@@ -320,8 +319,7 @@ function renderTeacherStudentStats(practices) {
     const active =
         practices.filter(practice =>
 
-            Number(practice.progreso) < 100 &&
-            practice.etapa !== 'Finalización'
+            practice.status === 'ACTIVE'
 
         ).length;
 

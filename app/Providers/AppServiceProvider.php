@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
+        \Illuminate\Support\Facades\View::composer(['layouts.app', 'coordinacion.dashboard'], function ($view) {
             $view->with('pendingRequests', \App\Models\PracticeRequest::where('status', 'Pendiente')->count());
             $view->with('attentionDocuments', \App\Models\AcademicDocument::whereHas('currentVersion', fn ($query) => $query
                 ->whereIn('status', [\App\Models\DocumentVersion::PENDING, \App\Models\DocumentVersion::CORRECTION]))->count());

@@ -31,7 +31,7 @@
 
         <i class="bi bi-briefcase"></i>
 
-        Práctica activa
+        {{ $process?->statusLabel() ?? 'Sin práctica' }}
 
     </div>
 
@@ -52,22 +52,22 @@
         </span>
 
         <h2>
-            Grupo Tecnológico S.A.
+            {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
         </h2>
 
         <p>
-            Ingeniería en Ciencias de la Computación
+            {{ $student?->career ?? 'Sin carrera registrada' }}
         </p>
 
 
         <div class="practice-status-row">
 
             <span class="status-pill active">
-                En práctica
+                {{ $process?->stage ?? 'Sin práctica' }}
             </span>
 
             <span class="practice-code">
-                Proceso #PP-2026-00458
+                {{ $process ? 'Proceso #'.$process->id : 'Sin proceso registrado' }}
             </span>
 
         </div>
@@ -82,14 +82,14 @@
         </span>
 
         <strong>
-            58%
+            {{ $process?->progress ?? 0 }}%
         </strong>
 
         <div class="mini-progress">
 
             <div
                 class="mini-progress-fill"
-                style="width: 58%;"
+                style="width: {{ $process?->progress ?? 0 }}%;"
             ></div>
 
         </div>
@@ -123,7 +123,7 @@
             </span>
 
             <strong>
-                01/09/2026
+                {{ $process?->start_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -148,7 +148,7 @@
             </span>
 
             <strong>
-                30/11/2026
+                {{ $process?->end_date?->format('d/m/Y') ?? 'Pendiente' }}
             </strong>
 
         </div>
@@ -173,7 +173,7 @@
             </span>
 
             <strong>
-                Día 44
+                {{ $process?->currentDay() ?? 'No iniciada' }}
             </strong>
 
         </div>
@@ -198,7 +198,7 @@
             </span>
 
             <strong>
-                Activa
+                {{ $process?->statusLabel() ?? 'Sin práctica' }}
             </strong>
 
         </div>
@@ -250,22 +250,22 @@
             <div class="detail-content">
 
                 <h3>
-                    Grupo Tecnológico S.A.
+                    {{ $process?->company?->official_name ?? 'Sin empresa asignada' }}
                 </h3>
 
                 <span>
                     <i class="bi bi-geo-alt"></i>
-                    Tegucigalpa, Honduras
+                    {{ collect([$process?->company?->city, $process?->company?->department])->filter()->implode(', ') ?: 'Sin ubicación registrada' }}
                 </span>
 
                 <span>
                     <i class="bi bi-envelope"></i>
-                    contacto@grupotecnologico.hn
+                    {{ $process?->company?->email ?? 'Sin correo' }}
                 </span>
 
                 <span>
                     <i class="bi bi-telephone"></i>
-                    +504 2222-2222
+                    {{ $process?->company?->phone ?? 'Sin teléfono' }}
                 </span>
 
             </div>
@@ -311,22 +311,22 @@
             <div class="detail-content">
 
                 <h3>
-                    Ing. Roberto Martínez
+                    {{ $process?->companyResponsible?->full_name ?? 'Sin responsable asignado' }}
                 </h3>
 
                 <span>
                     <i class="bi bi-briefcase"></i>
-                    Gerente de Tecnología
+                    {{ $process?->companyResponsible?->position ?? 'Sin cargo registrado' }}
                 </span>
 
                 <span>
                     <i class="bi bi-envelope"></i>
-                    roberto@empresa.hn
+                    {{ $process?->companyResponsible?->email ?? 'Sin correo' }}
                 </span>
 
                 <span>
                     <i class="bi bi-telephone"></i>
-                    +504 9999-9999
+                    {{ $process?->companyResponsible?->phone ?? 'Sin teléfono' }}
                 </span>
 
             </div>
@@ -372,7 +372,7 @@
 
         <!-- SOLICITUD -->
 
-        <div class="practice-stage completed">
+        <div class="practice-stage">
 
             <div class="practice-stage-icon">
 
@@ -390,14 +390,14 @@
                     </strong>
 
                     <span>
-                        Aprobada por Coordinación Académica
+                        {{ $applicationStatus }}
                     </span>
 
                 </div>
 
 
-                <span class="badge success">
-                    Completada
+                <span class="badge info">
+                    {{ $applicationStatus }}
                 </span>
 
             </div>
@@ -408,7 +408,7 @@
 
         <!-- DOCUMENTOS -->
 
-        <div class="practice-stage completed">
+        <div class="practice-stage">
 
             <div class="practice-stage-icon">
 
@@ -426,14 +426,14 @@
                     </strong>
 
                     <span>
-                        Documentos revisados y aprobados
+                        {{ $documentSummary }}
                     </span>
 
                 </div>
 
 
-                <span class="badge success">
-                    Completada
+                <span class="badge info">
+                    {{ $documentSummary }}
                 </span>
 
             </div>
@@ -498,7 +498,7 @@
                     </strong>
 
                     <span>
-                        Actualmente te encuentras en el día 44
+                        Día de práctica: {{ $process?->currentDay() ?? 'No iniciada' }}
                     </span>
 
                 </div>
@@ -541,7 +541,7 @@
 
 
                 <span class="badge info">
-                    Próximamente
+                    {{ $visitStatus }}
                 </span>
 
             </div>

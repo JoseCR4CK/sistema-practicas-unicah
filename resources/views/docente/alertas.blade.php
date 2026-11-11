@@ -208,12 +208,11 @@ const teacherPractices = {{ Illuminate\Support\Js::from($practiceData) }};
 const teacherVisits = {{ Illuminate\Support\Js::from($visitData) }};
 </script>
 
-<script src="{{ asset('js/followups-store.js') }}"></script>
+<script>const teacherFollowups = {{ Illuminate\Support\Js::from($followupData) }};</script>
 
 
 <script>
 
-const CURRENT_TEACHER_NAME = {{ Illuminate\Support\Js::from(e(auth()->user()->name)) }};
 
 
 
@@ -261,20 +260,7 @@ function getTeacherVisits() { return teacherVisits; }
 |--------------------------------------------------------------------------
 */
 
-function getTeacherFollowups() {
-
-    if (!window.FollowupStore) {
-        return [];
-    }
-
-
-    return FollowupStore
-        .getAll()
-        .filter(item =>
-            item.docente === CURRENT_TEACHER_NAME
-        );
-
-}
+function getTeacherFollowups() { return teacherFollowups; }
 
 
 
