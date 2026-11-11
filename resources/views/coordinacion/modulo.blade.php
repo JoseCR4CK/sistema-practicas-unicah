@@ -75,11 +75,8 @@
                     line-height: 1.6;
                 "
             >
-                La interfaz de este módulo forma parte del
-                prototipo navegable del sistema. Sus operaciones,
-                integración con base de datos y funcionalidades
-                completas serán incorporadas durante las siguientes
-                etapas de desarrollo.
+                Esta sección todavía no tiene operaciones disponibles.
+                Puedes consultar la información registrada desde los módulos del menú.
             </p>
 
         </div>

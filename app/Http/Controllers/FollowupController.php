@@ -49,6 +49,7 @@ class FollowupController extends Controller
             $existing = Followup::withTrashed()->where('submission_key', $fields['submission_key'])->first();
             if ($existing) {
                 Gate::authorize('update', $existing);
+                abort_unless($existing->practice_id === $practice->id, 409, 'La clave corresponde a otro proceso.');
                 abort_if($existing->trashed(), 409, 'El seguimiento fue eliminado.');
                 return $existing;
             }

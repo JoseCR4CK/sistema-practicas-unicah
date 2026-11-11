@@ -291,13 +291,23 @@
 
         <div class="coord-practice-timeline">
             @foreach ($etapas as $indice => $etapa)
+                @php
+                    $estadoPersistente = match ($etapa) {
+                        'Visita' => $practica->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada',
+                        'Monografía' => $closing['monograph_state'],
+                        'Defensa' => $closing['defense_state'],
+                        default => null,
+                    };
+                    $completada = $estadoPersistente !== null ? in_array($estadoPersistente, ['Realizada', 'Aprobada'], true) : ($indiceEtapa !== false && $indice < $indiceEtapa);
+                    $actual = $estadoPersistente !== null ? in_array($estadoPersistente, ['Habilitada', 'Programada', 'En revisión', 'Requiere corrección', 'En coordinación'], true) : $indice === $indiceEtapa;
+                @endphp
                 <div @class([
                     'coord-practice-step',
-                    'completed' => $indiceEtapa !== false && $indice < $indiceEtapa,
-                    'active' => $indice === $indiceEtapa,
+                    'completed' => $completada,
+                    'active' => $actual,
                 ]) @if ($indice === $indiceEtapa) aria-current="step" @endif>
                     <div class="coord-practice-step-marker">
-                        @if ($indiceEtapa !== false && $indice < $indiceEtapa)
+                        @if ($completada)
                             <i class="bi bi-check-lg"></i>
                         @else
                             {{ $loop->iteration }}
@@ -358,7 +368,10 @@
 
                     <div>
                         <span>Estado</span>
-                        <strong>Pendiente de integración</strong>
+                        <strong>{{ $closing['monograph_state'] }}</strong>
+                        @if ($closing['monograph'])
+                            <a href="{{ route('coordinacion.monografia.show', $closing['monograph']) }}">Ver monografía</a>
+                        @endif
                     </div>
 
                 </div>
@@ -386,7 +399,7 @@
 
         <div class="coord-request-observation">
 
-            <p>Observaciones del prototipo pendientes de integración.</p>
+            <p>Consulta las observaciones registradas en cada solicitud, documento y actividad del proceso.</p>
 
         </div>
 

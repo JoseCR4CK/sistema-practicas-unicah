@@ -270,41 +270,7 @@ function getTeacherFollowups() { return teacherFollowups; }
 |--------------------------------------------------------------------------
 */
 
-function calculateAlertPracticeDay(start) {
 
-    if (!start) {
-        return 0;
-    }
-
-
-    const startDate =
-        new Date(
-            start + 'T00:00:00'
-        );
-
-
-    const today =
-        new Date();
-
-    today.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-
-    if (today < startDate) {
-        return 0;
-    }
-
-
-    return Math.floor(
-        (today - startDate) /
-        86400000
-    ) + 1;
-
-}
 
 
 
@@ -314,34 +280,7 @@ function calculateAlertPracticeDay(start) {
 |--------------------------------------------------------------------------
 */
 
-function getAlertVisitStatus(visit) {
-
-    if (visit.estado === 'Realizada') {
-        return 'Realizada';
-    }
-
-
-    if (visit.estado === 'Programada') {
-        return 'Programada';
-    }
-
-
-    if (visit.estado === 'Habilitada') {
-        return 'Habilitada';
-    }
-
-
-    const day =
-        calculateAlertPracticeDay(
-            visit.inicio_practica
-        );
-
-
-    return day >= 45
-        ? 'Habilitada'
-        : 'No habilitada';
-
-}
+function getAlertVisitStatus(visit) { return visit?.estado ?? 'Sin registro'; }
 
 
 
@@ -384,9 +323,7 @@ function buildTeacherAlerts() {
 
 
         const day =
-            calculateAlertPracticeDay(
-                visit.inicio_practica
-            );
+            visit.dia ?? 0;
 
 
         if (status === 'Habilitada') {
@@ -520,8 +457,7 @@ function buildTeacherAlerts() {
     practices.forEach(practice => {
 
         if (
-            practice.etapa ===
-            'Monografía'
+            practice.monografia_estado === 'En revisión'
         ) {
 
             alerts.push({

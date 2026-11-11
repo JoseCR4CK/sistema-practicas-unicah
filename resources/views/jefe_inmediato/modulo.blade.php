@@ -61,9 +61,8 @@
                 font-size: .74rem;
                 line-height: 1.6;
             ">
-                Esta sección forma parte del prototipo navegable.
-                Sus funcionalidades completas serán incorporadas
-                durante las siguientes etapas del proyecto.
+                Esta sección todavía no tiene operaciones disponibles.
+                Consulta tus practicantes vinculados desde el panel principal.
             </p>
 
         </div>

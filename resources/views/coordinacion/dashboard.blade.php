@@ -54,11 +54,11 @@
                 </span>
 
                 <strong>
-                    84
+                    {{ $practicasActivas }}
                 </strong>
 
                 <small>
-                    Estudiantes actualmente en proceso
+                    Prácticas actualmente en proceso
                 </small>
 
             </div>
@@ -174,7 +174,7 @@
                 </span>
 
                 <strong>
-                    5
+                    {{ $monographsInReview ?? '—' }}
                 </strong>
 
                 <small>
@@ -204,7 +204,7 @@
                 </span>
 
                 <strong>
-                    3
+                    {{ $defensesPending ?? '—' }}
                 </strong>
 
                 <small>
@@ -404,7 +404,7 @@
         <div class="col-12 col-xl-6">
 
             <a
-                href="{{ route('coordinacion.modulo', 'monografias') }}"
+                href="{{ route('coordinacion.monografias') }}"
                 class="coord-alert-card info"
             >
 
@@ -431,7 +431,7 @@
 
 
                     <strong>
-                        5 monografías se encuentran en revisión
+                        {{ $monographsInReview ?? '—' }} monografías se encuentran en revisión
                     </strong>
 
 
@@ -464,7 +464,7 @@
         <div class="col-12 col-xl-6">
 
             <a
-                href="{{ route('coordinacion.modulo', 'defensas') }}"
+                href="{{ route('coordinacion.defensas') }}"
                 class="coord-alert-card neutral"
             >
 
@@ -491,7 +491,7 @@
 
 
                     <strong>
-                        3 defensas están pendientes de calendarización
+                        {{ $defensesPending ?? '—' }} defensas están pendientes de calendarización
                     </strong>
 
 

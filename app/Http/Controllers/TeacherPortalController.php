@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Practice;
 use Illuminate\Http\Request;
+use App\Services\AcademicClosingSummary;
 
 class TeacherPortalController extends Controller
 {
@@ -39,6 +40,8 @@ class TeacherPortalController extends Controller
             'progreso' => $practice->progress,
             'inicio' => $practice->start_date?->format('Y-m-d'),
             'status' => $practice->status,
+            'dia' => $practice->currentDay(),
+            'monografia_estado' => e(app(AcademicClosingSummary::class)->forPractice($practice)['monograph_state']),
         ]);
         $visitData = $practices->flatMap(fn ($practice) => $practice->visits->map(fn ($visit) => [
             'id' => $visit->id,
@@ -47,6 +50,7 @@ class TeacherPortalController extends Controller
             'estudiante' => e($practice->student->user->name),
             'empresa' => e($practice->company?->official_name ?? 'Sin empresa asignada'),
             'inicio_practica' => $practice->start_date?->format('Y-m-d'),
+            'dia' => $practice->currentDay(),
             'estado' => $visit->effectiveStatus() === 'Pendiente' ? 'No habilitada' : $visit->effectiveStatus(),
             'fecha_programada' => $visit->scheduled_date?->format('Y-m-d'),
             'fecha_realizada' => $visit->completed_date?->format('Y-m-d'),
@@ -74,8 +78,10 @@ class TeacherPortalController extends Controller
             ->whereHas('teacher', fn ($query) => $query->where('user_id', $request->user()->id))
             ->with(['student.user', 'company', 'visits'])->orderByRaw('CASE WHEN status = ? THEN 0 ELSE 1 END', [Practice::ACTIVE])
             ->latest('id')->firstOrFail();
+        $closing = app(AcademicClosingSummary::class)->forPractice($practice);
 
         return view('docente.seguimiento', [
+            'monografia' => $closing['monograph'],
             'practicante' => [
                 'nombre' => $practice->student->user->name,
                 'cuenta' => $practice->student->account_number,
@@ -87,8 +93,8 @@ class TeacherPortalController extends Controller
                 'finalizacion' => $practice->end_date?->format('d/m/Y') ?? 'Pendiente',
                 'dia' => $practice->currentDay(),
                 'visita_estado' => $practice->visits->sortByDesc('id')->first()?->effectiveStatus() ?? 'Sin visita registrada',
-                'monografia_estado' => 'Pendiente de integración',
-                'defensa_estado' => 'Pendiente de integración',
+                'monografia_estado' => $closing['monograph_state'],
+                'defensa_estado' => $closing['defense_state'],
             ],
         ]);
     }

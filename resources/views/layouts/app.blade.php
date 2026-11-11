@@ -168,7 +168,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'ternas') }}"
+                href="{{ route('coordinacion.ternas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-people-fill"></i>
@@ -191,7 +191,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'monografias') }}"
+                href="{{ route('coordinacion.monografias') }}"
                 class="nav-item"
             >
                 <i class="bi bi-journal-text"></i>
@@ -203,7 +203,7 @@
 
 
             <a
-                href="{{ route('coordinacion.modulo', 'defensas') }}"
+                href="{{ route('coordinacion.defensas') }}"
                 class="nav-item"
             >
                 <i class="bi bi-mortarboard"></i>

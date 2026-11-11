@@ -444,7 +444,7 @@
 
         <!-- EMPRESA -->
 
-        <div class="practice-stage completed">
+        <div class="practice-stage {{ $process?->company ? 'completed' : 'pending' }}">
 
             <div class="practice-stage-icon">
 
@@ -458,18 +458,18 @@
                 <div>
 
                     <strong>
-                        Validación de empresa
+                        Empresa de práctica
                     </strong>
 
                     <span>
-                        Empresa y jefe inmediato confirmados
+                        {{ $process?->company?->official_name ?? 'Sin empresa asignada' }} · {{ $process?->companyResponsible?->full_name ?? 'Sin responsable asignado' }}
                     </span>
 
                 </div>
 
 
                 <span class="badge success">
-                    Completada
+                    {{ $process?->company ? 'Asignada' : 'Sin asignar' }}
                 </span>
 
             </div>
@@ -480,7 +480,7 @@
 
         <!-- PRACTICA -->
 
-        <div class="practice-stage active">
+        <div class="practice-stage {{ $process?->status === 'ACTIVE' ? 'active' : ($process?->status === 'COMPLETED' ? 'completed' : 'pending') }}">
 
             <div class="practice-stage-icon">
 
@@ -505,7 +505,7 @@
 
 
                 <span class="badge warning">
-                    En curso
+                    {{ $process?->statusLabel() ?? 'Sin práctica registrada' }}
                 </span>
 
             </div>
@@ -577,7 +577,7 @@
 
 
                 <span class="badge info">
-                    Pendiente
+                    {{ $closing['monograph_state'] }}
                 </span>
 
             </div>
@@ -606,14 +606,14 @@
                     </strong>
 
                     <span>
-                        Se habilitará después de aprobar la monografía
+                        Consulta el estado de la programación de tu defensa
                     </span>
 
                 </div>
 
 
                 <span class="badge info">
-                    Pendiente
+                    {{ $closing['defense_state'] }}
                 </span>
 
             </div>
@@ -730,41 +730,16 @@
 
 
         <div class="upcoming-event">
-
             <div class="event-date">
-
-                <strong>
-                    23
-                </strong>
-
-                <span>
-                    NOV
-                </span>
-
+                <strong>{{ $closing['deadline']?->format('d') ?? '—' }}</strong>
+                <span>{{ $closing['deadline']?->format('m/Y') ?? 'Pendiente' }}</span>
             </div>
-
-
             <div class="event-content">
-
-                <strong>
-                    Entrega de monografía
-                </strong>
-
-                <p>
-                    Fecha estimada de entrega antes
-                    de finalizar tu práctica.
-                </p>
-
+                <strong>Entrega de monografía</strong>
+                <p>{{ $closing['deadline']?->format('d/m/Y') ?? 'Fecha final de práctica pendiente' }}</p>
             </div>
-
-
-            <span class="event-status">
-                Pendiente
-            </span>
-
+            <span class="event-status">{{ $closing['monograph_state'] }}</span>
         </div>
-
-
 
         <div class="upcoming-event">
 

@@ -2,6 +2,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AcademicLoadController;
+use App\Http\Controllers\CompanyPortalController;
+use App\Http\Controllers\DefenseController;
+use App\Http\Controllers\CommitteeController;
+use App\Http\Controllers\MonographController;
 use App\Http\Controllers\StudentFlowController;
 use App\Http\Controllers\FollowupController;
 use App\Http\Controllers\StudentApplicationController;
@@ -29,7 +34,7 @@ Route::get('/', [
 Route::post('/login', [
     AuthController::class,
     'login'
-])->name('login.attempt');
+])->middleware('throttle:10,1')->name('login.attempt');
 
 Route::post('/logout', [
     AuthController::class,
@@ -61,6 +66,9 @@ Route::get('/coordinacion/estudiantes/{student}', [StudentController::class, 'sh
     ->whereNumber('student')->name('coordinacion.estudiante');
 
 Route::get('/coordinacion/docentes', [TeacherController::class, 'index'])->name('coordinacion.docentes');
+Route::get('/coordinacion/docentes/{teacher}/carga-academica', [AcademicLoadController::class, 'index'])->whereNumber('teacher')->name('coordinacion.carga-academica');
+Route::post('/coordinacion/docentes/{teacher}/carga-academica', [AcademicLoadController::class, 'store'])->whereNumber('teacher')->name('coordinacion.carga-academica.store');
+Route::put('/coordinacion/carga-academica/{load}', [AcademicLoadController::class, 'update'])->whereNumber('load')->name('coordinacion.carga-academica.update');
 Route::get('/coordinacion/docentes/{teacher}', [TeacherController::class, 'show'])
     ->whereNumber('teacher')->name('coordinacion.docente');
 
@@ -90,10 +98,36 @@ Route::post('/coordinacion/documentos/{document}/revision', [AcademicDocumentCon
 Route::get('/coordinacion/seguimientos', [FollowupController::class, 'index'])->name('coordinacion.seguimientos');
 Route::get('/coordinacion/seguimientos/{followup}', [FollowupController::class, 'show'])->whereNumber('followup')->name('coordinacion.seguimiento');
 
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/coordinacion/monografias', [MonographController::class, 'index'])->name('coordinacion.monografias');
+    Route::get('/coordinacion/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('coordinacion.monografia.show');
+    Route::post('/coordinacion/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('coordinacion.monografia.review');
+});
+
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/coordinacion/ternas', [CommitteeController::class, 'index'])->name('coordinacion.ternas');
+    Route::post('/coordinacion/ternas', [CommitteeController::class, 'store'])->name('coordinacion.ternas.store');
+    Route::get('/coordinacion/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('coordinacion.terna.show');
+    Route::put('/coordinacion/ternas/{committee}', [CommitteeController::class, 'update'])->whereNumber('committee')->name('coordinacion.terna.update');
+});
+
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/coordinacion/defensas', [DefenseController::class, 'index'])->name('coordinacion.defensas');
+    Route::post('/coordinacion/defensas', [DefenseController::class, 'store'])->name('coordinacion.defensas.store');
+    Route::get('/coordinacion/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('coordinacion.defensa.show');
+    Route::put('/coordinacion/defensas/{defense}/duracion', [DefenseController::class, 'duration'])->whereNumber('defense')->name('coordinacion.defensa.duration');
+    Route::post('/coordinacion/defensas/{defense}/opciones', [DefenseController::class, 'propose'])->whereNumber('defense')->name('coordinacion.defensa.options');
+    Route::post('/coordinacion/defensas/{defense}/opciones/{option}/confirmar', [DefenseController::class, 'confirm'])->whereNumber(['defense', 'option'])->scopeBindings()->name('coordinacion.defensa.confirm');
+    Route::post('/coordinacion/defensas/{defense}/realizada', [DefenseController::class, 'performed'])->whereNumber('defense')->name('coordinacion.defensa.performed');
+});
+
 Route::get('/coordinacion/visitas', [VisitController::class, 'index'])->name('coordinacion.visitas');
 Route::get('/coordinacion/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('coordinacion.visita');
 
 Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
+    if (in_array($modulo, ['solicitudes', 'practicas', 'empresas', 'documentos', 'visitas', 'ternas', 'monografias', 'defensas'], true)) {
+        return redirect()->route('coordinacion.'.$modulo);
+    }
 
     $modulos = [
 
@@ -117,25 +151,13 @@ Route::get('/coordinacion/modulo/{modulo}', function ($modulo) {
             'descripcion' => 'Revisión de documentos enviados por los estudiantes.'
         ],
 
-        'ternas' => [
-            'titulo' => 'Ternas',
-            'descripcion' => 'Asignación y seguimiento de ternas académicas.'
-        ],
 
         'visitas' => [
             'titulo' => 'Visitas',
             'descripcion' => 'Programación y seguimiento de visitas de práctica.'
         ],
 
-        'monografias' => [
-            'titulo' => 'Monografías',
-            'descripcion' => 'Seguimiento del proceso de revisión de monografías.'
-        ],
 
-        'defensas' => [
-            'titulo' => 'Defensas',
-            'descripcion' => 'Gestión y calendarización de defensas.'
-        ],
 
         'reportes' => [
             'titulo' => 'Reportes',
@@ -179,20 +201,26 @@ Route::get('/estudiante/documentos', [AcademicDocumentController::class, 'index'
 Route::post('/estudiante/documentos', [AcademicDocumentController::class, 'storeVersion'])->name('estudiante.documentos.store');
 Route::get('/estudiante/documentos/{document}', [AcademicDocumentController::class, 'show'])->whereNumber('document')->name('estudiante.documento');
 
-Route::get('/estudiante/monografia', function () {
-    return view('estudiante.monografia');
-})->name('estudiante.monografia');
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/estudiante/monografia', [MonographController::class, 'index'])->name('estudiante.monografia');
+    Route::post('/estudiante/monografia', [MonographController::class, 'submit'])->name('estudiante.monografia.submit');
+    Route::get('/estudiante/monografia/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('estudiante.monografia.show');
+});
 
-Route::get('/estudiante/defensa', function () {
-    return view('estudiante.defensa');
-})->name('estudiante.defensa');
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/estudiante/terna', [CommitteeController::class, 'index'])->name('estudiante.terna');
+    Route::get('/estudiante/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('estudiante.terna.show');
+});
+
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/estudiante/defensa', [DefenseController::class, 'index'])->name('estudiante.defensa');
+    Route::get('/estudiante/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('estudiante.defensa.show');
+});
 
 Route::get('/estudiante/visita', [VisitController::class, 'index'])->name('estudiante.visita');
 Route::get('/estudiante/visitas/{visit}', [VisitController::class, 'show'])->whereNumber('visit')->name('estudiante.visita.show');
 
-Route::get('/estudiante/empresa', function () {
-    return view('estudiante.empresa');
-})->name('estudiante.empresa');
+Route::get('/estudiante/empresa', [StudentFlowController::class, 'company'])->name('estudiante.empresa');
 
 Route::get('/estudiante/notas', function () {
     return view('estudiante.notas');
@@ -210,9 +238,7 @@ Route::get('/estudiante/agenda', function () {
     return view('estudiante.agenda');
 })->name('estudiante.agenda');
 
-Route::get('/estudiante/docente', function () {
-    return view('estudiante.docente');
-})->name('estudiante.docente');
+Route::get('/estudiante/docente', [StudentFlowController::class, 'teacher'])->name('estudiante.docente');
 
 Route::get('/estudiante/modulo/{modulo}', function ($modulo) {
 
@@ -278,9 +304,7 @@ Route::middleware([
     'role:JEFE_INMEDIATO',
 ])->group(function () {
 
-Route::get('/jefe-inmediato', function () {
-    return view('jefe_inmediato.dashboard');
-})->name('jefe.dashboard');
+Route::get('/jefe-inmediato', [CompanyPortalController::class, 'dashboard'])->name('jefe.dashboard');
 
 Route::get('/jefe-inmediato/modulo/{modulo}', function ($modulo) {
 
@@ -342,10 +366,42 @@ Route::patch('/docente/seguimientos/{followup}/estado', [FollowupController::cla
 Route::delete('/docente/seguimientos/{followup}', [FollowupController::class, 'destroy'])->whereNumber('followup')->name('docente.seguimiento.destroy');
 
 
+Route::middleware('closing.schema:monographs')->group(function () {
+    Route::get('/docente/monografias', [MonographController::class, 'index'])->name('docente.monografias');
+    Route::get('/docente/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('docente.monografia.show');
+    Route::post('/docente/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('docente.monografia.review');
+});
+
+Route::middleware('closing.schema:committees')->group(function () {
+    Route::get('/docente/ternas', [CommitteeController::class, 'index'])->name('docente.ternas');
+    Route::get('/docente/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('docente.terna.show');
+});
+
+Route::middleware('closing.schema:defenses')->group(function () {
+    Route::get('/docente/defensas', [DefenseController::class, 'index'])->name('docente.defensas');
+    Route::get('/docente/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('docente.defensa.show');
+});
+
 Route::get('/docente/alertas', [TeacherPortalController::class, 'alerts'])->name('docente.alertas');
 
-Route::get('/docente/carga-academica', function () {
-    return view('docente.carga-academica');
-})->name('docente.carga-academica');
+Route::get('/docente/carga-academica', [AcademicLoadController::class, 'index'])->name('docente.carga-academica');
+Route::post('/docente/carga-academica', [AcademicLoadController::class, 'store'])->name('docente.carga-academica.store');
+Route::put('/docente/carga-academica/{load}', [AcademicLoadController::class, 'update'])->whereNumber('load')->name('docente.carga-academica.update');
 
+});
+
+Route::middleware(['auth', 'closing.schema:committees'])->group(function () {
+    Route::get('/academico/ternas', [CommitteeController::class, 'index'])->name('academico.ternas');
+    Route::get('/academico/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('academico.terna.show');
+});
+Route::middleware(['auth', 'closing.schema:monographs'])->group(function () {
+    Route::get('/academico/monografias/{monograph}', [MonographController::class, 'show'])->whereNumber('monograph')->name('academico.monografia.show');
+    Route::post('/academico/monografias/{monograph}/revision', [MonographController::class, 'review'])->whereNumber('monograph')->name('academico.monografia.review');
+});
+
+Route::middleware(['auth', 'closing.schema:defenses'])->group(function () {
+    Route::get('/academico/defensas', [DefenseController::class, 'index'])->name('academico.defensas');
+    Route::get('/academico/defensas/{defense}', [DefenseController::class, 'show'])->whereNumber('defense')->name('academico.defensa.show');
+    Route::post('/academico/defensas/{defense}/opciones/{option}/disponibilidad', [DefenseController::class, 'respond'])->whereNumber(['defense', 'option'])->scopeBindings()->name('academico.defensa.respond');
+    Route::post('/academico/defensas/{defense}/clases', [DefenseController::class, 'addClassBlock'])->whereNumber('defense')->name('academico.defensa.classes');
 });

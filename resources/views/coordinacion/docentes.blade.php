@@ -107,11 +107,11 @@
             <div>
 
                 <span>
-                    Visitas próximas
+                    Visitas por atender
                 </span>
 
                 <strong>
-                    <abbr title="Pendiente de integrar con Visitas">—</abbr>
+                    {{ $visitasPorAtender }}
                 </strong>
 
             </div>
@@ -138,7 +138,7 @@
                 </span>
 
                 <strong>
-                    <abbr title="Pendiente de integrar con Alertas">—</abbr>
+                    {{ $docentesConAlertas }}
                 </strong>
 
             </div>
@@ -243,8 +243,8 @@
                     <strong>{{ $docente->students_count }}</strong>
                 </div>
                 <div class="coord-teacher-data">
-                    <span>Visitas próximas</span>
-                    <strong><abbr title="Pendiente de integrar con Visitas">—</abbr></strong>
+                    <span>Visitas por atender</span>
+                    <strong>{{ $docente->upcoming_visits_count }}</strong>
                 </div>
                 <div class="coord-teacher-data">
                     <span>Prácticas activas</span>

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use App\Services\AcademicClosingSummary;
 
 class StudentController extends Controller
 {
@@ -35,10 +36,11 @@ class StudentController extends Controller
     public function dashboard(): View
     {
         return view('coordinacion.dashboard', [
+            'practicasActivas' => Practice::where('status', Practice::ACTIVE)->count(),
             'solicitudesPendientes' => PracticeRequest::where('status', 'Pendiente')->with('student.user')->latest('submitted_at')->get(),
             'visitasProgramadas' => Visit::where('status', 'Programada')->count(),
             'visitasHabilitadas' => Visit::with('practice')->get()->filter(fn ($visit) => $visit->effectiveStatus() === 'Habilitada')->count(),
-        ]);
+        ] + app(AcademicClosingSummary::class)->dashboardCounts());
     }
 
     public function index(Request $request): View
@@ -99,6 +101,7 @@ class StudentController extends Controller
     {
         return view('coordinacion.expediente', [
             'estudiante' => $this->studentData($student->load(self::RELATIONS)),
+            'closing' => app(AcademicClosingSummary::class)->forPractice($student->preferredPractice()),
         ]);
     }
 
