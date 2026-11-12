@@ -31,6 +31,7 @@
         rel="stylesheet"
         href="{{ asset('css/app.css') }}"
     >
+<link rel="stylesheet" href="{{ asset('css/presentation.css') }}">
 </head>
 
 
@@ -57,7 +58,7 @@
             <button
                 type="button"
                 class="sidebar-close"
-                id="sidebarClose"
+                id="sidebarClose" aria-label="Cerrar menú"
             >
                 <i class="bi bi-x-lg"></i>
             </button>
@@ -175,7 +176,7 @@
                 <button
                     type="button"
                     class="menu-button"
-                    id="menuButton"
+                    id="menuButton" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"
                 >
                     <i class="bi bi-list"></i>
                 </button>
@@ -256,57 +257,7 @@
 
 
 
-<script>
-
-    const sidebar =
-        document.getElementById('sidebar');
-
-    const menuButton =
-        document.getElementById('menuButton');
-
-    const sidebarClose =
-        document.getElementById('sidebarClose');
-
-    const sidebarOverlay =
-        document.getElementById('sidebarOverlay');
-
-
-    function openSidebar() {
-
-        sidebar.classList.add('open');
-
-        sidebarOverlay.classList.add('show');
-
-    }
-
-
-    function closeSidebar() {
-
-        sidebar.classList.remove('open');
-
-        sidebarOverlay.classList.remove('show');
-
-    }
-
-
-    menuButton.addEventListener(
-        'click',
-        openSidebar
-    );
-
-
-    sidebarClose.addEventListener(
-        'click',
-        closeSidebar
-    );
-
-
-    sidebarOverlay.addEventListener(
-        'click',
-        closeSidebar
-    );
-
-</script>
+<script src="{{ asset('js/navigation.js') }}" defer></script>
 
 
 @stack('scripts')

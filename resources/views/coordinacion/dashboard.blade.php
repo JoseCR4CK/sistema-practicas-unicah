@@ -311,7 +311,7 @@
 
 
                     <strong>
-                        {{ $attentionDocuments }} documentos requieren atención
+                        {{ $attentionDocuments }} {{ $attentionDocuments === 1 ? 'documento requiere' : 'documentos requieren' }} atención
                     </strong>
 
 
@@ -371,7 +371,7 @@
 
 
                     <strong>
-                        {{ $visitasHabilitadas }} visitas habilitadas
+                        {{ $visitasHabilitadas }} {{ $visitasHabilitadas === 1 ? 'visita habilitada' : 'visitas habilitadas' }}
                     </strong>
 
 
@@ -431,7 +431,7 @@
 
 
                     <strong>
-                        {{ $monographsInReview ?? '—' }} monografías se encuentran en revisión
+                        {{ $monographsInReview ?? '—' }} {{ $monographsInReview === 1 ? 'monografía se encuentra' : 'monografías se encuentran' }} en revisión
                     </strong>
 
 
@@ -491,7 +491,7 @@
 
 
                     <strong>
-                        {{ $defensesPending ?? '—' }} defensas están pendientes de calendarización
+                        {{ $defensesPending ?? '—' }} {{ $defensesPending === 1 ? 'defensa está pendiente' : 'defensas están pendientes' }} de calendarización
                     </strong>
 
 

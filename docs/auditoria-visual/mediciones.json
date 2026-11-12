@@ -1,0 +1,1586 @@
+{
+  "sizes": [
+    1440,
+    1100,
+    820,
+    390
+  ],
+  "checks": [
+    {
+      "path": "/coordinacion",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Dashboard | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/estudiantes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Estudiantes | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/docentes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Docentes de seguimiento | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/empresas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresas | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/practicas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Prácticas | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/solicitudes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Solicitudes | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/documentos",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Documentos | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/visitas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/seguimientos",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/monografias",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/ternas",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/defensas",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/practicas/2",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Detalle de práctica | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/docentes/1",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle del docente de seguimiento | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/docentes/1/carga-academica",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/practicas/2",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Detalle de práctica | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/docentes/1",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle del docente de seguimiento | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/docentes/1/carga-academica",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/practicas/2",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Detalle de práctica | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/docentes/1",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle del docente de seguimiento | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/docentes/1/carga-academica",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Panel del docente | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/practicantes",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis practicantes | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/visitas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/seguimientos",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/alertas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Alertas | Portal del docente",
+      "width": 1440
+    },
+    {
+      "path": "/docente/carga-academica",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/monografias",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/ternas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/defensas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente/practicantes/2",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Seguimiento de practicante | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/docente",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Panel del docente | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/practicantes",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis practicantes | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/visitas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/seguimientos",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/alertas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Alertas | Portal del docente",
+      "width": 1100
+    },
+    {
+      "path": "/docente/carga-academica",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/monografias",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/ternas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/defensas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente/practicantes/2",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Seguimiento de practicante | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/docente",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Panel del docente | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/practicantes",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis practicantes | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/visitas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/seguimientos",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/alertas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Alertas | Portal del docente",
+      "width": 820
+    },
+    {
+      "path": "/docente/carga-academica",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/monografias",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/ternas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/defensas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente/practicantes/2",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Seguimiento de practicante | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/docente",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Panel del docente | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/practicantes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis practicantes | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/visitas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/seguimientos",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/alertas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Alertas | Portal del docente",
+      "width": 390
+    },
+    {
+      "path": "/docente/carga-academica",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/monografias",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/ternas",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/defensas",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/docente/practicantes/2",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Seguimiento de practicante | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi Práctica Profesional | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/practica",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi práctica | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/solicitudes",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis solicitudes | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/documentos",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis documentos | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/empresa",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/docente",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Docente asignado | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/visita",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/monografia",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/terna",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/defensa",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi Práctica Profesional | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/practica",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi práctica | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/solicitudes",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis solicitudes | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/documentos",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis documentos | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/empresa",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/docente",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Docente asignado | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/visita",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/monografia",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/terna",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante/defensa",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/estudiante",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi Práctica Profesional | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/practica",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi práctica | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/solicitudes",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis solicitudes | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/documentos",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis documentos | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/empresa",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/docente",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Docente asignado | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/visita",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/monografia",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/terna",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante/defensa",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/estudiante",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi Práctica Profesional | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/practica",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Mi práctica | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/solicitudes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis solicitudes | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/documentos",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis documentos | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/empresa",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/docente",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Docente asignado | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/visita",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/monografia",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/terna",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/defensa",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/agenda",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Mi agenda | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/notas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis notas | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/pendientes",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis pendientes | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/bitacora",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Mi bitácora | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/estudiante/agenda",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mi agenda | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/notas",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis notas | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/pendientes",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mis pendientes | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/estudiante/bitacora",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Mi bitácora | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/jefe-inmediato",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Jefe inmediato | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/jefe-inmediato/modulo/practicante",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Practicante | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/jefe-inmediato/modulo/empresa",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/jefe-inmediato/modulo/seguimiento",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimiento | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/jefe-inmediato",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Jefe inmediato | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/jefe-inmediato/modulo/practicante",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Practicante | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/jefe-inmediato/modulo/empresa",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/jefe-inmediato/modulo/seguimiento",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimiento | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/jefe-inmediato",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Jefe inmediato | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/jefe-inmediato/modulo/practicante",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Practicante | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/jefe-inmediato/modulo/empresa",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/jefe-inmediato/modulo/seguimiento",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimiento | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/jefe-inmediato",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Jefe inmediato | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/jefe-inmediato/modulo/practicante",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Practicante | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/jefe-inmediato/modulo/empresa",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/jefe-inmediato/modulo/seguimiento",
+      "body": 390,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimiento | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/visual-audit-fixture.html",
+      "body": 1440,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Revisión visual de contenido extenso",
+      "width": 1440
+    },
+    {
+      "path": "/visual-audit-fixture.html",
+      "body": 1085,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Revisión visual de contenido extenso",
+      "width": 1100
+    },
+    {
+      "path": "/visual-audit-fixture.html",
+      "body": 805,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Revisión visual de contenido extenso",
+      "width": 820
+    },
+    {
+      "path": "/visual-audit-fixture.html",
+      "body": 375,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Revisión visual de contenido extenso",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Dashboard | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/estudiantes",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Estudiantes | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/docentes",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Docentes de seguimiento | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/empresas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresas | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/practicas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Prácticas | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/solicitudes",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Solicitudes | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/documentos",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Documentos | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/visitas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/seguimientos",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/monografias",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/ternas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/defensas",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Dashboard | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/estudiantes",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Estudiantes | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/docentes",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Docentes de seguimiento | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/empresas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresas | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/practicas",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Prácticas | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/solicitudes",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Solicitudes | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/documentos",
+      "body": 1085,
+      "groups": [],
+      "overflow": false,
+      "title": "Documentos | Coordinación Académica",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/visitas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/seguimientos",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/monografias",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/ternas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion/defensas",
+      "body": 1100,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 1100
+    },
+    {
+      "path": "/coordinacion",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Dashboard | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/estudiantes",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Estudiantes | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/docentes",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Docentes de seguimiento | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/empresas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Empresas | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/practicas",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Prácticas | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/solicitudes",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Solicitudes | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/documentos",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Documentos | Coordinación Académica",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/visitas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Visitas | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/seguimientos",
+      "body": 805,
+      "groups": [],
+      "overflow": false,
+      "title": "Seguimientos | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/monografias",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/ternas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Terna | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/defensas",
+      "body": 820,
+      "groups": [],
+      "overflow": false,
+      "title": "Defensa | UNICAH",
+      "width": 820
+    },
+    {
+      "path": "/coordinacion/monografias/1",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/monografias/1",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Monografía | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/documentos/15",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de documento | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/documentos/15",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de documento | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/visitas/2",
+      "body": 1440,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de visita | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/visitas/2",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de visita | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/empresas/3",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de empresa | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/empresas/3",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de empresa | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/solicitudes/1",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de solicitud | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/solicitudes/1",
+      "body": 375,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle de solicitud | UNICAH",
+      "width": 390
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/estudiantes/2",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Expediente del estudiante | Coordinación Académica",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/practicas/2",
+      "body": 1425,
+      "groups": [
+        3,
+        3,
+        2
+      ],
+      "overflow": false,
+      "title": "Detalle de práctica | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/docentes/1",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Detalle del docente de seguimiento | UNICAH",
+      "width": 1440
+    },
+    {
+      "path": "/coordinacion/docentes/1/carga-academica",
+      "body": 1425,
+      "groups": [],
+      "overflow": false,
+      "title": "Carga académica | UNICAH",
+      "width": 1440
+    }
+  ]
+}

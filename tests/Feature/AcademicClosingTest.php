@@ -224,11 +224,13 @@ class AcademicClosingTest extends TestCase
         $practice->update(['stage' => 'Monografía']);
         $this->actingAs($practice->teacher->user);
         $html = $this->get(route('docente.practicante', $practice->student_id))->assertOk()->getContent();
-        preg_match_all('/class="teacher-process-step([^\"]*)"[^>]*>(.*?)<\/strong>\s*<span>(.*?)<\/span>/s', $html, $steps, PREG_SET_ORDER);
-        $visitStep = collect($steps)->first(fn ($step) => str_contains($step[2], '>Visita<') || preg_match('/<strong>\s*Visita\s*$/', $step[2]));
+        $document = new \DOMDocument();
+        @$document->loadHTML('<?xml encoding="UTF-8">'.$html);
+        $xpath = new \DOMXPath($document);
+        $visitStep = $xpath->query('//*[@data-stage="Visita"]')->item(0);
         $this->assertNotNull($visitStep);
-        $this->assertStringNotContainsString('completed', $visitStep[1]);
-        $this->assertStringContainsString('Sin visita registrada', $visitStep[3]);
+        $this->assertStringNotContainsString('completed', $visitStep->getAttribute('class'));
+        $this->assertStringContainsString('Sin visita registrada', $visitStep->textContent);
         $this->post(route('docente.monografia.review', $monograph), [
             'review_id' => $technical->id, 'status' => 'Requiere corrección', 'observation' => 'Precisar resultados',
         ])->assertRedirect();

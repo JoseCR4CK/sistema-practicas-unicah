@@ -122,8 +122,8 @@
 
                 <div class="form-group">
 
-                    <label for="usuario">
-                        Usuario o correo institucional
+                    <label for="dni">
+                        Número de cuenta / DNI
                     </label>
 
 

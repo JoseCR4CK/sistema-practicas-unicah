@@ -289,7 +289,9 @@
         </div>
 
 
-        <div class="coord-practice-timeline">
+        @php
+            $processSteps = [];
+        @endphp
             @foreach ($etapas as $indice => $etapa)
                 @php
                     $estadoPersistente = match ($etapa) {
@@ -300,25 +302,21 @@
                     };
                     $completada = $estadoPersistente !== null ? in_array($estadoPersistente, ['Realizada', 'Aprobada'], true) : ($indiceEtapa !== false && $indice < $indiceEtapa);
                     $actual = $estadoPersistente !== null ? in_array($estadoPersistente, ['Habilitada', 'Programada', 'En revisión', 'Requiere corrección', 'En coordinación'], true) : $indice === $indiceEtapa;
+                    $processSteps[] = [
+                        'name' => $etapa === 'Documentación' ? 'Documentos' : $etapa,
+                        'state' => $estadoPersistente ?? ($actual ? 'Actual' : ($completada ? 'Etapa anterior' : 'Pendiente')),
+                        'icon' => match ($etapa) {
+                            'Solicitud' => 'bi-file-earmark-text', 'Documentación' => 'bi-files',
+                            'Empresa' => 'bi-buildings', 'Práctica' => 'bi-briefcase',
+                            'Visita' => 'bi-calendar-check', 'Monografía' => 'bi-journal-text',
+                            'Defensa' => 'bi-mortarboard', default => 'bi-flag',
+                        },
+                        'class' => trim(($completada ? 'completed' : '').' '.($actual ? 'active' : '')),
+                    ];
                 @endphp
-                <div @class([
-                    'coord-practice-step',
-                    'completed' => $completada,
-                    'active' => $actual,
-                ]) @if ($indice === $indiceEtapa) aria-current="step" @endif>
-                    <div class="coord-practice-step-marker">
-                        @if ($completada)
-                            <i class="bi bi-check-lg"></i>
-                        @else
-                            {{ $loop->iteration }}
-                        @endif
-                    </div>
-                    <span>{{ $etapa === 'Documentación' ? 'Documentos' : $etapa }}</span>
-                </div>
             @endforeach
-        </div>
-
-    </section>
+        <x-practice-process :steps="$processSteps" />
+</section>
 
 
 

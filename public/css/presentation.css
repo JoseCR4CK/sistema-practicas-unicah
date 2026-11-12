@@ -1,0 +1,353 @@
+/* Presentación compartida. No determina estados ni secuencias académicas. */
+.practice-process-scroll {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 20px 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #bdcbd7 transparent;
+}
+
+.practice-process-scroll:focus-visible {
+    outline: 2px solid var(--unicah-blue);
+    outline-offset: 3px;
+    border-radius: 8px;
+}
+
+.practice-stages-card > .practice-process-scroll {
+    padding-inline: 16px;
+}
+
+.practice-process {
+    display: grid;
+    grid-template-columns: 3fr 3fr 2fr;
+    align-items: stretch;
+    gap: 20px;
+    min-width: 900px;
+}
+
+.practice-process-group {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    min-width: 0;
+    column-gap: 12px;
+}
+
+.practice-process-group:last-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.practice-process-group + .practice-process-group {
+    border-inline-start: 1px solid var(--border);
+    padding-inline-start: 20px;
+}
+
+.practice-process-step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    text-align: center;
+    row-gap: 7px;
+}
+
+.practice-process-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    top: 20px;
+    left: calc(50% + 25px);
+    width: calc(100% - 38px);
+    background: var(--border);
+}
+
+.practice-process-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #edf2f5;
+    color: #738495;
+    font-size: 17px;
+    line-height: 1;
+}
+
+.practice-process-step.completed .practice-process-icon {
+    background: var(--success);
+    color: var(--white);
+}
+
+.practice-process-step.active .practice-process-icon {
+    background: var(--unicah-gold);
+    color: var(--unicah-blue-dark);
+}
+
+.practice-process-name,
+.practice-process-state,
+.practice-process-detail {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
+.practice-process-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--unicah-blue-dark);
+}
+
+.practice-process-name a {
+    color: inherit;
+    text-underline-offset: 3px;
+}
+
+.practice-process-state {
+    color: var(--text-gray);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.practice-process-detail {
+    color: var(--text-gray);
+    font-size: 11px;
+}
+
+/* Contenido dinámico: conservar el ancho de cards y desplazar solo las tablas. */
+.main-panel,
+.main-content,
+.main-content .content-card,
+.main-content [class*="col-"] {
+    min-width: 0;
+}
+
+.main-content .page-header,
+.main-content .card-header {
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.main-content .page-header > div,
+.main-content .card-header > div,
+.sidebar-user > div,
+.teacher-load-row-main,
+.company-student-main {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.main-content .card-header h2 {
+    line-height: 1.35;
+}
+
+.main-content .btn,
+.main-content .primary-button,
+.main-content .secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    line-height: 1.35;
+    white-space: normal;
+}
+
+.main-content .btn > i,
+.main-content .primary-button > i,
+.main-content .secondary-button > i {
+    flex-shrink: 0;
+}
+
+.main-content .form-label {
+    display: block;
+    line-height: 1.4;
+    margin-bottom: 7px;
+}
+
+.main-content .table-container,
+.main-content .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+.main-content .data-table th,
+.main-content .data-table td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    line-height: 1.5;
+    font-size: 12px;
+}
+
+.teacher-load-stat span,
+.coord-teacher-stat span,
+.stat-info > span,
+.company-stat-card span,
+.teacher-dashboard-stat span {
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.teacher-load-stat strong,
+.coord-teacher-stat strong,
+.stat-info > strong,
+.company-stat-card strong,
+.teacher-dashboard-stat strong {
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.main-content .summary-block > span,
+.main-content .coord-request-data-grid > div > span,
+.main-content .teacher-info-item > span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.main-content .summary-block > strong,
+.main-content .coord-request-data-grid > div > strong,
+.main-content .teacher-info-item > strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.topbar-user-info {
+    min-width: 0;
+    max-width: 230px;
+}
+
+.topbar-user-info strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.teacher-load-profile strong {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.main-content .modal .form-control,
+.main-content .modal .form-select {
+    min-height: 40px;
+    font-size: 14px;
+}
+
+.main-content .modal .form-label {
+    font-size: 12px;
+}
+
+.main-content .modal textarea.form-control {
+    min-height: 96px;
+}
+
+.main-content .data-table td strong,
+.main-content .data-table td small {
+    display: block;
+}
+
+.main-content .data-table td small {
+    margin-top: 4px;
+}
+
+.main-content .badge,
+.main-content .status-pill {
+    max-width: 100%;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.teacher-load-profile > div,
+.teacher-load-row-time,
+.teacher-load-row-days,
+.summary-block,
+.teacher-info-item,
+.company-simple-info > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.teacher-load-period {
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: end;
+}
+
+.teacher-load-period > div {
+    flex: 1 1 180px;
+    min-width: 0;
+}
+
+@media (max-width: 767px) {
+    .practice-process-scroll {
+        padding: 12px 0;
+    }
+
+    .practice-process {
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .practice-process-group,
+    .practice-process-group:last-child {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 12px;
+    }
+
+    .practice-process-group + .practice-process-group {
+        border-inline-start: 0;
+        border-top: 1px solid var(--border);
+        padding-inline-start: 0;
+        padding-top: 18px;
+    }
+
+    .practice-process-name {
+        font-size: 12px;
+    }
+
+    .practice-process-state {
+        font-size: 11px;
+    }
+
+    .main-content .page-header > div,
+    .main-content .card-header > div {
+        flex: 1 1 100%;
+    }
+
+    .main-content .page-header h1 {
+        overflow-wrap: anywhere;
+    }
+
+    .main-content .data-table {
+        min-width: 640px;
+    }
+
+    .main-content .card-header > .btn {
+        width: auto;
+        max-width: 100%;
+    }
+}
+
+@media print {
+    .practice-process-scroll {
+        overflow: visible;
+    }
+
+    .practice-process {
+        min-width: 0;
+    }
+}
