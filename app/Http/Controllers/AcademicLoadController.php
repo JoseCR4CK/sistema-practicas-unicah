@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicLoad;
+use App\Models\AcademicCareer;
+use App\Services\AcademicClassTime;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,16 +25,26 @@ class AcademicLoadController extends Controller
     public function index(Request $request, ?Teacher $teacher = null)
     {
         $teacher = $this->teacher($request, $teacher);
-        $filters = $request->validate(['year' => ['nullable', 'integer', 'between:1900,2200'], 'period' => ['nullable', 'string', 'max:80']]);
-        $query = $teacher->academicLoads()->with('changes.user')->orderByDesc('academic_year')->orderBy('academic_period')->orderBy('starts_at');
+        $filters = $request->validate(['year' => ['nullable', 'integer', 'between:1900,2200'], 'period' => ['nullable', Rule::in(array_keys(AcademicLoad::PERIODS))]]);
+        $query = $teacher->academicLoads()->with(['changes.user', 'catalogSubject', 'catalogCareer'])->orderByDesc('academic_year')->orderBy('academic_period')->orderBy('starts_at');
         if ($filters['year'] ?? null) {
             $query->where('academic_year', $filters['year']);
         }
         if ($filters['period'] ?? null) {
-            $query->where('academic_period', $filters['period']);
+            $query->whereIn('academic_period', AcademicLoad::periodAliases($filters['period']));
         }
 
-        return view('academic.loads.index', ['teacher' => $teacher->load('user'), 'loads' => $query->get(), 'filters' => $filters]);
+        $careers = AcademicCareer::where('status', 'ACTIVE')->with(['subjects' => fn ($query) => $query->where('status', 'ACTIVE')->orderBy('name')])->orderBy('name')->get();
+        $catalog = $careers->map(fn ($career) => [
+            'id' => $career->id, 'name' => $career->name,
+            'subjects' => $career->subjects->map(fn ($subject) => [
+                'id' => $subject->id, 'name' => $subject->name, 'code' => $subject->code,
+                'credits' => $subject->credits, 'weekly_class_hours' => $subject->confirmedWeeklyHours(),
+                'allowed_minutes' => $subject->confirmedWeeklyHours() === null ? null : $subject->confirmedWeeklyHours() * AcademicClassTime::CLASS_MINUTES,
+            ])->values(),
+        ])->values();
+
+        return view('academic.loads.index', ['teacher' => $teacher->load('user'), 'loads' => $query->get(), 'filters' => $filters, 'careers' => $careers, 'catalog' => $catalog]);
     }
 
     public function store(Request $request, ?Teacher $teacher = null)
@@ -47,7 +59,7 @@ class AcademicLoadController extends Controller
                 abort_unless($existing->teacher_id === $teacher->id, 409);
                 return;
             }
-            $load = new AcademicLoad($fields);
+            $load = new AcademicLoad(app(AcademicClassTime::class)->catalogFields($fields));
             $load->teacher_id = $teacher->id;
             $load->submission_key = $request->submission_key;
             $load->recorded_by = $request->user()->id;
@@ -70,14 +82,15 @@ class AcademicLoadController extends Controller
             $locked = AcademicLoad::whereKey($load->id)->lockForUpdate()->firstOrFail();
             Gate::authorize('update', $locked);
             abort_unless($locked->revision === (int) $request->revision, 409, 'La clase cambió. Recarga la página antes de corregirla.');
-            $before = $locked->only(array_keys($fields));
-            $locked->fill($fields);
+            $catalogFields = app(AcademicClassTime::class)->catalogFields($fields);
+            $before = $locked->only(array_keys($catalogFields));
+            $locked->fill($catalogFields);
             if (!$locked->isDirty()) {
                 return;
             }
             $locked->revision++;
             $locked->save();
-            $locked->changes()->create(['user_id' => $request->user()->id, 'reason' => $request->reason, 'before' => $before, 'after' => $locked->only(array_keys($fields))]);
+            $locked->changes()->create(['user_id' => $request->user()->id, 'reason' => $request->reason, 'before' => $before, 'after' => $locked->only(array_keys($catalogFields))]);
         });
 
         return back()->with('status', 'Carga académica actualizada.');
@@ -86,10 +99,10 @@ class AcademicLoadController extends Controller
     private function validateFields(Request $request): array
     {
         $fields = $request->validate([
-            'academic_period' => ['required', 'string', 'max:80'],
+            'academic_period' => ['required', Rule::in(array_keys(AcademicLoad::PERIODS))],
             'academic_year' => ['required', 'integer', 'between:1900,2200'],
-            'subject' => ['required', 'string', 'max:255'],
-            'career' => ['nullable', 'string', 'max:255'],
+            'academic_career_id' => ['required', 'integer', 'exists:academic_careers,id'],
+            'academic_subject_id' => ['required', 'integer', 'exists:academic_subjects,id'],
             'section' => ['nullable', 'string', 'max:80'],
             'weekdays' => ['required', 'array', 'min:1', 'max:7'],
             'weekdays.*' => ['required', 'integer', 'distinct', 'between:1,7'],
@@ -97,8 +110,6 @@ class AcademicLoadController extends Controller
             'ends_at' => ['required', 'date_format:H:i', 'after:starts_at', 'before_or_equal:21:50'],
             'valid_from' => ['required', 'date_format:Y-m-d'],
             'valid_until' => ['required', 'date_format:Y-m-d', 'after_or_equal:valid_from'],
-            'credits' => ['nullable', 'numeric', 'between:0,9999.99'],
-            'weekly_class_hours' => ['nullable', 'numeric', 'between:0,9999.99'],
             'status' => ['required', Rule::in(['ACTIVE', 'INACTIVE'])],
         ]);
         $fields['weekdays'] = array_map('intval', $fields['weekdays']);
