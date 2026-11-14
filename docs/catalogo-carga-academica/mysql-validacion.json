@@ -1,0 +1,25 @@
+[
+  null,
+  {
+    "database": "sistema_practicas_unicah",
+    "original_fields_preserved": true,
+    "catalog_idempotent": true,
+    "careers": [
+      "Administración de Empresas",
+      "Ingeniería en Ciencias de la Computación",
+      "Ingeniería Industrial"
+    ],
+    "subjects": 0,
+    "loads": [
+      {
+        "id": 3,
+        "subject": "Redes I",
+        "career": "Ing. en Ciencias de la Computación",
+        "credits": "4.00",
+        "weekly_class_hours": "5.00",
+        "scheduled_minutes": 250,
+        "catalog_subject_id": null
+      }
+    ]
+  }
+]

@@ -519,115 +519,19 @@
     </div>
 
 
-    <div class="student-process-timeline">
-
-
-        <div class="student-process-step {{ $applicationStatus === 'Aprobada' ? 'completed' : '' }}">
-
-            <div class="student-process-circle">
-                <i class="bi bi-check-lg"></i>
-            </div>
-
-            <span><a href="{{ route('estudiante.solicitudes') }}">Solicitud</a></span><small>{{ $applicationStatus }}</small>
-
-        </div>
-
-
-        <div class="student-process-step">
-
-            <div class="student-process-circle">
-                <i class="bi bi-check-lg"></i>
-            </div>
-
-            <span><a href="{{ route('estudiante.documentos') }}">Documentos</a></span><small>{{ $documentSummary }}</small>
-
-        </div>
-
-
-        <div class="student-process-step {{ $process?->company ? 'completed' : '' }}">
-
-            <div class="student-process-circle">
-                <i class="bi bi-check-lg"></i>
-            </div>
-
-            <span>
-                Empresa
-            </span>
-
-        </div>
-
-
-        <div class="student-process-step {{ $process?->status === 'ACTIVE' ? 'active' : '' }}">
-
-            <div class="student-process-circle">
-
-                <i class="bi bi-briefcase"></i>
-
-            </div>
-
-            <span>
-                Práctica
-            </span>
-
-        </div>
-
-
-        <div class="student-process-step">
-
-            <div class="student-process-circle">
-
-                <i class="bi bi-calendar-check"></i>
-
-            </div>
-
-            <span>Visita</span><small>{{ $visitStatus }}</small>
-
-        </div>
-
-
-        <div class="student-process-step">
-
-            <div class="student-process-circle">
-
-                <i class="bi bi-journal-text"></i>
-
-            </div>
-
-            <span><a href="{{ route('estudiante.monografia') }}">Monografía</a></span><small>{{ $closing['monograph_state'] }}</small>
-
-        </div>
-
-
-        <div class="student-process-step">
-
-            <div class="student-process-circle">
-
-                <i class="bi bi-mortarboard"></i>
-
-            </div>
-
-            <span><a href="{{ route('estudiante.defensa') }}">Defensa</a></span><small>{{ $closing['defense_state'] }}</small>
-
-        </div>
-
-
-        <div class="student-process-step">
-
-            <div class="student-process-circle">
-
-                <i class="bi bi-flag"></i>
-
-            </div>
-
-            <span>
-                Finalización
-            </span>
-
-        </div>
-
-
-    </div>
-
+    @php
+        $processSteps = [
+            ['name' => 'Solicitud', 'state' => $applicationStatus, 'icon' => 'bi-file-earmark-text', 'class' => $applicationStatus === 'Aprobada' ? 'completed' : '', 'href' => route('estudiante.solicitudes')],
+            ['name' => 'Documentos', 'state' => $documentSummary, 'icon' => 'bi-files'],
+            ['name' => 'Empresa', 'state' => $process?->company ? 'Asignada' : 'Sin asignar', 'icon' => 'bi-buildings', 'class' => $process?->company ? 'completed' : ''],
+            ['name' => 'Práctica', 'state' => $process?->statusLabel() ?? 'Sin práctica', 'icon' => 'bi-briefcase', 'class' => $process?->status === 'ACTIVE' ? 'active' : ''],
+            ['name' => 'Visita', 'state' => $visitStatus, 'icon' => 'bi-calendar-check'],
+            ['name' => 'Monografía', 'state' => $closing['monograph_state'], 'icon' => 'bi-journal-text', 'href' => route('estudiante.monografia')],
+            ['name' => 'Defensa', 'state' => $closing['defense_state'], 'icon' => 'bi-mortarboard', 'href' => route('estudiante.defensa')],
+            ['name' => 'Finalización', 'state' => 'Pendiente', 'icon' => 'bi-flag'],
+        ];
+    @endphp
+    <x-practice-process :steps="$processSteps" />
 </section>
 
 

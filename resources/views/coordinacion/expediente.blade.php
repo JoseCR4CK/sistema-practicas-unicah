@@ -228,30 +228,15 @@
 
 
 
-    <div class="practice-timeline expediente-timeline">
-
-        @foreach ($pasosTimeline as $paso)
-            <div class="timeline-step {{ $paso['clase'] }}">
-
-                <div class="timeline-icon">
-                    <i class="bi {{ $paso['icono'] }}"></i>
-                </div>
-
-                <div>
-                    <strong>
-                        {{ $paso['nombre'] === 'Documentación' ? 'Documentos' : $paso['nombre'] }}
-                    </strong>
-
-                    <span>
-                        {{ $paso['estado'] }}
-                    </span>
-                </div>
-
-            </div>
-        @endforeach
-
-    </div>
-
+    @php
+        $processSteps = collect($pasosTimeline)->map(fn ($step) => [
+            'name' => $step['nombre'] === 'Documentación' ? 'Documentos' : $step['nombre'],
+            'state' => $step['estado'],
+            'icon' => $step['icono'],
+            'class' => $step['clase'],
+        ]);
+    @endphp
+    <x-practice-process :steps="$processSteps" />
 </section>
 
 
@@ -388,7 +373,7 @@
             <strong>{{ $closing['deadline']?->format('d/m/Y') ?? 'Fecha final de práctica pendiente' }}</strong>
 
             <p>
-                Fecha de entrega no disponible.
+                {{ $closing['deadline'] ? 'Una semana antes de finalizar la práctica.' : 'Fecha de entrega no disponible.' }}
             </p>
 
         </div>

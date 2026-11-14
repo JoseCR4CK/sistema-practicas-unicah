@@ -12,10 +12,13 @@
     <button class="btn btn-primary teacher-load-add" data-bs-toggle="modal" data-bs-target="#academicLoadModal"><i class="bi bi-plus-lg"></i> Agregar clase</button>
 </div>
 @include('academic.closing-feedback')
+@if ($careers->flatMap->subjects->every(fn ($subject) => $subject->confirmedWeeklyHours() === null))
+    <div class="alert alert-info">El catálogo aún no contiene asignaturas con datos académicos confirmados. El historial se conserva; los nuevos registros requieren una asignatura disponible en el catálogo.</div>
+@endif
 <section class="teacher-load-profile"><div class="teacher-load-profile-icon"><i class="bi bi-person-badge"></i></div><div><span>DOCENTE DE SEGUIMIENTO</span><strong>{{ $teacher->user->name }}</strong><small>Historial de asignaturas y horas reales de clase.</small></div></section>
 <section class="content-card mb-4"><form method="GET" class="teacher-load-period">
     <div><label for="filterYear">Año académico</label><input id="filterYear" name="year" type="number" min="1900" max="2200" value="{{ $filters['year'] ?? '' }}" class="form-control"></div>
-    <div><label for="filterPeriod">Período</label><input id="filterPeriod" name="period" maxlength="80" value="{{ $filters['period'] ?? '' }}" class="form-control"></div>
+    <div><label for="filterPeriod">Período</label><select id="filterPeriod" name="period" class="form-select"><option value="">Todos los períodos</option>@foreach (\App\Models\AcademicLoad::PERIODS as $key => $label)<option value="{{ $key }}" @selected(($filters['period'] ?? '') === $key)>{{ $label }}</option>@endforeach</select></div>
     <button class="btn btn-light">Filtrar</button><a href="{{ $manager ? route('coordinacion.carga-academica', $teacher) : route('docente.carga-academica') }}">Ver historial completo</a>
 </form></section>
 <section class="row g-3 mb-4">
@@ -32,10 +35,10 @@
         </div></div>
     @endforeach
 </div></section>
-<section class="content-card"><div class="card-header"><div><h2>Clases registradas</h2><p>Los períodos conservan su historial. Desactiva una clase cuando deje de corresponder.</p></div></div>
+<section class="content-card"><div class="card-header"><div><h2>Clases registradas</h2><p>Los períodos conservan su historial. Las correcciones requieren una asignatura confirmada del catálogo.</p></div></div>
     @forelse ($loads as $item)
         <article class="teacher-load-row"><div class="teacher-load-row-icon"><i class="bi bi-book"></i></div><div class="teacher-load-row-main"><strong>{{ $item->subject }}</strong><span>{{ $item->career }} {{ $item->section }}</span><small>{{ $item->academic_period }} {{ $item->academic_year }} · {{ $item->status === 'ACTIVE' ? 'Activa' : 'Inactiva' }}</small><small>Créditos: {{ $item->credits ?? 'Sin registrar' }} · Horas semanales: {{ $item->weekly_class_hours ?? 'Sin registrar' }}</small></div>
-        <div class="teacher-load-row-days">{{ collect($item->weekdays)->map(fn ($day) => \App\Models\AcademicLoad::DAYS[$day])->join(', ') }}</div>
+        <div class="teacher-load-row-days">{{ collect($item->weekdays)->map(fn ($day) => \App\Models\AcademicLoad::DAYS[$day])->join(', ') }}<small>{{ $item->academic_subject_id ? 'Asociada al catálogo' : 'Pendiente de asociación al catálogo' }}</small>@if ($item->academic_subject_id && $item->weekly_class_hours !== null)<small>{{ $item->scheduledWeeklyMinutes() }} de {{ (int) ($item->weekly_class_hours * \App\Services\AcademicClassTime::CLASS_MINUTES) }} minutos semanales{{ $item->scheduledWeeklyMinutes() < $item->weekly_class_hours * \App\Services\AcademicClassTime::CLASS_MINUTES ? ' · Horario parcial' : '' }}</small>@endif</div>
         <div class="teacher-load-row-time"><strong>{{ substr($item->starts_at, 0, 5) }} – {{ substr($item->ends_at, 0, 5) }}</strong><small>{{ $item->valid_from->format('d/m/Y') }} – {{ $item->valid_until->format('d/m/Y') }}</small></div>
         <div class="teacher-load-row-actions"><button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editLoad{{ $item->id }}">{{ $manager ? 'Corregir' : 'Editar' }}</button></div></article>
         @if ($item->changes->isNotEmpty())<details class="p-3"><summary>Historial de cambios</summary>@foreach ($item->changes->sortByDesc('id') as $change)<p>{{ $change->created_at->format('d/m/Y H:i') }} · {{ $change->user->name }} · {{ $change->reason ?? 'Actualización de horario' }}</p>@endforeach</details>@endif
@@ -54,3 +57,7 @@
 </form></div></div>
 @endforeach
 @endsection
+@push('scripts')
+<script type="application/json" id="academicCatalogData">{!! \Illuminate\Support\Js::encode($catalog) !!}</script>
+<script src="{{ asset('js/academic-load-catalog.js') }}" defer></script>
+@endpush

@@ -29,6 +29,7 @@
         href="{{ asset('css/app.css') }}"
     >
 
+<link rel="stylesheet" href="{{ asset('css/presentation.css') }}">
 </head>
 
 
@@ -47,6 +48,7 @@
 
 
         <div class="sidebar-header teacher-sidebar-header">
+            <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Cerrar menú"><i class="bi bi-x-lg"></i></button>
 
             <img
                 src="{{ asset('assets/img/logo-unicah.png') }}"
@@ -203,7 +205,9 @@
 
         <header class="topbar">
 
-            <div>
+            <div class="topbar-left">
+                <button type="button" class="menu-button" id="menuButton" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
+                <div class="topbar-title">
 
                 <span>
                     Sistema de Gestión y Seguimiento
@@ -212,7 +216,7 @@
                 <strong>
                     Prácticas Profesionales
                 </strong>
-
+                </div>
             </div>
 
 
@@ -227,12 +231,12 @@
                 </button>
 
 
-                <div class="topbar-avatar">
+                <div class="user-avatar small">
                     {{ Str::initials(auth()->user()->name, true) }}
                 </div>
 
 
-                <div>
+                <div class="topbar-user-info">
 
                     <strong>
                         {{ auth()->user()->name }}
@@ -264,7 +268,8 @@
 
 </div>
 
-
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<script src="{{ asset('js/navigation.js') }}" defer></script>
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
 </script>

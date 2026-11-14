@@ -331,8 +331,9 @@
 
 
 
-    <div class="teacher-process-timeline">
-
+    @php
+        $processSteps = [];
+    @endphp
         @foreach($etapas as $clave => $etapa)
 
             @php
@@ -576,45 +577,15 @@
                     $completada = $estadoMonografia === 'Aprobada';
                     $actual = in_array($estadoMonografia, ['En revisión', 'Requiere corrección'], true);
                 }
+                $processSteps[] = [
+                    'name' => $etapa['nombre'],
+                    'state' => $estadoTexto,
+                    'icon' => $completada ? 'bi-check-lg' : $etapa['icono'],
+                    'class' => trim(($completada ? 'completed' : '').' '.($actual ? 'active' : '')),
+                ];
             @endphp
-
-
-            <div
-                class="teacher-process-step
-                {{ $completada ? 'completed' : '' }}
-                {{ $actual ? 'active' : '' }}"
-            >
-
-                <div>
-
-                    @if($completada)
-
-                        <i class="bi bi-check-lg"></i>
-
-                    @else
-
-                        <i class="bi {{ $etapa['icono'] }}"></i>
-
-                    @endif
-
-                </div>
-
-
-                <strong>
-                    {{ $etapa['nombre'] }}
-                </strong>
-
-
-                <span>
-                    {{ $estadoTexto }}
-                </span>
-
-            </div>
-
         @endforeach
-
-    </div>
-
+    <x-practice-process :steps="$processSteps" />
 </section>
 
 

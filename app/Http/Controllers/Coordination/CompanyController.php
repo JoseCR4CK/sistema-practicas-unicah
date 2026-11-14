@@ -66,18 +66,7 @@ class CompanyController extends Controller
 
     private function companyFields(Request $request, ?Company $company = null): array
     {
-        return $request->validate([
-            'official_name' => ['required', 'string', 'max:255', Rule::unique('companies')->ignore($company?->id)],
-            'commercial_name' => ['nullable', 'string', 'max:255'],
-            'rtn' => ['nullable', 'string', 'max:255', Rule::unique('companies')->ignore($company?->id)],
-            'sector' => ['required', 'string', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'department' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'status' => ['required', Rule::in(['ACTIVE', 'INACTIVE'])],
-        ]);
+        return $request->validate(\App\Validation\CompanyRules::fields($company));
     }
 
     private function responsibleFields(Request $request): array

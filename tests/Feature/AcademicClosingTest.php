@@ -224,11 +224,13 @@ class AcademicClosingTest extends TestCase
         $practice->update(['stage' => 'Monografía']);
         $this->actingAs($practice->teacher->user);
         $html = $this->get(route('docente.practicante', $practice->student_id))->assertOk()->getContent();
-        preg_match_all('/class="teacher-process-step([^\"]*)"[^>]*>(.*?)<\/strong>\s*<span>(.*?)<\/span>/s', $html, $steps, PREG_SET_ORDER);
-        $visitStep = collect($steps)->first(fn ($step) => str_contains($step[2], '>Visita<') || preg_match('/<strong>\s*Visita\s*$/', $step[2]));
+        $document = new \DOMDocument();
+        @$document->loadHTML('<?xml encoding="UTF-8">'.$html);
+        $xpath = new \DOMXPath($document);
+        $visitStep = $xpath->query('//*[@data-stage="Visita"]')->item(0);
         $this->assertNotNull($visitStep);
-        $this->assertStringNotContainsString('completed', $visitStep[1]);
-        $this->assertStringContainsString('Sin visita registrada', $visitStep[3]);
+        $this->assertStringNotContainsString('completed', $visitStep->getAttribute('class'));
+        $this->assertStringContainsString('Sin visita registrada', $visitStep->textContent);
         $this->post(route('docente.monografia.review', $monograph), [
             'review_id' => $technical->id, 'status' => 'Requiere corrección', 'observation' => 'Precisar resultados',
         ])->assertRedirect();
@@ -242,7 +244,12 @@ class AcademicClosingTest extends TestCase
 
     private function classFields(array $overrides = []): array
     {
+        $career = \App\Models\AcademicCareer::firstOrFail();
+        $subject = \App\Models\AcademicSubject::firstOrCreate([
+            'academic_career_id' => $career->id, 'name' => $overrides['subject'] ?? 'Asignatura registrada',
+        ], ['credits' => 3, 'weekly_class_hours' => 4, 'source' => 'Fixture aislado de PHPUnit']);
         return array_replace([
+            'academic_career_id' => $career->id, 'academic_subject_id' => $subject->id,
             'academic_period' => 'III', 'academic_year' => 2026, 'subject' => 'Asignatura registrada',
             'career' => null, 'section' => null, 'weekdays' => [2, 4], 'starts_at' => '15:00', 'ends_at' => '16:00',
             'valid_from' => '2026-11-01', 'valid_until' => '2026-12-20', 'credits' => 3, 'weekly_class_hours' => 5,
@@ -261,16 +268,17 @@ class AcademicClosingTest extends TestCase
         $this->assertSame($teacher->id, $load->teacher_id);
         $this->assertSame([2, 4], $load->weekdays);
         $this->assertSame('3.00', $load->credits);
-        $this->assertSame('5.00', $load->weekly_class_hours);
+        $this->assertSame('4.00', $load->weekly_class_hours);
         $this->assertDatabaseCount('academic_loads', 1);
         $this->get(route('docente.carga-academica'))->assertOk()->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)->assertDontSee('<img src=x onerror=alert(1)>', false)
             ->assertSee('Registra las asignaturas y horarios que impartes durante cada período académico.')
             ->assertDontSee('Consulta y gestiona las asignaturas y horarios registrados por el docente');
         $this->post(route('docente.carga-academica.store'), $this->classFields(['academic_year' => 2027, 'academic_period' => 'I', 'valid_from' => '2027-01-01', 'valid_until' => '2027-04-01']))->assertRedirect();
         $this->assertDatabaseCount('academic_loads', 2);
-        $this->get(route('docente.carga-academica', ['year' => 2027, 'period' => 'I']))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
+        $this->get(route('docente.carga-academica', ['year' => 2027, 'period' => 'I']))->assertOk()
+            ->assertViewHas('loads', fn ($rows) => $rows->count() === 1 && $rows->first()->academic_year === 2027);
         $this->actingAs($foreign->user)->put(route('docente.carga-academica.update', $load), $this->classFields(['revision' => 0]))->assertForbidden();
-        $this->get(route('docente.carga-academica'))->assertOk()->assertDontSee('&lt;img src=x onerror=alert(1)&gt;', false);
+        $this->get(route('docente.carga-academica'))->assertOk()->assertViewHas('loads', fn ($rows) => $rows->isEmpty());
         $this->actingAs($this->userFor('COORDINACION'));
         $this->get(route('coordinacion.carga-academica', $teacher))->assertOk()->assertSee('Asignatura registrada')
             ->assertSee('Consulta y gestiona las asignaturas y horarios registrados por el docente durante cada período académico.')
