@@ -14,7 +14,8 @@ $steps = collect(App\Models\Practice::STAGES)->map(fn ($stage) => [
 $process = Illuminate\Support\Facades\Blade::render('<x-practice-process :steps="$steps" />', ['steps' => $steps]);
 $name = str_repeat('Nombre compuesto y apellidos extensos ', 3);
 $company = str_repeat('DenominaciónComercialExtensa', 8);
-$html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Revisión visual de contenido extenso</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"><link rel="stylesheet" href="/css/app.css"><link rel="stylesheet" href="/css/presentation.css"></head><body><main class="main-content">';
+$assets = (string) app(\Illuminate\Foundation\Vite::class)(['resources/css/app.css', 'resources/js/app.js']);
+$html = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Revisión visual de contenido extenso</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">'.$assets.'</head><body><main class="main-content">';
 $html .= '<header class="page-header"><div><h1>'.e($name).'</h1><p>Comprobación visual aislada, sin datos de personas.</p></div></header>';
 $html .= '<section class="teacher-load-profile"><div><strong>'.e($company).'</strong><small>Sin información adicional</small></div></section>';
 $html .= '<section class="content-card practice-stages-card">'.$process.'</section>';

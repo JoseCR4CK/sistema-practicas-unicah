@@ -27,11 +27,7 @@
 
 
     <!-- CSS propio -->
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/app.css') }}"
-    >
-<link rel="stylesheet" href="{{ asset('css/presentation.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 
@@ -257,7 +253,7 @@
 
 
 
-<script src="{{ asset('js/navigation.js') }}" defer></script>
+
 
 
 @stack('scripts')

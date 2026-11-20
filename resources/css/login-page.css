@@ -99,7 +99,7 @@ input {
     min-height: 100vh;
 
     background-image:
-        url("../assets/img/campus.jpeg");
+        url("../../public/assets/img/campus.jpeg");
 
     background-size: cover;
 
@@ -705,8 +705,6 @@ input {
 ========================================= */
 
 .login-footer {
-    display: flex;
-    justify-content: center;
     margin-top: 20px;
     padding-top: 8px;
 }

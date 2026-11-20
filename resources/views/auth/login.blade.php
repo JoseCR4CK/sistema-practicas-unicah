@@ -27,10 +27,7 @@
 
 
     <!-- CSS DEL LOGIN -->
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/login.css') }}"
-    >
+    @vite(['resources/css/login.css', 'resources/js/app.js'])
 </head>
 
 
@@ -87,7 +84,7 @@
 
         <!-- FOOTER -->
 
-            <footer class="login-footer">
+            <footer class="login-footer tw:flex tw:justify-center">
 
                 <img
                     src="{{ asset('assets/img/logo-unicah.png') }}"
