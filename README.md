@@ -57,7 +57,7 @@ Abre `http://127.0.0.1:8000`. El ingreso utiliza DNI y contraseña; las cuentas 
 - `app/Models/`: relaciones y persistencia Eloquent.
 - `app/Validation/CompanyRules.php`: validaciones compartidas entre Empresas web y API.
 - `database/migrations/` y `database/seeders/`: esquema y datos de desarrollo.
-- `resources/views/`: presentación Blade; `public/css/` y `public/js/`: recursos de interfaz.
+- `resources/views/`: presentación Blade; `resources/css/` y `resources/js/`: entradas y fuentes compiladas por Vite; `public/js/`: scripts específicos conservados por pantalla.
 - `tests/`: pruebas automatizadas. Algunas herramientas personales del estudiante conservan localStorage; no se presentan como persistencia MySQL.
 
 Flujo principal: Route → Controller → Eloquent → MySQL → Blade o JSON.
@@ -112,6 +112,8 @@ Errores: `401` sin sesión, `403` sin permiso o cuenta inactiva, `404` registro 
 
 ## Pruebas y validación
 
+Antes de probar las vistas, instala y compila el frontend como se explica a continuación. La suite comprueba también el manifest y las utilities realmente generadas.
+
 ```powershell
 php artisan route:list
 php artisan test --do-not-cache-result
@@ -120,3 +122,28 @@ git diff --check
 ```
 
 `phpunit.xml` configura SQLite en memoria para aislar la suite de MySQL local. Las pruebas Feature de API cubren consultas, creación, validación, PUT/PATCH, IDs inexistentes, eliminación segura, roles y autenticación. No requieren borrar datos de MySQL.
+
+## Frontend, Vite y Tailwind
+
+Con Node.js compatible con Vite 7 (20.19+, 22.12+ o posterior compatible) y npm, desde el repositorio:
+
+```powershell
+npm ci
+npm run build
+```
+
+`package-lock.json` fija las versiones reproducibles. `.npmrc` mantiene la caché en `.npm-cache/`, ignorada por Git. Para desarrollo ejecuta `npm run dev` junto con `php artisan serve`; Vite utiliza su configuración de puerto habitual. Detén Vite al terminar para no dejar un `public/hot` apuntando a un servidor detenido. En una entrega sin servidor Vite ejecutándose, usa `npm run build`.
+
+Entradas registradas en `vite.config.js`:
+
+- `resources/css/app.css`: importa el CSS de los portales (`app-shell.css` y `presentation.css`).
+- `resources/css/login.css`: importa exclusivamente el diseño de autenticación (`login-page.css`), aislado de los estilos de los portales.
+- `resources/js/app.js`: importa Axios y la navegación global una sola vez. Los cuatro layouts y el Login utilizan `@vite` para cargar sus entradas.
+
+Ambas entradas CSS importan `resources/css/tailwind.css`. Tailwind 4 se procesa con `@tailwindcss/vite`, analiza `resources/views` y `resources/js`, usa el prefijo `tw:` y no importa Preflight. Así evita colisiones y resets sobre Bootstrap. El logo del Login utiliza `tw:flex tw:justify-center` para conservar su alineación; estas utilities aparecen en el CSS compilado y se verifican en `FrontendAssetsTest`.
+
+Bootstrap 5.3.8 y Bootstrap Icons 1.11.3 mantienen sus CDN originales y requieren acceso a ellos. No se ha rediseñado el sistema. Los scripts específicos `academic-filters.js`, `coordination-record-modal.js` y `academic-load-catalog.js` permanecen en `public/js/`: solo los cargan las pantallas que los necesitan, conservando sus inicializadores y eventos actuales. La navegación global ya no se carga directamente desde `public/js/`.
+
+Vite genera `public/build/manifest.json`, CSS y JavaScript con hash y la imagen importada del Login. `public/build/` es salida compilada ignorada por Git; no debe editarse manualmente ni confundirse con código fuente. No se conservan copias paralelas del CSS propio en `public/css/`.
+
+Comprobación visual reproducible sin MySQL: `php tests/RenderFrontendReview.php` genera temporalmente las vistas reales de los cinco portales con SQLite en memoria en `public/frontend-review/` (ignorado por Git). Con Laravel servido, abre `/frontend-review/login.html` o `/frontend-review/coordinacion.html`. Sus formularios están bloqueados para evitar escrituras y sus enlaces principales apuntan a otras vistas renderizadas. Son fixtures de presentación, no un acceso autenticado ni una prueba de persistencia MySQL. Retira esos archivos temporales al finalizar la revisión.

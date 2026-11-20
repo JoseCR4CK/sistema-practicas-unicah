@@ -92,7 +92,8 @@ class VisualPresentationTest extends TestCase
             $this->assertSame(1, $xpath->query('//button[@id="menuButton" and @aria-controls="sidebar" and @aria-label="Abrir menú"]')->length);
             $this->assertSame(1, $xpath->query('//button[@id="sidebarClose" and @aria-label="Cerrar menú"]')->length);
             $this->assertSame(1, $xpath->query('//*[@id="sidebarOverlay"]')->length);
-            $this->assertSame(1, $xpath->query('//script[contains(@src,"js/navigation.js")]')->length);
+            $this->assertSame(1, $xpath->query('//script[@type="module" and contains(@src,"/build/assets/app-")]')->length);
+            $this->assertSame(0, $xpath->query('//script[contains(@src,"js/navigation.js")]')->length);
         }
     }
 }

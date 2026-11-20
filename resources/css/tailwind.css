@@ -1,0 +1,7 @@
+/* Tailwind 4: utilities aisladas; Bootstrap conserva su reset y sus componentes. */
+@layer theme, utilities;
+@import 'tailwindcss/theme.css' layer(theme) prefix(tw);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(tw) source(none);
+
+@source '../views';
+@source '../js';

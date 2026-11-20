@@ -13,6 +13,8 @@
 /.zed
 /auth.json
 /node_modules
+/.npm-cache
+/public/frontend-review
 /public/build
 /public/hot
 /public/storage
