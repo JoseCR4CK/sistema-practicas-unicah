@@ -34,6 +34,14 @@ class Teacher extends Model
         return $query->whereNotNull('access_approved_at')->whereHas('user', fn ($user) => $user->where('status', 'ACTIVE')->whereHas('role', fn ($role) => $role->where('name', 'DOCENTE_SEGUIMIENTO')));
     }
 
+    public function scopeEligibleForCommittee($query)
+    {
+        return $query->approvedActive()->whereHas('faculties', fn ($faculty) => $faculty->where('status', 'ACTIVE')->whereIn('type', ['FACULTY', 'GENERAL']));
+    }
+
+    public function committeeMemberships(): HasMany { return $this->hasMany(CommitteeMember::class)->whereNull('ended_at'); }
+    public function committeeMembershipHistory(): HasMany { return $this->hasMany(CommitteeMember::class); }
+
     public function practices(): HasMany
     {
         return $this->hasMany(Practice::class);

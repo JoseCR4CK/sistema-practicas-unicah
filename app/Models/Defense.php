@@ -11,11 +11,11 @@ class Defense extends Model
     public const DURATIONS = [60, 90, 120];
     public const LAST_ACADEMIC_TIME = '21:50';
 
-    protected $fillable = ['academic_committee_id', 'duration_minutes', 'status', 'selected_option_id', 'confirmed_by', 'confirmed_at', 'performed_at', 'observation'];
+    protected $fillable = ['academic_committee_id', 'duration_minutes', 'status', 'selected_option_id', 'confirmed_by', 'confirmed_at', 'performed_at', 'observation', 'scheduling_round', 'result', 'result_recorded_by', 'result_recorded_at', 'result_note'];
 
     protected function casts(): array
     {
-        return ['duration_minutes' => 'integer', 'confirmed_at' => 'datetime', 'performed_at' => 'datetime'];
+        return ['duration_minutes' => 'integer', 'confirmed_at' => 'datetime', 'performed_at' => 'datetime', 'scheduling_round' => 'integer', 'result_recorded_at' => 'datetime'];
     }
 
     public function committee(): BelongsTo

@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DefenseOption extends Model
 {
-    protected $fillable = ['starts_at', 'ends_at', 'duration_minutes', 'committee_revision', 'proposed_by'];
+    protected $fillable = ['starts_at', 'ends_at', 'duration_minutes', 'committee_revision', 'proposed_by', 'scheduling_round'];
 
     protected function casts(): array
     {
-        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'duration_minutes' => 'integer', 'committee_revision' => 'integer'];
+        return ['starts_at' => 'datetime', 'ends_at' => 'datetime', 'duration_minutes' => 'integer', 'committee_revision' => 'integer', 'scheduling_round' => 'integer'];
     }
 
     public function defense(): BelongsTo
