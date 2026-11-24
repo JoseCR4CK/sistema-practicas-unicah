@@ -191,3 +191,18 @@ Tipos: Datos Generales del lugar de práctica, Carta de Aceptación, identidad d
 Los estados son Pendiente, En revisión, Requiere corrección, Aprobada y Rechazada. Las acciones verifican estado y revisión vigente, usan CSRF y autorización por rol, y registran eventos. DNI/correo/cuenta no pueden duplicarse. El rol, la inducción y la aprobación no se aceptan del formulario público. Una falla al crear el perfil revierte la creación de User y la aprobación.
 
 Pruebas específicas: `php artisan test --do-not-cache-result --filter="AccessAdmissionsTest|CatalogSchemaTest"`. Revisión visual aislada: `php tests/RenderAccessReview.php`; utiliza SQLite en memoria y genera fixtures temporales bajo `public/frontend-review/`, sin persistir cuentas en MySQL. Su revisión no sustituye las pruebas manuales contra la base local cuando esté disponible.
+## Bloque 6B: gestión avanzada de ternas
+
+Se amplía el mismo módulo de `academic_committees` y `committee_members`. Coordinación Académica/ROOT puede registrar una terna pendiente desde el inicio de cualquier práctica y asignar tres docentes distintos: **Coordinador de terna**, **Revisión técnica** y **Revisión de estilo**. El coordinador pasa a ser el docente de seguimiento de esa práctica. Cambiar un seguimiento ya asignado exige motivo.
+
+Cada función permite seleccionar independientemente facultad/área y docente, incluidas las ocho facultades y Generales del catálogo del Bloque 6A. Solo aparecen docentes activos, aprobados y asociados a una unidad activa; no se aprueban ni reclasifican docentes históricos automáticamente. Se admiten ternas interdisciplinarias. Los filtros incluyen facultad del estudiante, período/año de origen, estado, nombre y DNI/cuenta.
+
+`/coordinacion/ternas/carga-docente` muestra cargas activas por período de origen y total, sin imponer cupos. El selector muestra la misma información. El período se conserva en la terna aunque cambien el período de práctica o la fecha de defensa. Sustituir integrantes conserva sus asignaciones anteriores y eventos con actor, fecha, motivo y antes/después; los contadores se consultan desde las relaciones, sin tablas duplicadas de carga.
+
+Una defensa realizada no cierra la terna automáticamente. Coordinación Académica registra el resultado, y solo puede cerrar formalmente con defensa aprobada y verificación manual de evaluación/documentación final. Una defensa reprobada permite abrir una nueva ronda de propuestas y disponibilidad con **la misma terna**; la ronda anterior queda en el historial y sus opciones no pueden reutilizarse como acuerdos vigentes. No se implementa una rúbrica ni se cambia la etapa/estado de la práctica automáticamente. Una práctica nueva tiene otra terna, sin inventar un flujo automático de reprobación total.
+
+La función vigente de cada integrante determina quién registra cada revisión de monografía. Coordinación Académica conserva supervisión; no suplanta a los revisores. Se preservan los plazos 10/3/1 y la entrega a −7 días. Las revisiones ya resueltas mantienen su responsable histórico; sustituir un revisor pendiente no reinicia su plazo.
+
+Aplicar la migración aditiva con `php artisan migrate`. La reversión se prueba en SQLite aislado; se impide revertir si ello perdería historial avanzado. No se han agregado docentes o asignaciones de demostración a MySQL.
+
+Pruebas específicas: `php artisan test --do-not-cache-result --filter="AdvancedCommitteeTest|CommitteeSchemaTest|AcademicClosingTest"`. Revisión visual: `php tests/RenderAdvancedCommitteeReview.php`, exclusivamente con SQLite en memoria y formularios bloqueados. Genera vistas temporales en `public/frontend-review/`; retirarlas después. El informe de entrega está en `docs/bloque-6b/INFORME.md`.
