@@ -18,11 +18,27 @@ class Student extends Model
         'account_number',
         'career',
         'phone',
+        'academic_career_id',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function academicCareer(): BelongsTo
+    {
+        return $this->belongsTo(AcademicCareer::class);
+    }
+
+    public function pendingSubjects()
+    {
+        return $this->belongsToMany(AcademicSubject::class, 'student_pending_subjects')->withPivot('access_request_id')->withTimestamps();
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(AcademicDocument::class);
     }
 
     public function practices(): HasMany

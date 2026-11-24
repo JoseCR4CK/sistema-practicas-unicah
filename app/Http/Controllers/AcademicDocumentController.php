@@ -16,7 +16,7 @@ class AcademicDocumentController extends Controller
     public function index(Request $request)
     {
         $student = $request->user()->hasRole('ESTUDIANTE');
-        $query = AcademicDocument::with(['practice.student.user', 'currentVersion']);
+        $query = AcademicDocument::whereNotNull('practice_id')->with(['practice.student.user', 'currentVersion']);
         if ($student) {
             $query->whereHas('practice.student', fn ($query) => $query->where('user_id', $request->user()->id));
         }
@@ -32,6 +32,7 @@ class AcademicDocumentController extends Controller
 
     public function show(Request $request, AcademicDocument $document)
     {
+        abort_if($document->practice_id === null, 404);
         Gate::authorize('view', $document);
 
         return view('coordinacion.documento-detalle', [
@@ -70,6 +71,7 @@ class AcademicDocumentController extends Controller
 
     public function review(Request $request, AcademicDocument $document)
     {
+        abort_if($document->practice_id === null, 404);
         Gate::authorize('review', $document);
         $fields = $request->validate([
             'version_id' => ['required', 'integer'],

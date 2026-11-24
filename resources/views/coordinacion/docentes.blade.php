@@ -3,6 +3,7 @@
 @section('title', 'Docentes de seguimiento | Coordinación Académica')
 
 @section('content')
+<form method="GET" class="content-card p-3 mb-3"><label for="teacherFaculty" class="form-label">Catálogo de docentes activos y aprobados por facultad / área</label><div class="d-flex flex-wrap gap-2"><select class="form-select" name="faculty" id="teacherFaculty"><option value="">Todos los docentes registrados</option>@foreach($faculties as $faculty)<option value="{{ $faculty->id }}" @selected((int)$selectedFaculty === $faculty->id)>{{ $faculty->name }}</option>@endforeach</select><button class="btn btn-outline-primary">Consultar</button></div></form>
 
 
 <!-- CABECERA -->

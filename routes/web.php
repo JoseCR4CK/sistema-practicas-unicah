@@ -19,6 +19,27 @@ use App\Http\Controllers\Coordination\StudentController;
 use App\Http\Controllers\Coordination\TeacherController;
 use App\Http\Controllers\Coordination\PracticeRequestController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicAccessController;
+use App\Http\Controllers\AccessDocumentController;
+use App\Http\Controllers\Coordination\AccessRequestController;
+
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('/registro/estudiante', [PublicAccessController::class, 'student'])->name('registro.estudiante');
+    Route::post('/registro/estudiante', [PublicAccessController::class, 'storeStudent'])->name('registro.estudiante.store');
+    Route::get('/registro/docente', [PublicAccessController::class, 'teacher'])->name('registro.docente');
+    Route::post('/registro/docente', [PublicAccessController::class, 'storeTeacher'])->name('registro.docente.store');
+    Route::get('/registro/solicitudes/{application}/{token}', [PublicAccessController::class, 'show'])->name('registro.estado');
+    Route::put('/registro/solicitudes/{application}/{token}', [PublicAccessController::class, 'correct'])->name('registro.corregir');
+    Route::get('/registro/solicitudes/{application}/{token}/documentos/{version}/{file}', [AccessDocumentController::class, 'publicFile'])->whereNumber('file')->name('registro.archivo');
+});
+Route::middleware(['auth', 'role:COORDINACION,ROOT'])->group(function () {
+    Route::get('/coordinacion/solicitudes-acceso', [AccessRequestController::class, 'index'])->name('coordinacion.accesos');
+    Route::get('/coordinacion/solicitudes-acceso/{application}', [AccessRequestController::class, 'show'])->name('coordinacion.acceso');
+    Route::post('/coordinacion/solicitudes-acceso/{application}/revision', [AccessRequestController::class, 'review'])->name('coordinacion.acceso.review');
+    Route::put('/coordinacion/docentes/{teacher}/facultad', [TeacherController::class, 'updateFaculty'])->name('coordinacion.docente.facultad');
+});
+Route::get('/academico/archivos-acceso/{version}/{file}', [AccessDocumentController::class, 'privateFile'])
+    ->middleware('auth')->whereNumber('file')->name('academico.archivo-acceso');
 
 /*
 |--------------------------------------------------------------------------

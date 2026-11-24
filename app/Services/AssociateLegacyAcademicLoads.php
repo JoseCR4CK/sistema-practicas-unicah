@@ -19,17 +19,18 @@ class AssociateLegacyAcademicLoads
                 $load = AcademicLoad::whereKey($load->id)->lockForUpdate()->firstOrFail();
                 if ($load->academic_subject_id !== null) return true;
                 $normalize = fn ($text) => Str::lower(preg_replace('/\s+/u', ' ', trim($text ?? '')));
-                $matches = AcademicSubject::with('career')->where('status', 'ACTIVE')->get()->filter(fn ($subject) =>
+                $matches = AcademicSubject::with('faculties')->where('status', 'ACTIVE')->get()->filter(fn ($subject) =>
                     $normalize($subject->name) === $normalize($load->subject)
-                    && $normalize($subject->career->name) === $normalize($load->career));
+                    && $subject->faculties->contains(fn ($career) => $career->status === 'ACTIVE' && $career->pivot->active && $normalize($career->name) === $normalize($load->career)));
                 if ($matches->count() !== 1) return false;
                 $subject = $matches->first();
+                $career = $subject->faculties->first(fn ($career) => $normalize($career->name) === $normalize($load->career));
                 if (!$subject->selectable() || $load->credits === null || $load->weekly_class_hours === null
                     || (float) $load->credits !== (float) $subject->credits
                     || (float) $load->weekly_class_hours !== (float) $subject->confirmedWeeklyHours()
                     || $load->scheduledWeeklyMinutes() > $subject->confirmedWeeklyHours() * AcademicClassTime::CLASS_MINUTES) return false;
                 $before = $load->only(['academic_career_id', 'academic_subject_id']);
-                $load->academic_career_id = $subject->academic_career_id;
+                $load->academic_career_id = $career->id;
                 $load->academic_subject_id = $subject->id;
                 $load->revision++;
                 $load->save();
