@@ -8,7 +8,6 @@ use App\Models\Practice;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
 
 class MonographWorkflow
 {
@@ -58,13 +57,9 @@ class MonographWorkflow
         ]);
     }
 
-    private function reviewerId(Monograph $monograph, string $stage): ?int
+    public function reviewerId(Monograph $monograph, string $stage): ?int
     {
-        return match ($stage) {
-            'tecnica' => $monograph->practice->teacher?->user_id,
-            'coordinador' => Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator()?->id : null,
-            default => null,
-        };
+        return Schema::hasTable('academic_committees') ? $monograph->practice->committee?->reviewerId($stage) : null;
     }
 
     public function review(Monograph $monograph, User $actor, array $fields): void
@@ -75,20 +70,10 @@ class MonographWorkflow
             $reviews = $locked->currentReviews();
             $review = $reviews->firstWhere('id', (int) $fields['review_id']);
             abort_unless($review && $review->status === 'En revisión', 409, 'La revisión cambió o ya fue resuelta.');
-            $manager = in_array($actor->role?->name, ['COORDINACION', 'ROOT'], true);
-            $technicalReviewer = $review->stage === 'tecnica' && $actor->hasRole('DOCENTE_SEGUIMIENTO')
-                && $locked->practice->teacher?->user_id === $actor->id && $review->reviewer_id === $actor->id;
-            $coordinatorId = $this->reviewerId($locked, 'coordinador');
-            $coordinatorReviewer = $review->stage === 'coordinador' && !$actor->hasRole('ESTUDIANTE') && $coordinatorId === $actor->id;
-            abort_unless($review->stage === 'tecnica'
-                ? $technicalReviewer
-                : ($manager || $coordinatorReviewer), 403);
-            if ($review->stage === 'coordinador' && $review->reviewer_id !== $coordinatorId) {
-                $review->reviewer_id = $coordinatorId;
-            }
-            if ($review->stage !== 'estilo' && !$review->reviewer_id) {
-                throw ValidationException::withMessages(['review_id' => 'Falta identificar al responsable de esta revisión.']);
-            }
+            $responsibleId = $this->reviewerId($locked, $review->stage);
+            abort_unless($actor->isActive() && $actor->hasRole('DOCENTE_SEGUIMIENTO') && $responsibleId === $actor->id
+                && !$locked->practice->committee?->isClosed(), 403, 'Solo el docente con esta función vigente en la terna puede registrar la revisión.');
+            $review->reviewer_id = $responsibleId;
             $review->update([
                 'status' => $fields['status'],
                 'observation' => $fields['observation'] ?? null,

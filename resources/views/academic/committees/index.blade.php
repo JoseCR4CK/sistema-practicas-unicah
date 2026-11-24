@@ -1,43 +1,61 @@
-@extends(auth()->user()->hasRole('ESTUDIANTE') ? 'layouts.student' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'layouts.teacher' : (auth()->user()->hasRole('JEFE_INMEDIATO') ? 'layouts.company' : 'layouts.app')))
-@section('title', 'Terna | UNICAH')
+@extends(auth()->user()->hasRole('ESTUDIANTE') ? 'layouts.student' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'layouts.teacher' : 'layouts.app'))
+@section('title', 'Ternas | UNICAH')
 @section('content')
-@php
-    $manager = in_array(auth()->user()->role->name, ['COORDINACION', 'ROOT'], true);
-    $portal = $manager ? 'coordinacion' : (auth()->user()->hasRole('ESTUDIANTE') ? 'estudiante' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'academico'));
-@endphp
-<div class="page-header"><div><h1>Terna</h1><p>Consulta los integrantes y la asignación de cada proceso de práctica.</p></div></div>
+@php($portal = $manager ? 'coordinacion' : (auth()->user()->hasRole('ESTUDIANTE') ? 'estudiante' : 'docente'))
+<div class="page-header">
+<div>
+<h1>Ternas</h1>
+<p>Asignación por proceso de práctica y facultad.</p>
+</div>
+@if($manager)<a class="btn btn-light" href="{{ route('coordinacion.ternas.carga') }}">Carga de ternas por docente</a>
+@endif</div>
 @include('academic.closing-feedback')
-<section class="content-card mb-4">
-    <div class="table-container table-responsive"><table class="data-table">
-        <thead><tr><th>Estudiante</th><th>Período</th><th>Estado</th><th>Integrantes</th><th></th></tr></thead>
-        <tbody>
-            @forelse ($ternas as $terna)
-                <tr>
-                    <td>{{ $terna->practice->student->user->name }}</td>
-                    <td>{{ $terna->practice->academic_period }} {{ $terna->practice->academic_year }}</td>
-                    <td>{{ $terna->status }}</td>
-                    <td>{{ $terna->members->count() }}</td>
-                    <td><a href="{{ route($portal.'.terna.show', $terna) }}" class="coord-teacher-view"><i class="bi bi-eye"></i> Ver terna</a></td>
-                </tr>
-            @empty
-                <tr><td colspan="5">No hay ternas registradas.</td></tr>
-            @endforelse
-        </tbody>
-    </table></div>
-</section>
-@if ($manager)
-    <section class="content-card">
-        <div class="card-header"><div><h2>Registrar terna pendiente</h2></div></div>
-        <form method="POST" action="{{ route('coordinacion.ternas.store') }}" class="p-3">
-            @csrf<input type="hidden" name="revision" value="0"><input type="hidden" name="status" value="Pendiente de asignación">
-            <label for="committeePractice" class="form-label">Práctica</label>
-            <select name="practice_id" id="committeePractice" class="form-select mb-3" required>
-                @foreach ($practicas as $practica)
-                    <option value="{{ $practica->id }}">{{ $practica->student->user->name }} · {{ $practica->academic_period }} {{ $practica->academic_year }}</option>
-                @endforeach
-            </select>
-            <button class="btn btn-primary" @disabled($practicas->isEmpty())>Registrar terna</button>
-        </form>
-    </section>
+
+@if($manager) @include('academic.committees.filters')
 @endif
+<section class="content-card">
+<div class="table-container table-responsive">
+<table class="data-table">
+<thead>
+<tr>
+<th>Estudiante</th>
+<th>Facultad</th>
+<th>Período de origen</th>
+<th>Estado</th>
+<th>Integrantes</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody>
+
+@forelse($practicas as $practice)
+<tr>
+<td>
+<div>{{ $practice->student->user->name }}</div>
+<small>{{ $practice->student->account_number }}</small>
+</td>
+<td>{{ $practice->student->academicCareer?->name ?? $practice->student->career ?? 'Sin facultad registrada' }}</td>
+<td>{{ $practice->committee?->originLabel() ?? $practice->academic_period.' '.$practice->academic_year }}</td>
+<td>{{ $practice->committee?->status ?? 'Pendiente de asignación' }}</td>
+<td>{{ $practice->committee?->members->count() ?? 0 }}</td>
+<td>
+@if($practice->committee)<a class="coord-teacher-view" href="{{ route($portal.'.terna.show', $practice->committee) }}">Ver terna</a>
+
+@elseif($manager)<form method="POST" action="{{ route('coordinacion.ternas.store') }}">@csrf<input type="hidden" name="practice_id" value="{{ $practice->id }}">
+<input type="hidden" name="revision" value="0">
+<input type="hidden" name="status" value="Pendiente de asignación">
+<button class="btn btn-primary btn-sm">Registrar terna</button>
+</form>
+@endif</td>
+</tr>
+
+@empty<tr>
+<td colspan="6">No hay procesos para estos filtros.</td>
+</tr>
+@endforelse
+</tbody>
+</table>
+</div>
+</section>
+
 @endsection

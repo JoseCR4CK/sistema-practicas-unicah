@@ -42,6 +42,7 @@ class MonographController extends Controller
         $coordinator = Schema::hasTable('academic_committees') ? $monograph->practice->committee?->coordinator() : null;
 
         return view('academic.monographs.show', [
+            'reviewerIds' => collect(array_keys(Monograph::REVIEW_DAYS))->mapWithKeys(fn ($stage) => [$stage => app(MonographWorkflow::class)->reviewerId($monograph, $stage)]),
             'monografia' => $monograph->load(['practice.student.user', 'currentVersion', 'versions.submitter', 'reviews.reviewer', 'reviews.recorder']),
             'committeeCoordinatorId' => $coordinator?->id,
             'committeeCoordinatorName' => $coordinator?->name,
