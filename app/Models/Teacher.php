@@ -16,11 +16,22 @@ class Teacher extends Model
         'employee_code',
         'faculty',
         'phone',
+        'access_approved_at',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function faculties()
+    {
+        return $this->belongsToMany(AcademicCareer::class)->withPivot('is_primary')->withTimestamps();
+    }
+
+    public function scopeApprovedActive($query)
+    {
+        return $query->whereNotNull('access_approved_at')->whereHas('user', fn ($user) => $user->where('status', 'ACTIVE')->whereHas('role', fn ($role) => $role->where('name', 'DOCENTE_SEGUIMIENTO')));
     }
 
     public function practices(): HasMany

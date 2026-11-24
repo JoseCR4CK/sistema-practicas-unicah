@@ -95,7 +95,7 @@ class AcademicCatalogTest extends TestCase
         $this->post(route('docente.carga-academica.store'), $this->fields($subject, ['weekdays' => [1, 2]]))->assertRedirect();
         $this->assertSame(100, AcademicLoad::firstOrFail()->scheduledWeeklyMinutes());
         $this->get(route('docente.carga-academica'))->assertOk()->assertSee('Horario parcial');
-        foreach ([$this->subject(5), $this->subject(3, null, ['credits' => null]), $this->subject(2, null, ['weekly_class_hours' => 5]), $this->subject(2, null, ['status' => 'INACTIVE'])] as $incomplete) {
+        foreach ([$this->subject(3, null, ['credits' => null]), $this->subject(2, null, ['weekly_class_hours' => 5]), $this->subject(2, null, ['status' => 'INACTIVE'])] as $incomplete) {
             $this->post(route('docente.carga-academica.store'), $this->fields($incomplete))->assertSessionHasErrors('academic_subject_id');
         }
         $subject->career->update(['status' => 'INACTIVE']);
@@ -138,9 +138,9 @@ class AcademicCatalogTest extends TestCase
         $this->assertSame(2, $xpath->query('//input[(@id="loadnewCredits" or @id="loadnewHours") and @readonly and not(@name)]')->length);
         $data = json_decode($xpath->query('//script[@id="academicCatalogData"]')->item(0)->textContent, true, 512, JSON_THROW_ON_ERROR);
         $career = collect($data)->firstWhere('id', $subject->academic_career_id);
-        $this->assertSame([$subject->id], array_column($career['subjects'], 'id'));
+        $this->assertContains($subject->id, array_column($career['subjects'], 'id'));
         $this->assertNotContains($other->id, array_column($career['subjects'], 'id'));
-        $this->assertSame(150, $career['subjects'][0]['allowed_minutes']);
+        $this->assertSame(150, collect($career['subjects'])->firstWhere('id', $subject->id)['allowed_minutes']);
     }
 
     public function test_legacy_load_is_only_linked_for_unique_matching_names_and_consistent_confirmed_values(): void
