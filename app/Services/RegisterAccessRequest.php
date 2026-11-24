@@ -13,12 +13,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Validation\AccessMessages;
 
 class RegisterAccessRequest
 {
     public function save(Request $request, string $type, ?AccessRequest $application = null): array
     {
         $student = $type === 'STUDENT';
+        if ($student) $request->merge(['account_number' => $request->input('dni')]);
         $request->merge(['email' => Str::lower(trim((string) $request->input('email')))]);
         $rules = [
             'first_names' => ['required', 'string', 'max:120'], 'last_names' => ['required', 'string', 'max:120'],
@@ -41,7 +43,7 @@ class RegisterAccessRequest
                 $rules['documents.'.$key.'.*'] = ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'mimetypes:application/pdf,image/jpeg,image/png', 'extensions:pdf,jpg,jpeg,png', 'max:8192'];
             }
         }
-        $fields = $request->validate($rules);
+        $fields = $request->validate($rules, AccessMessages::messages($request), AccessMessages::attributes());
         $subjects = $student && $request->boolean('has_pending_subjects') ? ($fields['subjects'] ?? []) : [];
         if ($subjects && AcademicSubject::whereIn('id', $subjects)->where('status', 'ACTIVE')->whereHas('faculties', fn ($query) => $query
             ->where('academic_careers.id', $fields['academic_career_id'])->where('status', 'ACTIVE')->where('academic_career_subject.active', true))->count() !== count($subjects)) {
@@ -96,10 +98,10 @@ class RegisterAccessRequest
         } catch (\Throwable $error) {
             foreach ($stored as $path) Storage::disk('access_documents')->delete($path); // Solo cargas nuevas de una transacción fallida.
             if ($error instanceof UniqueConstraintViolationException) {
-                throw ValidationException::withMessages(['dni' => 'Ya existe una cuenta o solicitud con el DNI, correo o número de cuenta indicado.']);
+                throw ValidationException::withMessages(['dni' => 'Ya existe una cuenta o solicitud con el DNI o correo electrónico indicado.']);
             }
             if ($error instanceof \League\Flysystem\FilesystemException) {
-                throw ValidationException::withMessages(['documents' => 'No se pudieron guardar los archivos. Intenta nuevamente o comunícate con CA.']);
+                throw ValidationException::withMessages(['documents' => 'No se pudieron guardar los archivos. Intenta nuevamente o comunícate con Coordinación Académica.']);
             }
             throw $error;
         }

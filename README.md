@@ -171,7 +171,7 @@ La regla central de `AcademicClassTime` es: 1 crédito → 1 hora; 2 créditos d
 
 ### Registro y revisión
 
-- `/registro/estudiante`: solicitud pública con siete tipos documentales, declaración de asignaturas por facultad y contraseña confirmada. Permite más de dos asignaturas y no impone una excepción automática a Enfermería.
+- `/registro/estudiante`: solicitud pública con siete tipos documentales, declaración de asignaturas por facultad y contraseña confirmada. El estudiante escribe su DNI una sola vez; el servidor utiliza ese mismo valor como número de cuenta interno, sin modificar estudiantes históricos. Permite más de dos asignaturas y no impone una excepción automática a Enfermería.
 - `/registro/docente`: solicitud pública con facultad/área (incluye Generales), sin documentos ni requisito de inducción.
 - El envío crea una **solicitud pendiente**, no un User activo. La contraseña se guarda mediante hash.
 - Se entrega un **enlace privado de seguimiento** con secreto aleatorio; solo se conserva su hash en base de datos. Permite consultar y corregir cuando CA lo solicita. No hay envío de correos ni recuperación de ese enlace en este bloque; consérvalo y no lo compartas.

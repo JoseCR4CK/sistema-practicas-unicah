@@ -4,7 +4,7 @@
 <h1 class="h3">Solicitud de acceso #{{ $application->id }}</h1>
 <p><strong>{{ $application->full_name }}</strong> · {{ $application->career->name }}</p>
 <p>Estado: <strong>{{ $application->statusLabel() }}</strong></p>
-<p>Conserva este enlace privado. No lo compartas: permite consultar tu solicitud y enviar las correcciones que CA solicite.</p>
+<p>Conserva este enlace privado. No lo compartas: permite consultar tu solicitud y enviar las correcciones que Coordinación Académica solicite.</p>
 @if($application->status === 'APPROVED')<div class="alert alert-success">Tu cuenta está habilitada. Ingresa con tu DNI y la contraseña registrada.</div><a class="btn btn-primary" href="{{ route('login') }}">Ingresar</a>@endif
 @if($application->rejection_reason)<div class="alert alert-warning">{{ $application->rejection_reason }}</div>@endif
 @if($application->isStudent())

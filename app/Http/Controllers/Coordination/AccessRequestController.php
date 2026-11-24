@@ -9,13 +9,14 @@ use App\Models\DocumentVersion;
 use App\Services\ReviewAccessRequest;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Validation\AccessMessages;
 
 class AccessRequestController extends Controller
 {
     public function index(Request $request)
     {
         $filters = $request->validate(['type' => ['nullable', Rule::in(['STUDENT', 'TEACHER'])],
-            'faculty' => ['nullable', 'integer', 'exists:academic_careers,id'], 'status' => ['nullable', Rule::in(array_keys(AccessRequest::STATES))], 'search' => ['nullable', 'string', 'max:255']]);
+            'faculty' => ['nullable', 'integer', 'exists:academic_careers,id'], 'status' => ['nullable', Rule::in(array_keys(AccessRequest::STATES))], 'search' => ['nullable', 'string', 'max:255']], AccessMessages::messages($request), AccessMessages::attributes());
         $query = AccessRequest::with('career')->withCount('subjects')->latest('id');
         foreach (['type' => 'type', 'faculty' => 'academic_career_id', 'status' => 'status'] as $filter => $column) {
             if ($filters[$filter] ?? null) $query->where($column, $filters[$filter]);
@@ -42,7 +43,7 @@ class AccessRequestController extends Controller
             'induction_verified' => ['required_if:action,induction', 'boolean'],
             'document_id' => ['required_if:action,document', 'integer'], 'version_id' => ['required_if:action,document', 'integer'],
             'result' => ['required_if:action,document', Rule::in([DocumentVersion::APPROVED, DocumentVersion::CORRECTION])],
-        ]);
+        ], AccessMessages::messages($request), AccessMessages::attributes());
         app(ReviewAccessRequest::class)->execute($application, $request->user(), $fields);
         return back()->with('status', 'Acción registrada.');
     }

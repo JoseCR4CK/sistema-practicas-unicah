@@ -6,6 +6,7 @@ use App\Models\AccessRequest;
 use App\Models\AcademicCareer;
 use App\Services\RegisterAccessRequest;
 use Illuminate\Http\Request;
+use App\Validation\AccessMessages;
 
 class PublicAccessController extends Controller
 {
@@ -44,7 +45,7 @@ class PublicAccessController extends Controller
     public function correct(Request $request, AccessRequest $application, string $token)
     {
         self::authorizeToken($application, $token);
-        $request->validate(['revision' => ['required', 'integer', 'min:0']]);
+        $request->validate(['revision' => ['required', 'integer', 'min:0']], AccessMessages::messages($request), AccessMessages::attributes());
         app(RegisterAccessRequest::class)->save($request, $application->type, $application);
         return redirect()->route('registro.estado', [$application, $token])->with('status', 'Corrección enviada. Las versiones anteriores se conservaron.');
     }

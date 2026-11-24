@@ -61,7 +61,7 @@ class ReviewAccessRequest
                 }, 'before_status' => $before, 'after_status' => $locked->status, 'note' => $fields['note'] ?? null]);
             });
         } catch (UniqueConstraintViolationException $error) {
-            throw ValidationException::withMessages(['approval' => 'Conflicto de DNI, correo o cuenta. No se creó un usuario parcial.']);
+            throw ValidationException::withMessages(['approval' => 'El DNI o correo electrónico ya está asociado a un registro existente. No se creó un usuario parcial.']);
         }
     }
 
@@ -70,7 +70,7 @@ class ReviewAccessRequest
         $career = AcademicCareer::where('status', 'ACTIVE')->findOrFail($application->academic_career_id);
         if ($application->isStudent()) {
             if (!$application->induction_verified || $career->type !== 'FACULTY') {
-                throw ValidationException::withMessages(['approval' => 'CA debe verificar la asistencia en la lista física de inducción y una facultad válida antes de aprobar.']);
+                throw ValidationException::withMessages(['approval' => 'Coordinación Académica debe verificar la asistencia en la lista física de inducción y una facultad válida antes de aprobar.']);
             }
             foreach (AcademicDocument::ACCESS_TYPES as $key => $label) {
                 $current = $application->documents()->where('type', $key)->first()?->currentVersion;
@@ -85,9 +85,10 @@ class ReviewAccessRequest
                 if (!$subject->availableFor($career->id)) throw ValidationException::withMessages(['approval' => 'El catálogo cambió; solicita corregir las asignaturas declaradas.']);
             }
         }
+        if ($application->isStudent()) $application->account_number = $application->dni;
         if (User::where('dni', $application->dni)->orWhere('email', $application->email)->exists()
             || ($application->isStudent() && Student::where('account_number', $application->account_number)->exists())) {
-            throw ValidationException::withMessages(['approval' => 'Ya existe una cuenta con ese DNI, correo o número de cuenta. No se modificaron datos existentes.']);
+            throw ValidationException::withMessages(['approval' => 'Ya existe un registro asociado al DNI o correo electrónico indicado. No se modificaron datos existentes.']);
         }
         $user = User::create(['name' => $application->full_name, 'dni' => $application->dni, 'email' => $application->email,
             'password' => $application->password_hash, 'status' => 'ACTIVE',

@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Models\AcademicCareer;
+use App\Validation\AccessMessages;
 
 class TeacherController extends Controller
 {
     public function index(Request $request): View
     {
-        $fields = $request->validate(['faculty' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('academic_careers', 'id')->where('status', 'ACTIVE')]]);
+        $fields = $request->validate(['faculty' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('academic_careers', 'id')->where('status', 'ACTIVE')]], AccessMessages::messages($request), AccessMessages::attributes());
         $teachers = Teacher::with(['user', 'practices.visits', 'practices.followups', 'practices.monograph.reviews'])->withCount([
             'practices as students_count' => fn ($query) => $query->select(DB::raw('count(distinct student_id)')),
             'practices as active_practices_count' => fn ($query) => $query->where('status', Practice::ACTIVE),
@@ -51,7 +52,7 @@ class TeacherController extends Controller
 
     public function updateFaculty(Request $request, Teacher $teacher)
     {
-        $fields = $request->validate(['academic_career_id' => ['required', 'integer', \Illuminate\Validation\Rule::exists('academic_careers', 'id')->where('status', 'ACTIVE')]]);
+        $fields = $request->validate(['academic_career_id' => ['required', 'integer', \Illuminate\Validation\Rule::exists('academic_careers', 'id')->where('status', 'ACTIVE')]], AccessMessages::messages($request), AccessMessages::attributes());
         DB::transaction(function () use ($teacher, $fields, $request) {
             $locked = Teacher::lockForUpdate()->findOrFail($teacher->id);
             $career = AcademicCareer::findOrFail($fields['academic_career_id']);

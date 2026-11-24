@@ -40,7 +40,7 @@ class AccessAdmissionsTest extends TestCase
             'email' => 'registro@example.test', 'phone' => '00000000', 'academic_career_id' => $this->faculty()->id,
             'password' => 'Scenario123!', 'password_confirmation' => 'Scenario123!'];
         if ($student) {
-            $fields += ['account_number' => 'CUENTA-ESCENARIO', 'has_pending_subjects' => 1,
+            $fields += ['has_pending_subjects' => 1,
                 'subjects' => $this->faculty()->subjects()->limit(3)->pluck('academic_subjects.id')->all(), 'documents' => []];
             foreach (AcademicDocument::ACCESS_TYPES as $key => $label) $fields['documents'][$key] = [UploadedFile::fake()->create($key.'.pdf', 20, 'application/pdf')];
         }
@@ -156,6 +156,8 @@ class AccessAdmissionsTest extends TestCase
         $this->assertTrue($application->user->hasRole('ESTUDIANTE'));
         $this->assertTrue(Hash::check('Scenario123!', $application->user->password));
         $student = $application->user->student;
+        $this->assertSame($application->dni, $application->account_number);
+        $this->assertSame($application->dni, $student->account_number);
         $this->assertSame(3, $student->pendingSubjects()->count());
         $this->assertSame(7, $student->documents()->count());
         $this->assertSame(0, $student->practices()->count());
@@ -184,6 +186,7 @@ class AccessAdmissionsTest extends TestCase
         $fields = $this->payload(true, ['documents' => ['SOLVENCIA_PAGO' => [UploadedFile::fake()->create('nueva.pdf', 20, 'application/pdf')]], 'revision' => $application->fresh()->revision]);
         $this->put($url, $fields)->assertSessionHasNoErrors()->assertRedirect();
         $this->assertSame('PENDING', $application->fresh()->status);
+        $this->assertSame($application->dni, $application->fresh()->account_number);
         $this->assertSame(2, $document->versions()->count());
         Storage::disk('access_documents')->assertExists($old->files[0]['path']);
         $this->assertTrue($application->events()->where('action', 'Corrección enviada')->exists());
@@ -273,7 +276,7 @@ class AccessAdmissionsTest extends TestCase
         $this->act($application, 'induction', ['induction_verified' => 1]);
         $count = User::count();
         Student::creating(function (Student $student) {
-            if ($student->account_number === 'CUENTA-ESCENARIO') throw new \RuntimeException('Fallo simulado del almacenamiento de perfil');
+            if ($student->account_number === 'REG-00001') throw new \RuntimeException('Fallo simulado del almacenamiento de perfil');
         });
         try {
             $this->act($application, 'approve')->assertStatus(500);
@@ -307,5 +310,85 @@ class AccessAdmissionsTest extends TestCase
         $teacher = $application->fresh()->user->teacher;
         $this->assertTrue($teacher->faculties()->whereKey($this->faculty()->id)->wherePivot('is_primary', true)->exists());
         $this->get(route('coordinacion.docentes', ['faculty' => $this->faculty()->id]))->assertOk()->assertViewHas('docentes', fn ($teachers) => $teachers->contains('id', $teacher->id));
+    }
+
+    public function test_student_enters_dni_once_and_server_derives_account_without_modifying_historical_students(): void
+    {
+        $html = $this->get('/registro/estudiante')->assertOk()->getContent();
+        $document = new \DOMDocument();
+        @$document->loadHTML($html);
+        $xpath = new \DOMXPath($document);
+        $this->assertSame(1, $xpath->query('//input[@name="dni"]')->length);
+        $this->assertSame(0, $xpath->query('//input[@name="account_number"]')->length);
+        $this->assertStringNotContainsString('Número de cuenta', $html);
+        $historical = Student::all()->mapWithKeys(fn ($student) => [$student->id => $student->getRawOriginal()])->all();
+        $application = $this->submit(true, ['account_number' => 'VALOR-DEL-CLIENTE-IGNORADO']);
+        $this->assertSame($application->dni, $application->account_number);
+        $this->act($application, 'start');
+        $this->reviewDocuments($application);
+        $this->act($application, 'induction', ['induction_verified' => 1]);
+        $this->act($application, 'approve')->assertSessionHasNoErrors();
+        $this->assertSame($application->dni, $application->fresh()->user->student->account_number);
+        foreach ($historical as $id => $before) $this->assertSame($before, Student::findOrFail($id)->getRawOriginal());
+        $legacy = Student::findOrFail(array_key_first($historical));
+        $this->actingAs($legacy->user)->get('/estudiante')->assertOk();
+    }
+
+    public function test_access_views_use_full_coordination_name_and_show_dni_without_duplicate_account(): void
+    {
+        $submitted = $this->post('/registro/estudiante', $this->payload())->assertSessionHasNoErrors();
+        $trackingUrl = $submitted->headers->get('Location');
+        $application = AccessRequest::firstOrFail();
+        $this->act($application, 'start');
+        $pages = ['/registro/estudiante', '/registro/docente', $trackingUrl, route('coordinacion.accesos'), route('coordinacion.acceso', $application),
+            route('coordinacion.docente', User::whereHas('role', fn ($q) => $q->where('name', 'DOCENTE_SEGUIMIENTO'))->firstOrFail()->teacher)];
+        foreach ($pages as $url) {
+            $html = $this->get($url)->assertOk()->getContent();
+            $document = new \DOMDocument();
+            @$document->loadHTML('<?xml encoding="UTF-8">'.$html);
+            $xpath = new \DOMXPath($document);
+            $text = $xpath->query('//main')->item(0)->textContent;
+            $this->assertDoesNotMatchRegularExpression('/\bCA\b/u', $text);
+        }
+        $detail = $this->get(route('coordinacion.acceso', $application))->assertSee('Asistencia a inducción verificada por Coordinación Académica');
+        $detail->assertDontSee('DNI / Cuenta')->assertDontSee($application->dni.' / '.$application->dni);
+        $this->get(route('coordinacion.accesos', ['search' => $application->dni]))->assertViewHas('applications', fn ($apps) => $apps->total() === 1);
+        $application->update(['account_number' => 'CUENTA-HISTORICA-DE-SOLICITUD']);
+        $this->get(route('coordinacion.accesos', ['search' => 'CUENTA-HISTORICA-DE-SOLICITUD']))->assertViewHas('applications', fn ($apps) => $apps->total() === 1);
+        $this->act($application, 'correct', ['note' => 'Corrija los datos indicados.'])->assertSessionHasNoErrors();
+        $correction = $this->get($trackingUrl)->assertOk()->getContent();
+        $this->assertStringNotContainsString('name="account_number"', $correction);
+        $this->assertDoesNotMatchRegularExpression('/\bCA\b/u', strip_tags($correction));
+    }
+
+    public function test_registration_validation_messages_are_spanish_and_account_uniqueness_remains_enforced(): void
+    {
+        foreach (['/registro/estudiante', '/registro/docente'] as $url) {
+            $this->post($url, [])->assertSessionHasErrors(['dni' => 'Debe completar el DNI.', 'email' => 'Debe completar el correo electrónico.']);
+            $this->post($url, $this->payload($url === '/registro/estudiante', ['email' => 'no-es-correo', 'password_confirmation' => 'otra']))
+                ->assertSessionHasErrors(['email' => 'Debe indicar un correo electrónico válido.', 'password' => 'La confirmación de la contraseña no coincide.']);
+        }
+        $existing = User::firstOrFail();
+        $this->post('/registro/docente', $this->payload(false, ['dni' => $existing->dni, 'email' => $existing->email]))
+            ->assertSessionHasErrors(['dni' => 'El DNI ya está registrado en el sistema.', 'email' => 'El correo electrónico ya está registrado en el sistema.']);
+        $legacy = Student::firstOrFail();
+        $this->post('/registro/estudiante', $this->payload(true, ['dni' => $legacy->account_number]))
+            ->assertSessionHasErrors(['account_number' => 'El DNI indicado ya está registrado como número de cuenta de un estudiante.']);
+        $fields = $this->payload();
+        $fields['documents']['SOLVENCIA_PAGO'] = [UploadedFile::fake()->create('grande.pdf', 8193, 'application/pdf')];
+        $this->post('/registro/estudiante', $fields)->assertSessionHasErrors(['documents.SOLVENCIA_PAGO.0' => 'Cada archivo debe tener un tamaño máximo de 8 MB.']);
+    }
+
+    public function test_review_requires_rejection_and_correction_reasons_in_spanish(): void
+    {
+        $application = $this->submit(false);
+        $this->act($application, 'start');
+        $this->act($application, 'reject')->assertSessionHasErrors(['note' => 'Debe indicar el motivo para rechazar la solicitud.']);
+        $this->act($application, 'correct')->assertSessionHasErrors(['note' => 'Debe indicar qué debe corregir el solicitante.']);
+        $this->act($application, 'induction', ['induction_verified' => 'invalido'])
+            ->assertSessionHasErrors(['induction_verified' => 'Seleccione una opción válida para la verificación de asistencia a inducción.']);
+        $this->act($application, 'approve', ['revision' => 'invalida'])
+            ->assertSessionHasErrors(['revision' => 'Debe indicar un número entero para la revisión.']);
+        $this->assertSame('IN_REVIEW', $application->fresh()->status);
     }
 }
