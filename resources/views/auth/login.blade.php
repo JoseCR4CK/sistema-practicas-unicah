@@ -239,6 +239,10 @@
 
 
             </form>
+            <nav class="d-flex flex-wrap gap-3 mt-3" aria-label="Solicitar acceso al sistema">
+                <a href="{{ route('registro.estudiante') }}">Registro de estudiante</a>
+                <a href="{{ route('registro.docente') }}">Registro de docente</a>
+            </nav>
 
 
         </div>

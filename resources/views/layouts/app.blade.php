@@ -88,6 +88,10 @@
             </a>
 
 
+            <a href="{{ route('coordinacion.accesos') }}" class="nav-item {{ request()->routeIs('coordinacion.accesos', 'coordinacion.acceso') ? 'active' : '' }}">
+                <i class="bi bi-person-plus"></i><span>Solicitudes de acceso</span><span class="nav-badge">{{ $pendingAccessRequests }}</span>
+            </a>
+
             <a
                 href="{{ route('coordinacion.solicitudes') }}"
                 class="nav-item {{ request()->routeIs('coordinacion.solicitudes', 'coordinacion.solicitud') ? 'active' : '' }}"

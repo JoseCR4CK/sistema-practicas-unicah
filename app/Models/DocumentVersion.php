@@ -11,11 +11,12 @@ class DocumentVersion extends Model
     public const APPROVED = 'Aprobado';
     public const CORRECTION = 'Requiere corrección';
 
-    protected $fillable = ['version', 'status', 'uploaded_by', 'uploaded_at', 'submission_note', 'observation', 'reviewed_by', 'reviewed_at'];
+    protected $fillable = ['version', 'status', 'uploaded_by', 'uploaded_at', 'submission_note', 'observation', 'reviewed_by', 'reviewed_at', 'files'];
+    protected $hidden = ['files'];
 
     protected function casts(): array
     {
-        return ['version' => 'integer', 'uploaded_at' => 'datetime', 'reviewed_at' => 'datetime'];
+        return ['version' => 'integer', 'uploaded_at' => 'datetime', 'reviewed_at' => 'datetime', 'files' => 'array'];
     }
 
     public function document(): BelongsTo

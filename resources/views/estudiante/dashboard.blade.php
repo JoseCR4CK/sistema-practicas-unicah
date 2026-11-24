@@ -611,4 +611,5 @@
 </section>
 
 
+@include('estudiante.declared-subjects')
 @endsection

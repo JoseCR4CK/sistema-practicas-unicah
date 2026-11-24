@@ -10,7 +10,7 @@ class AcademicDocumentPolicy
     public function view(User $user, AcademicDocument $document): bool
     {
         return $this->review($user, $document)
-            || ($user->hasRole('ESTUDIANTE') && $document->practice->student->user_id === $user->id);
+            || ($user->hasRole('ESTUDIANTE') && $document->practice?->student->user_id === $user->id);
     }
 
     public function review(User $user, AcademicDocument $document): bool

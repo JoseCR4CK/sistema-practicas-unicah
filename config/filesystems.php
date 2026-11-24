@@ -30,6 +30,12 @@ return [
 
     'disks' => [
 
+        'access_documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/access-documents'),
+            'throw' => true,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

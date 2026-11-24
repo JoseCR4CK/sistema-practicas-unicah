@@ -17,7 +17,20 @@ class AcademicDocument extends Model
         'SOLICITUD_EMPRESA' => 'Solicitud de empresa (opcional)',
     ];
 
-    protected $fillable = ['practice_id', 'type'];
+    public const ACCESS_TYPES = [
+        'DATOS_LUGAR_PRACTICA' => 'Datos Generales del lugar de práctica',
+        'CARTA_ACEPTACION' => 'Carta de Aceptación de Práctica',
+        'DNI_ESTUDIANTE' => 'Identidad del estudiante, ambos lados',
+        'DNI_TESTIGO_1' => 'Identidad Testigo #1',
+        'DNI_TESTIGO_2' => 'Identidad Testigo #2',
+        'TITULO_COLEGIO' => 'Copia del Título de Colegio, ambos lados',
+        'SOLVENCIA_PAGO' => 'Solvencia de pago',
+    ];
+
+    protected $fillable = ['practice_id', 'type', 'access_request_id', 'student_id'];
+
+    public function accessRequest(): BelongsTo { return $this->belongsTo(AccessRequest::class); }
+    public function student(): BelongsTo { return $this->belongsTo(Student::class); }
 
     public function practice(): BelongsTo
     {

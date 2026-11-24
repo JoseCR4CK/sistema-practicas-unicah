@@ -45,7 +45,7 @@ php artisan db:seed
 php artisan serve
 ```
 
-Revisa los seeders antes de ejecutarlos sobre datos editados. Sus registros son de desarrollo, no información institucional real. No reconstruyas destructivamente una instalación para actualizarla. El catálogo académico todavía requiere asignaturas verificadas; no se inventan códigos ni créditos.
+Revisa los seeders antes de ejecutarlos sobre datos editados. Los seeders de demostración contienen datos de desarrollo; `AcademicCatalogSeeder` importa la fuente académica versionada y conserva sus conflictos. No reconstruyas destructivamente una instalación para actualizarla ni inventes códigos o créditos faltantes.
 
 Abre `http://127.0.0.1:8000`. El ingreso utiliza DNI y contraseña; las cuentas de desarrollo y sus roles están definidos en `database/seeders/`. Para compilar recursos Vite, cuando corresponda: `npm install` y `npm run build` (o `npm run dev` durante desarrollo).
 
@@ -147,3 +147,47 @@ Bootstrap 5.3.8 y Bootstrap Icons 1.11.3 mantienen sus CDN originales y requiere
 Vite genera `public/build/manifest.json`, CSS y JavaScript con hash y la imagen importada del Login. `public/build/` es salida compilada ignorada por Git; no debe editarse manualmente ni confundirse con código fuente. No se conservan copias paralelas del CSS propio en `public/css/`.
 
 Comprobación visual reproducible sin MySQL: `php tests/RenderFrontendReview.php` genera temporalmente las vistas reales de los cinco portales con SQLite en memoria en `public/frontend-review/` (ignorado por Git). Con Laravel servido, abre `/frontend-review/login.html` o `/frontend-review/coordinacion.html`. Sus formularios están bloqueados para evitar escrituras y sus enlaces principales apuntan a otras vistas renderizadas. Son fixtures de presentación, no un acceso autenticado ni una prueba de persistencia MySQL. Retira esos archivos temporales al finalizar la revisión.
+
+## Bloque 6A: catálogo académico y solicitudes de acceso
+
+El catálogo reutiliza `academic_careers` y `academic_subjects`. Contiene las ocho facultades/carreras indicadas para el campus y la unidad **Generales**, que no es una carrera estudiantil. Una asignatura global puede tener varios planes mediante `academic_career_subject`; se conservan período, procedencia y metadatos del Excel.
+
+Fuente: `docs/reference/Catalogo_Academico_UNICAH_SAP_CORREGIDO.xlsx`. Para regenerar su exportación determinista (Python estándar, sin paquetes adicionales):
+
+```powershell
+python tools/export_academic_catalog.py
+```
+
+Laravel consume `database/data/academic_catalog.json` al importar, y consulta Eloquent/MySQL durante la ejecución normal; no lee Excel en cada petición. Tras iniciar la base MySQL local autorizada, aplica las migraciones aditivas y carga solo el catálogo:
+
+```powershell
+php artisan migrate
+php artisan db:seed --class=AcademicCatalogSeeder
+```
+
+No uses `migrate:fresh`. El catálogo conserva códigos ausentes como null, referencias con conflictos y valores editados. Los planes duplicados comparten asignatura; la coincidencia de una fila sin código se resuelve únicamente si nombre, tipo y créditos coinciden inequívocamente con otro registro de la misma fuente. No se asimila Administración de Empresas a Gestión Estratégica de Empresas ni una facultad histórica genérica a una unidad específica.
+
+La regla central de `AcademicClassTime` es: 1 crédito → 1 hora; 2 créditos de laboratorio explícitamente identificado → 2 horas; 2 créditos normales → 3 horas; desde 3 créditos normales → créditos + 1 horas. Cada hora clase equivale a 50 minutos. No se infiere un laboratorio por una coincidencia parcial en el nombre. Las inconsistencias académicas quedan señaladas y no producen una equivalencia confirmada para la carga académica.
+
+### Registro y revisión
+
+- `/registro/estudiante`: solicitud pública con siete tipos documentales, declaración de asignaturas por facultad y contraseña confirmada. Permite más de dos asignaturas y no impone una excepción automática a Enfermería.
+- `/registro/docente`: solicitud pública con facultad/área (incluye Generales), sin documentos ni requisito de inducción.
+- El envío crea una **solicitud pendiente**, no un User activo. La contraseña se guarda mediante hash.
+- Se entrega un **enlace privado de seguimiento** con secreto aleatorio; solo se conserva su hash en base de datos. Permite consultar y corregir cuando CA lo solicita. No hay envío de correos ni recuperación de ese enlace en este bloque; consérvalo y no lo compartas.
+- `/coordinacion/solicitudes-acceso`: módulo exclusivo para CA/ROOT, separado de las solicitudes de práctica; incluye filtros, contadores y advertencia para más de dos asignaturas.
+- CA inicia la revisión, evalúa documentos, solicita correcciones o rechaza con motivo. Los resultados documentales no tienen aprobación predeterminada.
+- La inducción sigue usando una lista **física**. CA registra su verificación manual; no hay módulo ni lista digital de asistentes. Enviar una solicitud no exige haber asistido.
+- Para aprobar un estudiante se exige la verificación de inducción y los siete documentos aprobados. En una transacción se crean User/Student, las asociaciones académicas y documentales, y el historial. No se crea una práctica ni se cambia una etapa automáticamente.
+- Al aprobar al docente se crea User/Teacher, su unidad principal y su fecha de aprobación. Aparece automáticamente en el filtro por facultad de Coordinación → Docentes. CA puede corregir la unidad principal desde el detalle. La relación admite varias unidades futuras sin crear tablas separadas por facultad.
+- El estudiante aprobado ve **Asignaturas cursadas durante la práctica** y sus documentos de acceso en Inicio/Mi práctica. Sus herramientas personales privadas no cambian.
+
+### Archivos y seguridad
+
+Se reutilizan `AcademicDocument` y `DocumentVersion`. Los archivos se almacenan en un disco privado `access_documents`, dentro de `storage/app/private/access-documents`, sin enlace público. Las descargas validan el secreto privado, o bien sesión y pertenencia/autorización en servidor. Los documentos de acceso sin práctica no se mezclan con la revisión documental del proceso ya existente.
+
+Tipos: Datos Generales del lugar de práctica, Carta de Aceptación, identidad del estudiante (ambos lados), identidades de los dos testigos, título de colegio (ambos lados) y solvencia de pago. No se solicita el instructivo de monografía. Se admiten PDF/JPG/JPEG/PNG con validación MIME y extensión, hasta 8 MB por archivo (también aplican los límites de PHP del entorno). Para ambos lados, un PDF que los contenga o dos imágenes. CA verifica el contenido. Cada corrección crea una versión nueva sin borrar las anteriores.
+
+Los estados son Pendiente, En revisión, Requiere corrección, Aprobada y Rechazada. Las acciones verifican estado y revisión vigente, usan CSRF y autorización por rol, y registran eventos. DNI/correo/cuenta no pueden duplicarse. El rol, la inducción y la aprobación no se aceptan del formulario público. Una falla al crear el perfil revierte la creación de User y la aprobación.
+
+Pruebas específicas: `php artisan test --do-not-cache-result --filter="AccessAdmissionsTest|CatalogSchemaTest"`. Revisión visual aislada: `php tests/RenderAccessReview.php`; utiliza SQLite en memoria y genera fixtures temporales bajo `public/frontend-review/`, sin persistir cuentas en MySQL. Su revisión no sustituye las pruebas manuales contra la base local cuando esté disponible.
