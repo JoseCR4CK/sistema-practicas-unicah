@@ -46,6 +46,7 @@ class DefenseScheduling
 
     private function ensureMutable(Defense $defense): void
     {
+        abort_if($defense->committee->isClosed(), 409, 'La terna está cerrada.');
         abort_unless(in_array($defense->status, ['Pendiente', 'En coordinación'], true), 409, 'La programación ya fue confirmada. La reprogramación requiere definir su procedimiento.');
     }
 
@@ -90,7 +91,7 @@ class DefenseScheduling
                 throw ValidationException::withMessages(['starts_at' => 'La opción coincide con horas de clase registradas.']);
             }
             $option = $locked->options()->firstOrCreate(
-                ['starts_at' => $start, 'duration_minutes' => $locked->duration_minutes, 'committee_revision' => $locked->committee->revision],
+                ['starts_at' => $start, 'duration_minutes' => $locked->duration_minutes, 'committee_revision' => $locked->committee->revision, 'scheduling_round' => $locked->scheduling_round],
                 ['ends_at' => $end, 'proposed_by' => $user->id],
             );
             $locked->update(['status' => 'En coordinación']);
@@ -105,7 +106,7 @@ class DefenseScheduling
             $this->ensureMutable($locked);
             Gate::authorize('respond', $locked);
             $currentOption = $locked->options()->findOrFail($option->id);
-            abort_unless($currentOption->committee_revision === $locked->committee->revision, 409, 'La composición de la terna cambió. Se requiere una opción de horario actualizada.');
+            abort_unless($currentOption->committee_revision === $locked->committee->revision && $currentOption->scheduling_round === $locked->scheduling_round, 409, 'La composición o ronda cambió. Se requiere una opción de horario actualizada.');
             if ($fields['available'] && $user->teacher && $this->hasClassConflict($locked, $currentOption->starts_at, $currentOption->ends_at, $user->teacher->id)) {
                 throw ValidationException::withMessages(['available' => 'La opción coincide con tus horas de clase registradas.']);
             }
@@ -139,8 +140,8 @@ class DefenseScheduling
         $this->locked($defense, function ($locked) use ($option, $user) {
             $this->ensureMutable($locked);
             $currentOption = $locked->options()->findOrFail($option->id);
-            abort_unless($locked->committee->status === 'Confirmada' && $locked->committee->members->count() === 3, 409, 'La terna debe estar confirmada con tres integrantes.');
-            abort_unless($currentOption->committee_revision === $locked->committee->revision && $currentOption->duration_minutes === $locked->duration_minutes, 409, 'La opción corresponde a una asignación anterior.');
+            abort_unless(in_array($locked->committee->status, ['Confirmada', 'Activa'], true) && $locked->committee->isFullyAssigned(), 409, 'La terna debe tener sus tres docentes y funciones confirmadas.');
+            abort_unless($currentOption->committee_revision === $locked->committee->revision && $currentOption->scheduling_round === $locked->scheduling_round && $currentOption->duration_minutes === $locked->duration_minutes, 409, 'La opción corresponde a una asignación o ronda anterior.');
             $participants = $locked->participants()->pluck('id');
             $agreed = $currentOption->availabilities()->whereIn('user_id', $participants)->where('available', true)->count();
             abort_unless($agreed === $participants->count(), 409, 'Falta la coincidencia de disponibilidad de todos los participantes.');

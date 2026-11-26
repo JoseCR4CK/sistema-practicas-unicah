@@ -127,9 +127,11 @@ Route::middleware('closing.schema:monographs')->group(function () {
 
 Route::middleware('closing.schema:committees')->group(function () {
     Route::get('/coordinacion/ternas', [CommitteeController::class, 'index'])->name('coordinacion.ternas');
+    Route::get('/coordinacion/ternas/carga-docente', [CommitteeController::class, 'workload'])->name('coordinacion.ternas.carga');
     Route::post('/coordinacion/ternas', [CommitteeController::class, 'store'])->name('coordinacion.ternas.store');
     Route::get('/coordinacion/ternas/{committee}', [CommitteeController::class, 'show'])->whereNumber('committee')->name('coordinacion.terna.show');
     Route::put('/coordinacion/ternas/{committee}', [CommitteeController::class, 'update'])->whereNumber('committee')->name('coordinacion.terna.update');
+    Route::post('/coordinacion/ternas/{committee}/gestion', [CommitteeController::class, 'lifecycle'])->whereNumber('committee')->name('coordinacion.terna.gestion');
 });
 
 Route::middleware('closing.schema:defenses')->group(function () {

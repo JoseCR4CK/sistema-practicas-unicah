@@ -41,7 +41,37 @@ class AcademicClosingTest extends TestCase
             'role_id' => Role::where('name', 'DOCENTE_SEGUIMIENTO')->firstOrFail()->id,
             'status' => 'ACTIVE',
         ]);
-        return Teacher::create(['user_id' => $user->id]);
+        return $this->eligible(Teacher::create(['user_id' => $user->id]));
+    }
+
+    private function eligible(Teacher $teacher): Teacher
+    {
+        $teacher->update(['access_approved_at' => now()]);
+        $faculty = \App\Models\AcademicCareer::where('type', 'FACULTY')->firstOrFail();
+        $teacher->faculties()->syncWithoutDetaching([$faculty->id => ['is_primary' => true]]);
+        return $teacher;
+    }
+
+    private function memberFields(array $teachers): array
+    {
+        return collect($teachers)->map(fn ($teacher, $index) => [
+            'user_id' => $this->eligible($teacher)->user_id,
+            'function' => AcademicCommittee::FUNCTIONS[$index],
+            'academic_career_id' => $teacher->faculties()->firstOrFail()->id,
+        ])->all();
+    }
+
+    private function assign(Practice $practice, ?Teacher $coordinator = null): AcademicCommittee
+    {
+        return app(\App\Services\CommitteeAssignment::class)->save($practice, $this->userFor('COORDINACION'), [
+            'revision' => $practice->committee?->revision ?? 0, 'status' => 'Confirmada', 'reason' => 'Asignación académica registrada',
+            'members' => $this->memberFields([$coordinator ?? $practice->teacher, $this->otherTeacher(), $this->otherTeacher()]),
+        ]);
+    }
+
+    private function reviewer(Practice $practice, string $stage = 'tecnica'): User
+    {
+        return User::findOrFail($practice->fresh()->committee->reviewerId($stage));
     }
 
     private function submit(Practice $practice): Monograph
@@ -59,6 +89,7 @@ class AcademicClosingTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2026-11-01 09:00:00'));
         $practice = Student::where('account_number', '0801-2022-00458')->firstOrFail()->preferredPractice();
+        $this->assign($practice);
         $this->assertSame('2026-11-23', $practice->monographDeadline()->format('Y-m-d'));
         $monograph = $this->submit($practice);
         $first = $monograph->currentVersion;
@@ -68,7 +99,7 @@ class AcademicClosingTest extends TestCase
         $coordinator = $monograph->currentReviews()->get('coordinador');
         $this->assertNull($style->started_at);
         $this->assertNull($coordinator->started_at);
-        $this->actingAs($practice->teacher->user)->post(route('docente.monografia.review', $monograph), [
+        $this->actingAs($this->reviewer($practice))->post(route('docente.monografia.review', $monograph), [
             'review_id' => $technical->id, 'status' => 'Requiere corrección', 'observation' => 'Precisar resultados',
         ])->assertRedirect();
         $this->travelTo(Carbon::parse('2026-11-03 12:00:00'));
@@ -80,11 +111,11 @@ class AcademicClosingTest extends TestCase
         $this->assertSame($style->id, $monograph->currentReviews()->get('estilo')->id);
         $this->assertNull($style->fresh()->due_at);
         $this->assertNull($coordinator->fresh()->due_at);
-        $this->actingAs($practice->teacher->user)->post(route('docente.monografia.review', $monograph), [
+        $this->actingAs($this->reviewer($practice))->post(route('docente.monografia.review', $monograph), [
             'review_id' => $newTechnical->id, 'status' => 'Aprobada',
         ])->assertRedirect();
         $this->assertSame('2026-11-06 12:00:00', $style->fresh()->due_at->format('Y-m-d H:i:s'));
-        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.monografia.review', $monograph), [
+        $this->actingAs($this->reviewer($practice, 'estilo'))->post(route('docente.monografia.review', $monograph), [
             'review_id' => $style->id, 'status' => 'Requiere corrección', 'observation' => 'Revisar redacción',
         ])->assertRedirect();
         $technicalClock = $newTechnical->fresh()->due_at->toDateTimeString();
@@ -93,7 +124,7 @@ class AcademicClosingTest extends TestCase
         $newStyle = $monograph->currentReviews()->get('estilo');
         $this->assertSame('2026-11-07 10:00:00', $newStyle->due_at->toDateTimeString());
         $this->assertSame($technicalClock, $newTechnical->fresh()->due_at->toDateTimeString());
-        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.monografia.review', $monograph), [
+        $this->actingAs($this->reviewer($practice, 'estilo'))->post(route('docente.monografia.review', $monograph), [
             'review_id' => $newStyle->id, 'status' => 'Aprobada',
         ])->assertRedirect();
         $this->assertSame('2026-11-05 10:00:00', $coordinator->fresh()->due_at->toDateTimeString());
@@ -113,9 +144,7 @@ class AcademicClosingTest extends TestCase
         $members = [$practice->teacher, $this->otherTeacher(), $this->otherTeacher()];
         $fields = [
             'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Confirmada',
-            'members' => collect($members)->map(fn ($teacher, $index) => [
-                'user_id' => $teacher->user_id, 'function' => $index === 0 ? 'Coordinador' : 'Miembro',
-            ])->all(),
+            'members' => $this->memberFields($members),
         ];
         $this->actingAs($this->userFor('COORDINACION'));
         $this->post(route('coordinacion.ternas.store'), array_replace($fields, ['members' => array_slice($fields['members'], 0, 2)]))
@@ -124,7 +153,7 @@ class AcademicClosingTest extends TestCase
         $duplicate['members'][2]['user_id'] = $duplicate['members'][1]['user_id'];
         $this->post(route('coordinacion.ternas.store'), $duplicate)->assertSessionHasErrors('members.1.user_id');
         $multipleCoordinators = $fields;
-        $multipleCoordinators['members'][1]['function'] = 'Coordinador';
+        $multipleCoordinators['members'][1]['function'] = AcademicCommittee::COORDINATOR;
         $this->post(route('coordinacion.ternas.store'), $multipleCoordinators)->assertSessionHasErrors('members');
         $this->post(route('coordinacion.ternas.store'), $fields)->assertRedirect();
         $committee = AcademicCommittee::where('practice_id', $practice->id)->firstOrFail();
@@ -149,15 +178,12 @@ class AcademicClosingTest extends TestCase
     {
         $practice = Student::where('account_number', '0801-2022-00458')->firstOrFail()->preferredPractice();
         $coordinator = $this->otherTeacher();
-        $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.ternas.store'), [
-            'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Asignada',
-            'members' => [['user_id' => $coordinator->user_id, 'function' => 'Coordinador']],
-        ])->assertRedirect();
+        $this->assign($practice, $coordinator);
         $monograph = $this->submit($practice);
         foreach (['tecnica', 'estilo'] as $stage) {
             $review = $monograph->fresh()->currentReviews()->get($stage);
-            $actor = $stage === 'tecnica' ? $practice->teacher->user : $this->userFor('COORDINACION');
-            $this->actingAs($actor)->post(route($stage === 'tecnica' ? 'docente.monografia.review' : 'coordinacion.monografia.review', $monograph), [
+            $actor = $this->reviewer($practice, $stage);
+            $this->actingAs($actor)->post(route('docente.monografia.review', $monograph), [
                 'review_id' => $review->id, 'status' => 'Aprobada',
             ])->assertRedirect();
         }
@@ -184,6 +210,7 @@ class AcademicClosingTest extends TestCase
     {
         $monograph = Monograph::firstOrFail();
         $practice = $monograph->practice;
+        $this->assign($practice);
         $technical = $monograph->currentReviews()->get('tecnica');
         $fields = ['review_id' => $technical->id, 'status' => 'Aprobada'];
         $this->actingAs($this->userFor('COORDINACION'))
@@ -194,6 +221,7 @@ class AcademicClosingTest extends TestCase
         $this->actingAs($practice->teacher->user);
         $this->get(route('docente.practicante', $practice->student_id))->assertOk()
             ->assertSee(route('docente.monografia.show', $monograph));
+        $this->actingAs($this->reviewer($practice));
         $html = $this->get(route('docente.monografia.show', $monograph))->assertOk()
             ->assertSee('Seleccione un resultado')->assertSee('Registrar revisión')->getContent();
         $this->assertMatchesRegularExpression('/<select[^>]*name="status"[^>]*required>\s*<option value="" selected disabled>Seleccione un resultado<\/option>/', $html);
@@ -202,7 +230,7 @@ class AcademicClosingTest extends TestCase
             ->assertSessionHasErrors('status');
         $this->assertSame('En revisión', $technical->fresh()->status);
         $this->post(route('docente.monografia.review', $monograph), $fields)->assertRedirect();
-        $this->assertSame($practice->teacher->user_id, $technical->fresh()->recorded_by);
+        $this->assertSame($this->reviewer($practice)->id, $technical->fresh()->recorded_by);
         $style = $monograph->fresh()->currentReviews()->get('estilo');
         $this->post(route('docente.monografia.review', $monograph), ['review_id' => $style->id, 'status' => 'Aprobada'])->assertForbidden();
     }
@@ -211,6 +239,7 @@ class AcademicClosingTest extends TestCase
     {
         $monograph = Monograph::firstOrFail();
         $practice = $monograph->practice;
+        $this->assign($practice);
         $first = $monograph->currentVersion;
         $technical = $monograph->currentReviews()->get('tecnica');
         $this->actingAs($practice->student->user);
@@ -231,7 +260,7 @@ class AcademicClosingTest extends TestCase
         $this->assertNotNull($visitStep);
         $this->assertStringNotContainsString('completed', $visitStep->getAttribute('class'));
         $this->assertStringContainsString('Sin visita registrada', $visitStep->textContent);
-        $this->post(route('docente.monografia.review', $monograph), [
+        $this->actingAs($this->reviewer($practice))->post(route('docente.monografia.review', $monograph), [
             'review_id' => $technical->id, 'status' => 'Requiere corrección', 'observation' => 'Precisar resultados',
         ])->assertRedirect();
         $this->actingAs($practice->student->user)->get(route('estudiante.monografia.show', $monograph))->assertOk()->assertSee('Registrar nueva versión');
@@ -338,9 +367,7 @@ class AcademicClosingTest extends TestCase
         $members = [$practice->teacher, $this->otherTeacher(), $this->otherTeacher()];
         $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.ternas.store'), [
             'practice_id' => $practice->id, 'revision' => 0, 'status' => 'Confirmada',
-            'members' => collect($members)->map(fn ($teacher, $index) => [
-                'user_id' => $teacher->user_id, 'function' => $index === 0 ? 'Coordinador' : 'Miembro',
-            ])->all(),
+            'members' => $this->memberFields($members),
         ])->assertRedirect();
 
         return AcademicCommittee::where('practice_id', $practice->id)->with(['members.user', 'practice.student.user'])->firstOrFail();
@@ -388,8 +415,8 @@ class AcademicClosingTest extends TestCase
         $this->assertSame('ACTIVE', $committee->practice->fresh()->status);
         $this->put(route('coordinacion.terna.update', $committee), [
             'revision' => $committee->revision, 'status' => 'Confirmada',
-            'members' => $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function])->all(),
-        ])->assertStatus(409);
+            'members' => $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function, 'academic_career_id' => $member->academic_career_id])->all(),
+        ])->assertRedirect();
         $this->travelTo(Carbon::parse('2026-12-01 14:00'));
         $this->post(route('coordinacion.defensa.performed', $defense), ['observation' => 'Actividad realizada'])->assertRedirect();
         $this->assertSame('Realizada', $defense->fresh()->status);
@@ -431,11 +458,11 @@ class AcademicClosingTest extends TestCase
         $defense = $this->createDefense($committee);
         $this->post(route('coordinacion.defensa.options', $defense), ['starts_at' => '2026-12-01T09:00'])->assertRedirect();
         $option = $defense->options()->firstOrFail();
-        $members = $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function])->all();
+        $members = $committee->members->map(fn ($member) => ['user_id' => $member->user_id, 'function' => $member->function, 'academic_career_id' => $member->academic_career_id])->all();
         $replacement = $this->otherTeacher();
         $members[2]['user_id'] = $replacement->user_id;
         $this->put(route('coordinacion.terna.update', $committee), [
-            'revision' => $committee->revision, 'status' => 'Confirmada', 'members' => $members,
+            'revision' => $committee->revision, 'status' => 'Confirmada', 'members' => $members, 'reason' => 'Sustitución por disponibilidad',
         ])->assertRedirect();
         $this->actingAs($replacement->user)->post(route('academico.defensa.respond', [$defense, $option]), ['available' => 1])->assertStatus(409);
         $this->actingAs($this->userFor('COORDINACION'))->post(route('coordinacion.defensa.confirm', [$defense, $option]))->assertStatus(409);

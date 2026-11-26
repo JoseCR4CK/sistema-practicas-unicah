@@ -5,7 +5,7 @@
     $manager = in_array(auth()->user()->role->name, ['COORDINACION', 'ROOT'], true);
     $portal = $manager ? 'coordinacion' : (auth()->user()->hasRole('ESTUDIANTE') ? 'estudiante' : (auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') ? 'docente' : 'academico'));
     $participants = $defensa->participants();
-    $mutable = in_array($defensa->status, ['Pendiente', 'En coordinación'], true);
+    $mutable = !$defensa->committee->isClosed() && in_array($defensa->status, ['Pendiente', 'En coordinación'], true);
 @endphp
 <div class="page-header"><div><h1>Defensa</h1><p>{{ $defensa->committee->practice->student->user->name }} · {{ $defensa->committee->practice->academic_period }} {{ $defensa->committee->practice->academic_year }}</p></div><a class="btn btn-light coord-back-button" href="{{ route($portal === 'estudiante' ? 'estudiante.defensa' : $portal.'.defensas') }}">Volver</a></div>
 @include('academic.closing-feedback')
@@ -15,6 +15,8 @@
         <p>Duración: {{ $defensa->duration_minutes }} minutos</p>
         <p>Fecha y hora confirmadas: {{ $defensa->selectedOption?->starts_at->format('d/m/Y H:i') ?? 'Pendiente' }}</p>
         <p>{{ $defensa->observation }}</p>
+        <p>Ronda: {{ $defensa->scheduling_round }} · Resultado: {{ $defensa->result ?? 'Pendiente de registro formal' }}</p>
+        @if($manager)<a href="{{ route('coordinacion.terna.show', $defensa->committee) }}">Consultar historial, resultado y cierre formal de terna</a>@endif
     </div>
 </section>
 <section class="content-card mb-4">
@@ -43,7 +45,7 @@
         @forelse ($defensa->options->sortBy('starts_at') as $option)
             @php
                 $available = $option->availabilities->whereIn('user_id', $participants->pluck('id'))->where('available', true)->count();
-                $currentAssignment = $option->committee_revision === $defensa->committee->revision;
+                $currentAssignment = $option->committee_revision === $defensa->committee->revision && $option->scheduling_round === $defensa->scheduling_round;
                 $answer = $option->availabilities->firstWhere('user_id', auth()->id());
             @endphp
             <article class="defense-option">
@@ -71,7 +73,7 @@
                         @endif
                     @endcan
                     @if ($manager && $mutable)
-                        <form method="POST" action="{{ route('coordinacion.defensa.confirm', [$defensa, $option]) }}" class="mt-3">@csrf<button class="btn btn-success" @disabled(!$currentAssignment || $available !== $participants->count() || $defensa->committee->status !== 'Confirmada' || $classConflicts->get($option->id))>Confirmar programación</button></form>
+                        <form method="POST" action="{{ route('coordinacion.defensa.confirm', [$defensa, $option]) }}" class="mt-3">@csrf<button class="btn btn-success" @disabled(!$currentAssignment || $available !== $participants->count() || !in_array($defensa->committee->status, ['Confirmada', 'Activa']) || !$defensa->committee->isFullyAssigned() || $classConflicts->get($option->id))>Confirmar programación</button></form>
                     @endif
                 </div>
             </article>

@@ -34,9 +34,9 @@
                         <div><span>Inicio</span><strong>{{ $revision->started_at?->format('d/m/Y H:i') ?? 'Pendiente' }}</strong></div>
                         <div><span>Fecha límite</span><strong>{{ $revision->due_at?->format('d/m/Y H:i') ?? 'Pendiente' }}</strong></div>
                     </div>
-                    <p>Responsable: {{ $revision->stage === 'coordinador' && $revision->status === 'En revisión' ? ($committeeCoordinatorName ?? 'Pendiente de identificar') : ($revision->reviewer?->name ?? 'Pendiente de identificar') }}</p>
+                    <p>Responsable: {{ $revision->completed_at ? ($revision->reviewer?->name ?? 'Sin responsable histórico identificado') : ($monografia->practice->committee?->members->firstWhere('user_id', $reviewerIds[$revision->stage])?->user->name ?? 'Pendiente de asignar la función en la terna') }}</p>
                     <p>{{ $revision->observation }}</p>
-                    @if ($revision->status === 'En revisión' && ($revision->stage === 'tecnica' ? ($portal === 'docente' && $revision->reviewer_id === auth()->id() && $monografia->practice->teacher?->user_id === auth()->id()) : ($manager || ($portal !== 'estudiante' && $revision->stage === 'coordinador' && $committeeCoordinatorId === auth()->id()))))
+                    @if ($revision->status === 'En revisión' && auth()->user()->hasRole('DOCENTE_SEGUIMIENTO') && $reviewerIds[$revision->stage] === auth()->id() && !$monografia->practice->committee?->isClosed())
                         <form method="POST" action="{{ route($portal.'.monografia.review', $monografia) }}">
                             @csrf<input type="hidden" name="review_id" value="{{ $revision->id }}">
                             <label for="result{{ $revision->id }}" class="form-label">Resultado</label>
